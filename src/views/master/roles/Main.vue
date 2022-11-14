@@ -270,7 +270,7 @@
   </Modal>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   data: () => ({
     modalForm: false,
