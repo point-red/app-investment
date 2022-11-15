@@ -19,7 +19,7 @@
           <input
             id="tabulator-html-filter-value"
             v-model="filter.value"
-            type="text"
+            type="search"
             class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
             placeholder="Search Role..."
           />
@@ -173,7 +173,7 @@
             modalForm = false;
             modalSuccess = true;
           "
-          type="button"
+          type="submit"
           class="btn btn-primary w-20"
         >
           Submit

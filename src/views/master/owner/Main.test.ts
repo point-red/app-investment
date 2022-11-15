@@ -28,8 +28,18 @@ describe("Master Owner Index", () => {
     );
   });
 
-  it("has form create", async () => {
-    expect(wrapperDataNull.find("form").exists()).toBe(true);
+  it("has form create", () => {
+    const acl = window.localStorage.getItem("acl");
+    if (acl) {
+      if (acl.includes("create owner")) {
+        expect(wrapperDataNull.find("form").exists()).toBe(true);
+        // check input
+        expect(wrapperDataNull.find('[for="name"]')).toBe(true);
+        expect(wrapperDataNull.find("#name")).toBe(true);
+      }
+    } else {
+      expect(wrapperDataNull.find("form").exists()).toBe(false);
+    }
   });
 
   it("has Modal Form Create", async () => {

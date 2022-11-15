@@ -28,8 +28,33 @@ describe("Master User Index", () => {
     );
   });
 
-  it("has form create", async () => {
-    expect(wrapperDataNull.find("form").exists()).toBe(true);
+  it("has form create", () => {
+    const acl = window.localStorage.getItem("acl");
+    if (acl) {
+      if (acl.includes("create user")) {
+        expect(wrapperDataNull.find("form").exists()).toBe(true);
+        // check input
+        expect(wrapperDataNull.find('[for="username"]')).toBe(true);
+        expect(wrapperDataNull.find("#username")).toBe(true);
+
+        expect(wrapperDataNull.find('[for="firstname"]')).toBe(true);
+        expect(wrapperDataNull.find("#firstname")).toBe(true);
+
+        expect(wrapperDataNull.find('[for="email"]')).toBe(true);
+        expect(wrapperDataNull.find("#email")).toBe(true);
+
+        expect(wrapperDataNull.find('[for="lastname"]')).toBe(true);
+        expect(wrapperDataNull.find("#lastname")).toBe(true);
+
+        expect(wrapperDataNull.find('[for="mobilephone"]')).toBe(true);
+        expect(wrapperDataNull.find("#mobilephone")).toBe(true);
+
+        expect(wrapperDataNull.find('[for="role"]')).toBe(true);
+        expect(wrapperDataNull.find("#role")).toBe(true);
+      }
+    } else {
+      expect(wrapperDataNull.find("form").exists()).toBe(false);
+    }
   });
 
   it("has Modal Form Create", async () => {
