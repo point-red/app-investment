@@ -34,7 +34,7 @@ describe("Master Role Index", () => {
   });
 
   it("has alert if no data", () => {
-    const wrapperData = mount(Main, {
+    const wrapperData = factory({
       tableData: [],
     });
     expect(wrapperData.html()).toContain("Data not found");
