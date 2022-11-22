@@ -1,7 +1,11 @@
-type Role = {
+export type RoleType = {
   id: string;
   name: string;
-  created_at: string;
+  createdAt: string;
 };
 
-export default Role;
+export interface Role {
+  id: string;
+  name: string;
+  createdAt: string;
+}

@@ -55,10 +55,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(role, index) in form.tableData" :key="role.id">
+          <tr v-for="(role, index) in tableData" :key="role.id">
             <td>{{ index + 1 }}</td>
             <td>{{ role.name }}</td>
-            <td>{{ role.created_at }}</td>
+            <td>{{ role.createdAt }}</td>
             <td class="flex justify-center">
               <Dropdown>
                 <DropdownToggle class="btn btn-primary">
@@ -284,11 +284,11 @@ export default {
     form: {
       name: "",
       note_request: "",
-      tableData: [
-        { id: 1, name: "Admin", created_at: new Date().toLocaleDateString() },
-        { id: 2, name: "Editor", created_at: new Date().toLocaleDateString() },
-      ],
     },
+    tableData: [
+      { id: 1, name: "Admin", createdAt: new Date().toLocaleDateString() },
+      { id: 2, name: "Editor", createdAt: new Date().toLocaleDateString() },
+    ],
   }),
 };
 </script>

@@ -2,9 +2,9 @@ import { mount } from "@vue/test-utils";
 import Main from "./Main.vue";
 import { describe, it, expect } from "vitest";
 import { Modal } from "@/global-components/modal";
-import Role from "@/types/Role";
+import { RoleType } from "@/types/Role";
 
-function factory({ data = {} }) {
+function factory(data: object) {
   return mount(Main, {
     data: () => data,
   });
@@ -31,6 +31,13 @@ describe("Master Role Index", () => {
     expect(wrapperDataNull.find('[data-test="btn-create"]').html()).toContain(
       "Create"
     );
+  });
+
+  it("has alert if no data", () => {
+    const wrapperData = mount(Main, {
+      tableData: [],
+    });
+    expect(wrapperData.html()).toContain("Data not found");
   });
 
   it("has form create", () => {

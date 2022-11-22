@@ -3,7 +3,7 @@ import Main from "./Main.vue";
 import { describe, it, expect } from "vitest";
 import { Modal } from "@/global-components/modal";
 
-function factory({ data }) {
+function factory(data: object) {
   return mount(Main, {
     data: () => data,
   });
@@ -26,6 +26,13 @@ describe("Master User Index", () => {
     expect(wrapperDataNull.find('[data-test="btn-create"]').html()).toContain(
       "Create"
     );
+  });
+
+  it("has alert if no data", () => {
+    const wrapperData = mount(Main, {
+      tableData: [],
+    });
+    expect(wrapperData.html()).toContain("Data not found");
   });
 
   it("has form create", () => {
