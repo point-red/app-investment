@@ -61,7 +61,7 @@
             <td>{{ role.createdAt }}</td>
             <td class="flex justify-center">
               <Dropdown>
-                <DropdownToggle class="btn btn-primary">
+                <DropdownToggle class="btn btn-primary" id="manage-permission">
                   Manage
                   <ChevronDownIcon class="w-4 h-4 ml-2" />
                 </DropdownToggle>
@@ -268,6 +268,9 @@
       </div>
     </ModalBody>
   </Modal>
+
+  <!-- manage role -->
+  <div class="manage-role"></div>
 </template>
 
 <script lang="ts">

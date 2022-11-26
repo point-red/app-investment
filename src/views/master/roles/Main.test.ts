@@ -58,4 +58,14 @@ describe("Master Role Index", () => {
     const modal = wrapperDataNull.findComponent(Modal);
     expect(modal.exists()).toBe(true);
   });
+
+  it("has Button Permission Manage", async () => {
+    const wrapperData = factory({
+      tableData: [
+        { id: 1, name: "Admin", createdAt: new Date().toLocaleDateString() },
+        { id: 2, name: "Editor", createdAt: new Date().toLocaleDateString() },
+      ],
+    });
+    expect(wrapperData.find("#manage-permission")).toBe(true);
+  });
 });
