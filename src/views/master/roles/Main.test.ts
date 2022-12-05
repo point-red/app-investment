@@ -59,6 +59,16 @@ describe("Master Role Index", () => {
     expect(modal.exists()).toBe(true);
   });
 
+  it("Modal create isShow", async () => {
+    const wrapperData = factory({
+      modalForm: false,
+    });
+    await wrapperData.find('[data-test="btn-create"]').trigger("click");
+    const modal = wrapperData.vm.$data?.modalForm;
+
+    expect(modal).toBe(true);
+  });
+
   it("has Button Permission Manage", async () => {
     const wrapperData = factory({
       tableData: [

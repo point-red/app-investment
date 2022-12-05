@@ -53,4 +53,14 @@ describe("Master Bank Index", () => {
     const modal = wrapperDataNull.findComponent(Modal);
     expect(modal.exists()).toBe(true);
   });
+
+  it("Modal create isShow", async () => {
+    const wrapperData = factory({
+      modalForm: false,
+    });
+    await wrapperData.find('[data-test="btn-create"]').trigger("click");
+    const modal = wrapperData.vm.$data?.modalForm;
+
+    expect(modal).toBe(true);
+  });
 });
