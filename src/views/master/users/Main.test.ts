@@ -25,7 +25,7 @@ describe("Master User Index", () => {
   it("has button create", () => {
     const acl = window.localStorage.getItem("acl");
     if (acl) {
-      if (acl.includes("create role")) {
+      if (acl.includes("create user")) {
         expect(wrapperDataNull.find('[data-test="btn-create"]').exists()).toBe(
           true
         );
@@ -90,5 +90,20 @@ describe("Master User Index", () => {
 
   it("has button sort", () => {
     expect(wrapperDataNull.find('[data-test="btn-sort"]').exists()).toBe(true);
+  });
+
+  it("has button archive", () => {
+    const acl = window.localStorage.getItem("acl");
+    if (acl) {
+      if (acl.includes("archive user")) {
+        expect(wrapperDataNull.find('[data-test="btn-archive"]').exists()).toBe(
+          true
+        );
+      } else {
+        expect(wrapperDataNull.find('[data-test="btn-archive"]').exists()).toBe(
+          false
+        );
+      }
+    }
   });
 });
