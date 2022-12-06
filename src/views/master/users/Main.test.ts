@@ -87,4 +87,8 @@ describe("Master User Index", () => {
 
     expect(modal).toBe(true);
   });
+
+  it("has button sort", () => {
+    expect(wrapperDataNull.find('[data-test="btn-sort"]').exists()).toBe(true);
+  });
 });

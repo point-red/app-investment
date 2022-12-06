@@ -87,4 +87,8 @@ describe("Master Role Index", () => {
     });
     expect(wrapperData.find("#manage-permission")).toBe(true);
   });
+
+  it("has button sort", () => {
+    expect(wrapperDataNull.find('[data-test="btn-sort"]').exists()).toBe(true);
+  });
 });

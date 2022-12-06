@@ -25,7 +25,7 @@
           />
         </div>
         <div class="mt-2 xl:mt-0">
-          <Dropdown>
+          <Dropdown data-test="btn-sort">
             <DropdownToggle class="btn btn-primary" type="button">
               Sort by
               <ChevronDownIcon class="w-4 h-4 ml-2" />
