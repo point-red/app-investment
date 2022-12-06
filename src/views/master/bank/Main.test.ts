@@ -23,9 +23,18 @@ describe("Master Bank Index", () => {
   });
 
   it("has button create", () => {
-    expect(wrapperDataNull.find('[data-test="btn-create"]').html()).toContain(
-      "Create"
-    );
+    const acl = window.localStorage.getItem("acl");
+    if (acl) {
+      if (acl.includes("create role")) {
+        expect(wrapperDataNull.find('[data-test="btn-create"]').exists()).toBe(
+          true
+        );
+      } else {
+        expect(wrapperDataNull.find('[data-test="btn-create"]').exists()).toBe(
+          false
+        );
+      }
+    }
   });
 
   it("has alert if no data", () => {
