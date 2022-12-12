@@ -106,4 +106,8 @@ describe("Master User Index", () => {
       }
     }
   });
+
+  it("has search form", () => {
+    expect(wrapperDataNull.find('[type="search"]').exists()).toBe(true);
+  });
 });

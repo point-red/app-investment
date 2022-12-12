@@ -37,6 +37,10 @@ describe("Master Bank Index", () => {
     }
   });
 
+  it("has search form", () => {
+    expect(wrapperDataNull.find('[type="search"]').exists()).toBe(true);
+  });
+
   it("has alert if no data", () => {
     const wrapperData = factory({
       tableData: [],
@@ -75,5 +79,24 @@ describe("Master Bank Index", () => {
 
   it("has button sort", () => {
     expect(wrapperDataNull.find('[data-test="btn-sort"]').exists()).toBe(true);
+  });
+
+  it("has button archive", () => {
+    const acl = window.localStorage.getItem("acl");
+    if (acl) {
+      if (acl.includes("archive bank")) {
+        expect(wrapperDataNull.find('[data-test="btn-archive"]').exists()).toBe(
+          true
+        );
+      } else {
+        expect(wrapperDataNull.find('[data-test="btn-archive"]').exists()).toBe(
+          false
+        );
+      }
+    }
+  });
+
+  it("has search form", () => {
+    expect(wrapperDataNull.find('[type="search"]').exists()).toBe(true);
   });
 });
