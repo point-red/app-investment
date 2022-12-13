@@ -6,6 +6,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
+    "test:e2e": "cypress open",
     "coverage": "vitest run --coverage",
     "lint:script": "eslint --ext .ts,vue --ignore-path .gitignore .",
     "lint:style": "stylelint src/**/*.{css,scss,vue}",

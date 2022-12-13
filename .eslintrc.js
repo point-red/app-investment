@@ -21,5 +21,6 @@ module.exports = {
     "no-unused-vars": "off",
     "vue/valid-define-emits": "off",
     "vue/no-parsing-error": "off",
+    "@typescript-eslint/no-namespace": "off",
   },
 };
