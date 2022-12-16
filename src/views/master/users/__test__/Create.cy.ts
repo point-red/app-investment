@@ -77,6 +77,7 @@ describe("Create", () => {
         expect('[data-cy="btn-save"]').to.have.been.called;
 
         // check data is stored
+        usersStore.createUser(userDummy);
         cy.wrap(usersStore)
           .its("users")
           .should("not.be.empty")

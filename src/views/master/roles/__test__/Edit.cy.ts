@@ -3,7 +3,7 @@
 import { describe, it } from "vitest";
 import { useAuthStore } from "@/stores/auth";
 
-describe("Create", () => {
+describe("Edit", () => {
   beforeEach(() => {
     cy.visit("localhost:3000/roles");
   });
