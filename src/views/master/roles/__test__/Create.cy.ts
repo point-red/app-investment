@@ -13,6 +13,12 @@ describe("Create", () => {
   const authStore = useAuthStore();
   const roleStore = useRoleStore();
 
+  it("click menu Roles and display data roles", () => {
+    roleStore.roles = [];
+    authStore.permissions = ["create roles", "read roles"];
+    cy.get("a").contains("Roles").click();
+  });
+
   it("have permission", () => {
     authStore.permissions = ["create roles", "read roles"];
 
