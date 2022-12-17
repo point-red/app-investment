@@ -31,8 +31,8 @@ describe("Create", () => {
     cy.get("[data-cy='alert-notfound']").should("exist", false);
   });
 
-  it("dont have access to create a new Bank", () => {
-    authStore.permissions = ["read banks"];
+  it("dont have access to create a new Owner", () => {
+    authStore.permissions = ["read owners"];
     cy.get("button[data-cy='btn-create']").should("not.be.visible");
   });
 
