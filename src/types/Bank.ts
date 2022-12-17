@@ -9,6 +9,6 @@ export interface Bank {
   fax: string;
   code: string;
   notes: string;
-  account: AccountBank[];
+  account?: AccountBank[];
   createdAt?: string;
 }

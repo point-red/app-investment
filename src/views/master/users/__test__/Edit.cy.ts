@@ -141,7 +141,7 @@ describe("Edit and Remove", () => {
 
     usersStore.setUsers([userDummy]);
 
-    cy.visit(`localhost:3000/users/detail/${userDummy.id}`);
+    cy.visit(`localhost:3000/users/${userDummy.id}`);
 
     cy.get('button[data-cy="btn-setting"]')
       .click()
