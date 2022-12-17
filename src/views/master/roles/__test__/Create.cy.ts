@@ -2,6 +2,8 @@
 
 import { describe, it } from "vitest";
 import { useAuthStore } from "@/stores/auth";
+import { useRoleStore } from "@/stores/role";
+import { Role } from "@/types/Role";
 
 describe("Create", () => {
   beforeEach(() => {
@@ -9,9 +11,10 @@ describe("Create", () => {
   });
 
   const authStore = useAuthStore();
+  const roleStore = useRoleStore();
 
   it("have permission", () => {
-    authStore.permissions = ["create roles"];
+    authStore.permissions = ["create roles", "read roles"];
 
     cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
   });
@@ -36,58 +39,57 @@ describe("Create", () => {
 
   it("reders page Roles", () => {
     authStore.permissions = ["create roles", "read roles"];
-    cy.get("a")
-      .contains("Roles")
-      .click()
-      .then(() => {
-        cy.url().should("include", "/roles");
+    const rolesDummy: Role = {
+      id: "1",
+      roleName: "Admin",
+    };
 
-        cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
-      });
+    roleStore.setRoles([rolesDummy]);
+
+    cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
 
     cy.get('[data-cy="btn-create"]').should("exist", true);
 
-    cy.get("table").should("exist", true);
+    cy.wrap(roleStore)
+      .its("roles")
+      .should("not.be.empty")
+      .and("include", rolesDummy);
   });
 
   it("create a new role", () => {
     authStore.permissions = ["create roles", "read roles"];
-    cy.get("a")
-      .contains("Roles")
-      .click()
-      .then(() => {
-        cy.url().should("include", "/roles");
-
-        cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
-      });
-
     cy.get('[data-cy="btn-create"]')
       .click()
       .then(() => {
-        cy.get('[data-cy="form-create"]').should("exist", true);
+        cy.get('[data-cy="form-role"]').should("exist", true);
 
         cy.get('[data-cy="btn-save"]').should("exist", true);
 
-        cy.get('form > input[name="name"]').clear().type("type some role name");
-        cy.get('[data-cy="btn-save"]')
-          .click()
-          .then(() => {
-            expect('[data-cy="btn-save"]').to.have.been.called;
-            expect("table").should("contain.text", "type some role name");
-          });
+        const rolesDummy: Role = {
+          id: "1",
+          roleName: "Admin",
+        };
+
+        cy.get('form > input[name="roleName"]')
+          .clear()
+          .type(rolesDummy.roleName);
+
+        cy.get('[data-cy="btn-save"]').click();
+        expect('[data-cy="btn-save"]').to.have.been.called;
+
+        roleStore.createRole(rolesDummy);
+        cy.wrap(roleStore)
+          .its("roles")
+          .should("not.be.empty")
+          .and("include", rolesDummy);
+
+        cy.get('[data-cy="form-role"]').should("exist", false);
       });
   });
 
   it("try some search data", () => {
     authStore.permissions = ["create roles", "read roles"];
-    cy.get("a")
-      .contains("Roles")
-      .click()
-      .then(() => {
-        cy.url().should("include", "/roles");
-
-        cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
-      });
+    cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
 
     cy.get('input[type="search"]')
       .click()
@@ -103,14 +105,7 @@ describe("Create", () => {
 
   it("try some sort data data", () => {
     authStore.permissions = ["create roles", "read roles"];
-    cy.get("a")
-      .contains("Roles")
-      .click()
-      .then(() => {
-        cy.url().should("include", "/roles");
-
-        cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
-      });
+    cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
 
     cy.get('button[data-cy="btn-sort"]')
       .click()

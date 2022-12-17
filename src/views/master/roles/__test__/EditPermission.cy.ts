@@ -17,14 +17,8 @@ describe("Edit Permission", () => {
       "edit roles",
       "update permission",
     ];
-    cy.get("a")
-      .contains("Roles")
-      .click()
-      .then(() => {
-        cy.url().should("include", "/roles/permission");
 
-        cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
-      });
+    cy.get('[data-cy="title-page"]').should("contain.text", "Roles");
 
     cy.get("table").should("exist", true);
 

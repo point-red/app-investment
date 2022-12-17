@@ -73,7 +73,7 @@ describe("Create", () => {
     cy.wrap(ownersStore)
       .its("owners")
       .should("not.be.empty")
-      .and("include", ownersStore);
+      .and("include", ownerDummy);
 
     cy.get("[data-cy='alert-success']").should("exist", true);
     cy.get("button[data-cy='btn-ok']").click();
