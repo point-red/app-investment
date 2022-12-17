@@ -33,13 +33,12 @@ describe("Create", () => {
 
   it("dont have access to create a new user", () => {
     authStore.permissions = ["read users"];
-    cy.get("a").contains("Invite User").should("not.be.visible");
+    cy.get("button[data-cy='btn-create']").should("not.be.visible");
   });
 
   it("create a new user & was stored", () => {
     authStore.permissions = ["create users", "read users"];
-    cy.get("a")
-      .contains("Invite User")
+    cy.get("button[data-cy='btn-create']")
       .click()
       .then(() => {
         cy.url().should("include", "/users/create");
