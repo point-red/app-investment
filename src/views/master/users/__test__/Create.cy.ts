@@ -91,8 +91,7 @@ describe("Create", () => {
 
   it("create a new user and try to ignore required field", () => {
     authStore.permissions = ["create users", "read users"];
-    cy.get("a")
-      .contains("Invite User")
+    cy.get("button[data-cy='btn-create']")
       .click()
       .then(() => {
         cy.url().should("include", "/users/create");
@@ -147,14 +146,10 @@ describe("Create", () => {
 
   it("try some search data", () => {
     authStore.permissions = ["create users", "read users"];
-    cy.get("a")
-      .contains("Users")
-      .click()
-      .then(() => {
-        cy.url().should("include", "/users");
 
-        cy.get('[data-cy="title-page"]').should("contain.text", "Users");
-      });
+    cy.url().should("include", "/users");
+
+    cy.get('[data-cy="title-page"]').should("contain.text", "Users");
 
     cy.get('input[type="search"]')
       .click()
@@ -170,14 +165,9 @@ describe("Create", () => {
 
   it("try some sort data data", () => {
     authStore.permissions = ["create users", "read users"];
-    cy.get("a")
-      .contains("Users")
-      .click()
-      .then(() => {
-        cy.url().should("include", "/users");
+    cy.url().should("include", "/users");
 
-        cy.get('[data-cy="title-page"]').should("contain.text", "Users");
-      });
+    cy.get('[data-cy="title-page"]').should("contain.text", "Users");
 
     cy.get('button[data-cy="btn-sort"]')
       .click()
