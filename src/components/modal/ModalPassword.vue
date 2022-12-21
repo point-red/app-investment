@@ -37,11 +37,15 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, defineEmits } from "vue";
+import { reactive, ref } from "vue";
+
+const props = defineProps<{
+  show: boolean;
+}>();
 
 const emit = defineEmits(["onSubmit", "onClose"]);
 
-const showModalPassword = ref(false);
+const showModalPassword = ref(props.show);
 const passwordText = ref("");
 
 const onCancelForm = () => {
