@@ -18,7 +18,7 @@
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
           <input
             id="tabulator-html-filter-value"
-            v-model="filter.value"
+            v-model="searchTerm"
             type="search"
             class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
             placeholder="Search Role..."
@@ -57,7 +57,7 @@
         <tbody>
           <tr v-for="(role, index) in tableData" :key="role.id">
             <td>{{ index + 1 }}</td>
-            <td>{{ role.name }}</td>
+            <td>{{ role.roleName }}</td>
             <td>{{ role.createdAt }}</td>
             <td class="flex justify-center">
               <Dropdown>
@@ -70,7 +70,7 @@
                     <DropdownItem
                       @click="
                         modalForm = true;
-                        form.name = role.name;
+                        form.name = role.roleName;
                       "
                     >
                       <Edit2Icon class="w-4 h-4 mr-2" /> Edit
@@ -147,7 +147,7 @@
     <ModalHeader>
       <h2 class="font-medium text-base mr-auto">Create Role</h2>
     </ModalHeader>
-    <form action="">
+    <form @submit.prevent="">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div class="col-span-12">
           <label for="name" class="form-label">Name</label>
@@ -269,29 +269,47 @@
     </ModalBody>
   </Modal>
 
+  <ModalPasswordVue :show="false"></ModalPasswordVue>
+
   <!-- manage role -->
   <div class="manage-role"></div>
 </template>
 
-<script lang="ts">
-export default {
-  data: () => ({
-    modalForm: false,
-    modalDelete: false,
-    modalSuccess: false,
-    modalConfirmPassword: false,
+<script setup lang="ts">
+import ModalPasswordVue from "@/components/Modal/ModalPassword.vue";
+import { Role } from "@/types/Role";
+import { ref } from "vue";
 
-    filter: {
-      value: "",
-    },
-    form: {
-      name: "",
-      note_request: "",
-    },
-    tableData: [
-      { id: 1, name: "Admin", createdAt: new Date().toLocaleDateString() },
-      { id: 2, name: "Editor", createdAt: new Date().toLocaleDateString() },
-    ],
-  }),
-};
+const modalForm = ref(false);
+const modalDelete = ref(false);
+const modalSuccess = ref(false);
+const modalConfirmPassword = ref(false);
+
+const searchTerm = ref("");
+const tableData = ref<Role[]>([
+  { id: "1", roleName: "Admin", createdAt: new Date().toLocaleDateString() },
+  { id: "2", roleName: "Editor", createdAt: new Date().toLocaleDateString() },
+]);
+const form = ref({ name: "", note_request: "" });
+
+// export default {
+//   data: () => ({
+//     modalForm: false,
+//     modalDelete: false,
+//     modalSuccess: false,
+//     modalConfirmPassword: false,
+
+//     filter: {
+//       value: "",
+//     },
+//     form: {
+//       name: "",
+//       note_request: "",
+//     },
+// tableData: [
+//   { id: 1, name: "Admin", createdAt: new Date().toLocaleDateString() },
+//   { id: 2, name: "Editor", createdAt: new Date().toLocaleDateString() },
+// ],
+//   }),
+// };
 </script>
