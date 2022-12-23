@@ -67,15 +67,10 @@
                 </DropdownToggle>
                 <DropdownMenu class="w-48">
                   <DropdownContent>
-                    <DropdownItem
-                      @click="
-                        modalForm = true;
-                        form.name = role.roleName;
-                      "
-                    >
+                    <DropdownItem @click="onClickEdit(role)">
                       <Edit2Icon class="w-4 h-4 mr-2" /> Edit
                     </DropdownItem>
-                    <DropdownItem @click="modalDelete = true">
+                    <DropdownItem @click="onClicDelete(String(role.id))">
                       <TrashIcon class="w-4 h-4 mr-2" /> Delete
                     </DropdownItem>
                   </DropdownContent>
@@ -147,7 +142,7 @@
     <ModalHeader>
       <h2 class="font-medium text-base mr-auto">Create Role</h2>
     </ModalHeader>
-    <form @submit.prevent="">
+    <form @submit.prevent="onClickSave">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div class="col-span-12">
           <label for="name" class="form-label">Name</label>
@@ -168,16 +163,7 @@
         >
           Cancel
         </button>
-        <button
-          @click="
-            modalForm = false;
-            modalSuccess = true;
-          "
-          type="submit"
-          class="btn btn-primary w-20"
-        >
-          Submit
-        </button>
+        <button type="submit" class="btn btn-primary w-20">Submit</button>
       </ModalFooter>
     </form>
   </Modal>
@@ -196,8 +182,8 @@
       </div>
       <!-- BEGIN: Overlapping Modal Content -->
       <Modal
-        :show="modalConfirmPassword"
-        @hidden="modalConfirmPassword = false"
+        :show="modalFormRequestDelete"
+        @hidden="modalFormRequestDelete = false"
       >
         <ModalHeader>
           <h2 class="font-medium text-base mr-auto">Removal Request</h2>
@@ -219,7 +205,7 @@
           <button
             type="button"
             @click="
-              modalConfirmPassword = false;
+              modalFormRequestDelete = false;
               modalDelete = false;
             "
             class="btn btn-outline-secondary w-20 mr-1"
@@ -228,7 +214,7 @@
           </button>
           <button
             @click="
-              modalConfirmPassword = false;
+              modalFormRequestDelete = false;
               modalDelete = false;
               modalSuccess = true;
             "
@@ -244,7 +230,7 @@
     <ModalFooter class="flex justify-between">
       <button
         type="button"
-        @click="modalConfirmPassword = true"
+        @click="modalFormRequestDelete = true"
         class="btn btn-outline-secondary w-20 mr-1"
       >
         Request
@@ -269,47 +255,122 @@
     </ModalBody>
   </Modal>
 
-  <ModalPasswordVue :show="false"></ModalPasswordVue>
+  <Modal :show="dialogDelete" @hidden="dialogDelete = false">
+    <ModalBody class="p-0">
+      <div class="p-5 text-center">
+        <XCircleIcon class="w-16 h-16 text-danger mx-auto mt-3" />
+        <div class="text-3xl mt-5">Are you sure?</div>
+        <div class="text-slate-500 mt-2">
+          Do you really want to delete these records? <br />This process cannot
+          be undone.
+        </div>
+      </div>
+      <div class="px-5 pb-8 text-center">
+        <button
+          type="button"
+          @click="dialogDelete = false"
+          class="btn btn-outline-secondary w-24 mr-1"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          @click="onClickConfirmDelete"
+          class="btn btn-danger w-24"
+        >
+          Delete
+        </button>
+      </div>
+    </ModalBody>
+  </Modal>
+
+  <ModalPassword :show="modalConfirmPassword"></ModalPassword>
 
   <!-- manage role -->
   <div class="manage-role"></div>
 </template>
 
 <script setup lang="ts">
-import ModalPasswordVue from "@/components/Modal/ModalPassword.vue";
+import ModalPassword from "@/components/Modal/ModalPassword.vue";
+import { useAuthStore } from "@/stores/auth";
+import { useRoleStore } from "@/stores/role";
 import { Role } from "@/types/Role";
 import { ref } from "vue";
 
+const authStore = useAuthStore();
+const roleStore = useRoleStore();
+
+const dialogDelete = ref(false);
 const modalForm = ref(false);
 const modalDelete = ref(false);
 const modalSuccess = ref(false);
 const modalConfirmPassword = ref(false);
+const modalFormRequestDelete = ref(false);
 
 const searchTerm = ref("");
-const tableData = ref<Role[]>([
-  { id: "1", roleName: "Admin", createdAt: new Date().toLocaleDateString() },
-  { id: "2", roleName: "Editor", createdAt: new Date().toLocaleDateString() },
-]);
-const form = ref({ name: "", note_request: "" });
+const tableData = ref<Role[]>(roleStore.roles);
+const form = ref({ id: "", name: "", note_request: "" });
 
-// export default {
-//   data: () => ({
-//     modalForm: false,
-//     modalDelete: false,
-//     modalSuccess: false,
-//     modalConfirmPassword: false,
+const onClickSave = () => {
+  if (form.value.id === "") {
+    handleCreate();
+  } else {
+    handleUpdate();
+  }
+};
 
-//     filter: {
-//       value: "",
-//     },
-//     form: {
-//       name: "",
-//       note_request: "",
-//     },
-// tableData: [
-//   { id: 1, name: "Admin", createdAt: new Date().toLocaleDateString() },
-//   { id: 2, name: "Editor", createdAt: new Date().toLocaleDateString() },
-// ],
-//   }),
-// };
+const handleCreate = () => {
+  const lengthRole = roleStore.roles.length;
+  roleStore.createRole({
+    id: String(lengthRole + 1),
+    roleName: form.value.name,
+    createdAt: new Date().toLocaleDateString(),
+  });
+  resetForm();
+};
+
+const onClickEdit = (role: Role) => {
+  modalForm.value = true;
+  form.value.id = String(role.id);
+  form.value.name = role.roleName;
+};
+
+const handleUpdate = () => {
+  roleStore.updateRole(form.value.id, {
+    roleName: form.value.name,
+    createdAt: new Date().toLocaleDateString(),
+  });
+  resetForm();
+};
+
+const onClicDelete = (id: string) => {
+  if (
+    authStore.permissions.some((permission) => {
+      return "delete role".indexOf(permission) >= 0;
+    })
+  ) {
+    //confirm delete
+    dialogDelete.value = true;
+    form.value.id = id;
+  } else {
+    // request delete
+    modalDelete.value = true;
+  }
+};
+
+const onClickConfirmDelete = () => {
+  modalConfirmPassword.value = true;
+  console.log("delete");
+  // roleStore.deleteItem(form.value.id);
+  // dialogDelete.value = false;
+  // resetForm();
+};
+
+function resetForm() {
+  form.value.id = "";
+  form.value.name = "";
+  form.value.note_request = "";
+  modalForm.value = false;
+  modalSuccess.value = true;
+}
 </script>

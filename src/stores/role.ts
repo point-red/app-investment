@@ -8,7 +8,13 @@ export type RootState = {
 export const useRoleStore = defineStore("roles", {
   state: () =>
     ({
-      roles: [],
+      roles: [
+        {
+          id: "1",
+          roleName: "Test 1",
+          createdAt: new Date().toLocaleDateString(),
+        },
+      ],
     } as RootState),
   getters: {
     dataRole(state) {

@@ -37,13 +37,13 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 
-const props = defineProps<{
-  show: boolean;
-}>();
+const props = defineProps({
+  show: Boolean,
+});
 
-const emit = defineEmits(["onSubmit", "onClose"]);
+const emit = defineEmits(["showModal", "onSubmit", "onClose"]);
 
 const showModalPassword = ref(props.show);
 const passwordText = ref("");
@@ -54,4 +54,9 @@ const onCancelForm = () => {
 const onSubmitForm = () => {
   emit("onSubmit", "test on submit");
 };
+
+watch(
+  () => props.show,
+  () => (showModalPassword.value = true)
+);
 </script>
