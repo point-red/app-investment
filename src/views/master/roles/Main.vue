@@ -76,7 +76,12 @@
                   </DropdownContent>
                 </DropdownMenu>
               </Dropdown>
-              <button class="btn btn-secondary ml-2">
+              <button
+                @click="
+                  router.push({ name: 'manage-role', params: { id: role.id } })
+                "
+                class="btn btn-secondary ml-2"
+              >
                 <SettingsIcon class="w-5 h-5" />
               </button>
             </td>
@@ -283,31 +288,31 @@
       </div>
     </ModalBody>
   </Modal>
-
-  <ModalPassword :show="modalConfirmPassword"></ModalPassword>
-
-  <!-- manage role -->
   <div class="manage-role"></div>
 </template>
 
 <script setup lang="ts">
-import ModalPassword from "@/components/Modal/ModalPassword.vue";
 import { useAuthStore } from "@/stores/auth";
+import { useModalStore } from "@/stores/modal";
 import { useRoleStore } from "@/stores/role";
 import { Role } from "@/types/Role";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const authStore = useAuthStore();
+const modalStore = useModalStore();
 const roleStore = useRoleStore();
 
 const dialogDelete = ref(false);
 const modalForm = ref(false);
 const modalDelete = ref(false);
 const modalSuccess = ref(false);
-const modalConfirmPassword = ref(false);
+// const modalConfirmPassword = ref(false);
 const modalFormRequestDelete = ref(false);
 
 const searchTerm = ref("");
+const passwordText = ref("");
 const tableData = ref<Role[]>(roleStore.roles);
 const form = ref({ id: "", name: "", note_request: "" });
 
@@ -359,17 +364,21 @@ const onClicDelete = (id: string) => {
 };
 
 const onClickConfirmDelete = () => {
-  modalConfirmPassword.value = true;
-  console.log("delete");
-  // roleStore.deleteItem(form.value.id);
-  // dialogDelete.value = false;
-  // resetForm();
+  // modalConfirmPassword.value = true;
+  modalStore.setModalPassword(true);
 };
+
+// const onClickSubmitPassword = () => {
+//   roleStore.deleteItem(form.value.id);
+//   dialogDelete.value = false;
+//   resetForm();
+// };
 
 function resetForm() {
   form.value.id = "";
   form.value.name = "";
   form.value.note_request = "";
+  // modalConfirmPassword.value = false;
   modalForm.value = false;
   modalSuccess.value = true;
 }

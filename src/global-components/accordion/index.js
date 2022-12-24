@@ -139,7 +139,8 @@ const AccordionPanel = defineComponent({
       h(
         "div",
         {
-          class: "accordion-collapse collapse",
+          // class: "accordion-collapse collapse",
+          class: "accordion-collapse",
         },
         [
           h(

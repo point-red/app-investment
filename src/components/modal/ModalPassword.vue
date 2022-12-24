@@ -1,7 +1,10 @@
 <template>
-  <Modal :show="showModalPassword">
+  <Modal
+    :show="modalStore.modalPassword"
+    @hidden="modalStore.setModalPassword(false)"
+  >
     <ModalHeader>
-      <h2 class="font-medium text-base mr-auto">Create Role</h2>
+      <h2 class="font-medium text-base mr-auto">Password Confirm</h2>
     </ModalHeader>
     <form action="">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
@@ -37,26 +40,34 @@
 </template>
 
 <script lang="ts" setup>
+import { useModalStore } from "@/stores/modal";
 import { reactive, ref, watch } from "vue";
 
-const props = defineProps({
-  show: Boolean,
-});
+const modalStore = useModalStore();
 
-const emit = defineEmits(["showModal", "onSubmit", "onClose"]);
+// const props = defineProps({
+//   show: Boolean,
+// });
 
-const showModalPassword = ref(props.show);
+const emit = defineEmits(["onSubmit", "hidden"]);
+
+// const showModalPassword = ref(props.show);
 const passwordText = ref("");
 
 const onCancelForm = () => {
-  emit("onClose", "test on close");
+  modalStore.setModalPassword(false);
+  emit("hidden", false);
 };
 const onSubmitForm = () => {
+  modalStore.setModalPassword(false);
   emit("onSubmit", "test on submit");
 };
 
-watch(
-  () => props.show,
-  () => (showModalPassword.value = true)
-);
+// watch(
+//   () => props.show,
+//   (first, seecond) => {
+//     console.log(first, seecond);
+//     showModalPassword.value = true;
+//   }
+// );
 </script>

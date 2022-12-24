@@ -7,6 +7,7 @@ import Page2 from "../views/page-2/Main.vue";
 
 import Master from "../views/master/Main.vue";
 import Roles from "../views/master/roles/Main.vue";
+import ManageRole from "../views/master/roles/Manage.vue";
 import Users from "../views/master/users/Main.vue";
 import Bank from "../views/master/bank/Main.vue";
 import Owner from "../views/master/owner/Main.vue";
@@ -41,6 +42,11 @@ const routes = [
         path: "/roles",
         name: "master-roles",
         component: Roles,
+      },
+      {
+        path: "/roles/:id/manage",
+        name: "manage-role",
+        component: ManageRole,
       },
       {
         path: "/users",
