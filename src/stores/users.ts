@@ -8,7 +8,21 @@ export type RootState = {
 export const useUsers = defineStore("users", {
   state: () =>
     ({
-      users: [],
+      users: [
+        {
+          id: "1",
+          username: "username",
+          firstName: "first name",
+          lastName: "last name",
+          email: "example@mail.com",
+          mobilePhone: "629346432432",
+          role: {
+            id: "1",
+            roleName: "roleName",
+            createdAt: new Date().toLocaleDateString(),
+          },
+        },
+      ],
     } as RootState),
   getters: {
     dataUser(state) {

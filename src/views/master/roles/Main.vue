@@ -14,7 +14,7 @@
   <!-- BEGIN: HTML Table Data -->
   <div class="intro-y box p-5 mt-5">
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
-      <form id="tabulator-html-filter-form" class="md:flex xl:flex sm:mr-auto">
+      <div id="tabulator-html-filter-form" class="md:flex xl:flex sm:mr-auto">
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
           <input
             id="tabulator-html-filter-value"
@@ -42,7 +42,7 @@
             </DropdownMenu>
           </Dropdown>
         </div>
-      </form>
+      </div>
     </div>
     <div class="overflow-x-auto scrollbar-hidden">
       <table class="table table-striped mt-4">

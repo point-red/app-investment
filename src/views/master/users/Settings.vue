@@ -1,21 +1,13 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Bank</h2>
+    <h2 class="text-lg font-medium mr-auto">Users Settings</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <Tippy
-        @click="router.push({ name: 'archive-bank' })"
-        tag="button"
-        class="tooltip btn btn-secondary mr-2"
-        content="Archive"
-      >
-        <ArchiveIcon class="w-5 h-5"
-      /></Tippy>
       <button
         data-cy="btn-create"
-        @click="handleCreate"
+        @click="handleBack"
         class="btn btn-primary shadow-md"
       >
-        Add Bank
+        Back
       </button>
     </div>
   </div>
@@ -58,27 +50,25 @@
           <tr>
             <th class="whitespace-nowrap">#</th>
             <th class="whitespace-nowrap">NAME</th>
-            <th class="whitespace-nowrap">BRANCH CODE</th>
-            <th class="whitespace-nowrap">DATE CREATED</th>
             <th class="whitespace-nowrap text-center">ACTIONS</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(bank, index) in tableData" :key="bank.id">
+          <tr v-for="(user, index) in tableData" :key="user.id">
             <td>{{ index + 1 }}</td>
             <td
               @click="
-                router.push({ name: 'detail-user', params: { id: bank.id } })
+                router.push({ name: 'detail-user', params: { id: user.id } })
               "
               class="cursor-pointer"
             >
-              {{ bank.bankName }}
+              {{ `${user.firstName} ${user.lastName}` }}
             </td>
-            <td>{{ bank.code }}</td>
-            <td>{{ bank.createdAt }}</td>
             <td class="flex justify-center">
               <button
-                @click="onClickDetailBank(bank)"
+                @click="
+                  router.push({ name: 'detail-user', params: { id: user.id } })
+                "
                 class="btn btn-primary mr-2"
               >
                 Details
@@ -92,10 +82,10 @@
                 </DropdownToggle>
                 <DropdownMenu class="w-48">
                   <DropdownContent>
-                    <DropdownItem @click="onClickEdit(bank)">
+                    <DropdownItem @click="onClickEdit(user)">
                       <Edit2Icon class="w-4 h-4 mr-2" /> Edit
                     </DropdownItem>
-                    <DropdownItem @click="onClicDelete(String(bank.id))">
+                    <DropdownItem @click="onClicDelete(String(user.id))">
                       <TrashIcon class="w-4 h-4 mr-2" /> Delete
                     </DropdownItem>
                   </DropdownContent>
@@ -157,70 +147,6 @@
       </div>
     </div>
   </div>
-
-  <Modal :show="modalDetailBank" @hidden="modalDetailBank = false">
-    <ModalHeader>
-      <h2 class="font-medium text-base mr-auto">Detail Bank</h2>
-    </ModalHeader>
-    <ModalBody class="flex flex-col gap-3">
-      <div>
-        <label for="bank-name" class="form-label">Bank</label>
-        <div class="font-bold">{{ formBank.bankName }}</div>
-      </div>
-      <div>
-        <label for="bank-name" class="form-label">Account</label>
-        <div class="">
-          <TomSelect
-            :options="{
-              placeholder: 'Select role',
-            }"
-            class="w-full"
-          >
-            <option
-              :value="accountBank.id"
-              v-for="accountBank in formBank.account"
-              :key="accountBank.id"
-            >
-              {{ accountBank.accountName }}
-            </option>
-          </TomSelect>
-        </div>
-      </div>
-      <div>
-        <label for="branch" class="form-label">Branch</label>
-        <div class="font-bold">{{ formBank.branch }}</div>
-      </div>
-      <div>
-        <label for="address" class="form-label">Address</label>
-        <div class="font-bold">{{ formBank.address }}</div>
-      </div>
-      <div>
-        <label for="phone" class="form-label">Phone</label>
-        <div class="font-bold">{{ formBank.phone }}</div>
-      </div>
-      <div>
-        <label for="fax" class="form-label">Fax</label>
-        <div class="font-bold">{{ formBank.fax }}</div>
-      </div>
-      <div>
-        <label for="code" class="form-label">Code</label>
-        <div class="font-bold">{{ formBank.code }}</div>
-      </div>
-      <div>
-        <label for="notes" class="form-label">Notes</label>
-        <div class="font-bold">{{ formBank.notes }}</div>
-      </div>
-    </ModalBody>
-    <ModalFooter>
-      <button
-        type="button"
-        @click="modalDetailBank = false"
-        class="btn btn-outline-secondary w-20 mr-1"
-      >
-        Cancel
-      </button>
-    </ModalFooter>
-  </Modal>
 
   <Modal :show="modalDelete" @hidden="modalDelete = false">
     <ModalHeader>
@@ -341,10 +267,8 @@
 
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
-import { useBanksStore } from "@/stores/bank";
 import { useModalStore } from "@/stores/modal";
 import { useUsers } from "@/stores/users";
-import { Bank } from "@/types/Bank";
 import { User } from "@/types/Users";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
@@ -352,57 +276,30 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const authStore = useAuthStore();
 const modalStore = useModalStore();
-const bankStore = useBanksStore();
+const userStore = useUsers();
 
 const dialogDelete = ref(false);
 const modalDelete = ref(false);
 const modalSuccess = ref(false);
-const modalDetailBank = ref(false);
+// const modalConfirmPassword = ref(false);
 const modalFormRequestDelete = ref(false);
 
 const searchTerm = ref("");
-const tableData = ref<Bank[]>(bankStore.banks);
-const form = ref({ note_request: "" });
-const formBank = ref<Bank>({
-  id: "",
-  bankName: "",
-  branch: "",
-  address: "",
-  phone: "",
-  fax: "",
-  code: "",
-  notes: "",
-  account: [],
-  createdAt: "",
-});
+const tableData = ref<User[]>(userStore.users);
+const form = ref({ id: "", note_request: "" });
 
-const handleCreate = () => {
-  router.push({ name: "create-bank" });
+const handleBack = () => {
+  router.push({ name: "master-users" });
 };
 
-const onClickDetailBank = (bank: Bank) => {
-  formBank.value.id = bank.id;
-  formBank.value.bankName = bank.bankName;
-  formBank.value.branch = bank.branch;
-  formBank.value.address = bank.address;
-  formBank.value.phone = bank.phone;
-  formBank.value.fax = bank.fax;
-  formBank.value.code = bank.code;
-  formBank.value.notes = bank.notes;
-  formBank.value.account = bank.account;
-  formBank.value.createdAt = bank.createdAt;
-
-  modalDetailBank.value = true;
-};
-
-const onClickEdit = (bank: Bank) => {
-  router.push({ name: "edit-bank", params: { id: bank.id } });
+const onClickEdit = (user: User) => {
+  router.push({ name: "edit-user", params: { id: user.id } });
 };
 
 const onClicDelete = (id: string) => {
   if (
     authStore.permissions.some((permission) => {
-      return "delete bank".indexOf(permission) >= 0;
+      return "delete user".indexOf(permission) >= 0;
     })
   ) {
     //confirm delete

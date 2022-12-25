@@ -1,6 +1,6 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Users</h2>
+    <h2 class="text-lg font-medium mr-auto">Archive Users</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <Tippy
         @click="router.push({ name: 'settings-users' })"
@@ -8,21 +8,14 @@
         class="tooltip btn btn-secondary mr-2"
         content="Setting"
       >
-        <SettingsIcon class="w-5 h-5" /></Tippy
-      ><Tippy
-        @click="router.push({ name: 'archive-user' })"
-        tag="button"
-        class="tooltip btn btn-secondary mr-2"
-        content="Archive"
-      >
-        <ArchiveIcon class="w-5 h-5"
+        <SettingsIcon class="w-5 h-5"
       /></Tippy>
       <button
         data-cy="btn-create"
-        @click="handleCreate"
+        @click="handleBack"
         class="btn btn-primary shadow-md"
       >
-        Invite User
+        Back
       </button>
     </div>
   </div>
@@ -72,14 +65,7 @@
         <tbody>
           <tr v-for="(user, index) in tableData" :key="user.id">
             <td>{{ index + 1 }}</td>
-            <td
-              @click="
-                router.push({ name: 'detail-user', params: { id: user.id } })
-              "
-              class="cursor-pointer"
-            >
-              {{ `${user.firstName} ${user.lastName}` }}
-            </td>
+            <td>{{ `${user.firstName} ${user.lastName}` }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.role.roleName }}</td>
           </tr>
@@ -138,6 +124,7 @@
     </div>
   </div>
   <!-- END: HTML Table Data -->
+  <div class="manage-role"></div>
 </template>
 
 <script setup lang="ts">
@@ -150,10 +137,10 @@ const router = useRouter();
 const userStore = useUsers();
 
 const searchTerm = ref("");
-const tableData = ref<User[]>(userStore.users);
-const form = ref({ id: "", name: "", note_request: "" });
 
-const handleCreate = () => {
-  router.push({ name: "create-user" });
+const tableData = ref<User[]>(userStore.users);
+
+const handleBack = () => {
+  router.push({ name: "master-users" });
 };
 </script>
