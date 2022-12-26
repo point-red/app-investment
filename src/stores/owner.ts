@@ -8,7 +8,16 @@ export type RootState = {
 export const useOwnersStore = defineStore("owners", {
   state: () =>
     ({
-      owners: [],
+      owners: [
+        {
+          id: "1",
+          firstName: "John",
+          lastName: "Doe",
+          email: "example@mail.com",
+          phone: "628454342432",
+          createdAt: new Date().toLocaleDateString(),
+        },
+      ],
     } as RootState),
   getters: {
     dataOwner(state) {
@@ -41,6 +50,9 @@ export const useOwnersStore = defineStore("owners", {
     },
     findIndexById(id: string) {
       return this.owners.findIndex((item) => item.id === id);
+    },
+    findById(id: string) {
+      return this.owners.filter((item) => item.id === id);
     },
   },
 });
