@@ -1,6 +1,6 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Edit Owner</h2>
+    <h2 class="text-lg font-medium mr-auto" data-cy="title-page">Edit Owner</h2>
     <!-- <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <button data-test="btn-create" class="btn btn-primary shadow-md mr-2">
         Create Role
@@ -98,7 +98,9 @@
             >
               Cancel
             </button>
-            <button type="submit" class="btn btn-primary">Edit Owner</button>
+            <button type="submit" class="btn btn-primary" data-cy="btn-save">
+              Edit Owner
+            </button>
           </div>
         </div>
       </form>

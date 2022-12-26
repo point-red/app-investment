@@ -2,6 +2,7 @@
   <Modal
     :show="modalStore.modalPassword"
     @hidden="modalStore.setModalPassword(false)"
+    data-cy="form-fill-password"
   >
     <ModalHeader>
       <h2 class="font-medium text-base mr-auto">Password Confirm</h2>
@@ -16,6 +17,7 @@
             type="password"
             class="form-control"
             placeholder="Type password here"
+            data-cy="fill-password"
           />
         </div>
       </ModalBody>
@@ -31,6 +33,7 @@
           @click="onSubmitForm"
           type="submit"
           class="btn btn-primary w-20"
+          data-cy="btn-confirm-password"
         >
           Submit
         </button>

@@ -1,12 +1,13 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Owner</h2>
+    <h2 class="text-lg font-medium mr-auto" data-cy="title-page">Owner</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <Tippy
         @click="router.push({ name: 'archive-owner' })"
         tag="button"
         class="tooltip btn btn-secondary mr-2"
         content="Archive"
+        data-cy="btn-archive"
       >
         <ArchiveIcon class="w-5 h-5"
       /></Tippy>
@@ -33,17 +34,17 @@
           />
         </div>
         <div class="mt-2 xl:mt-0">
-          <Dropdown data-test="btn-sort">
+          <Dropdown data-cy="btn-sort">
             <DropdownToggle class="btn btn-primary" type="button">
               Sort by
               <ChevronDownIcon class="w-4 h-4 ml-2" />
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem>
+                <DropdownItem data-cy="sort-desc">
                   <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
                 </DropdownItem>
-                <DropdownItem>
+                <DropdownItem data-cy="sort-asc">
                   <ArrowDownIcon class="w-4 h-4 mr-2" /> Older
                 </DropdownItem>
               </DropdownContent>
@@ -71,19 +72,26 @@
               <button
                 @click="onClickDetail(owner)"
                 class="btn btn-primary mr-2"
+                data-cy="btn-detail"
               >
                 Details
               </button>
               <Dropdown>
-                <DropdownToggle class="btn btn-secondary">
+                <DropdownToggle class="btn btn-secondary" data-cy="btn-setting">
                   <SettingsIcon class="w-5 h-5" />
                 </DropdownToggle>
                 <DropdownMenu class="w-48">
                   <DropdownContent>
-                    <DropdownItem @click="onClickEdit(owner)">
+                    <DropdownItem
+                      @click="onClickEdit(owner)"
+                      data-cy="btn-edit"
+                    >
                       <Edit2Icon class="w-4 h-4 mr-2" /> Edit
                     </DropdownItem>
-                    <DropdownItem @click="onClicDelete(String(owner.id))">
+                    <DropdownItem
+                      @click="onClicDelete(String(owner.id))"
+                      data-cy="btn-remove"
+                    >
                       <TrashIcon class="w-4 h-4 mr-2" /> Delete
                     </DropdownItem>
                   </DropdownContent>
@@ -147,7 +155,11 @@
   </div>
   <!-- END: HTML Table Data -->
 
-  <Modal :show="modalDetailOwner" @hidden="modalDetailOwner = false">
+  <Modal
+    :show="modalDetailOwner"
+    @hidden="modalDetailOwner = false"
+    data-cy="popup-detail"
+  >
     <ModalHeader>
       <h2 class="font-medium text-base mr-auto">Detail Owner</h2>
     </ModalHeader>
@@ -267,7 +279,11 @@
     </ModalBody>
   </Modal>
 
-  <Modal :show="dialogDelete" @hidden="dialogDelete = false">
+  <Modal
+    :show="dialogDelete"
+    @hidden="dialogDelete = false"
+    data-cy="confirm-remove"
+  >
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 text-danger mx-auto mt-3" />
@@ -289,6 +305,7 @@
           type="button"
           @click="onClickConfirmDelete"
           class="btn btn-danger w-24"
+          data-cy="btn-yes"
         >
           Delete
         </button>
