@@ -44,17 +44,11 @@
 
 <script lang="ts" setup>
 import { useModalStore } from "@/stores/modal";
-import { reactive, ref, watch } from "vue";
+import { ref } from "vue";
 
 const modalStore = useModalStore();
 
-// const props = defineProps({
-//   show: Boolean,
-// });
-
 const emit = defineEmits(["onSubmit", "hidden"]);
-
-// const showModalPassword = ref(props.show);
 const passwordText = ref("");
 
 const onCancelForm = () => {
@@ -65,12 +59,4 @@ const onSubmitForm = () => {
   modalStore.setModalPassword(false);
   emit("onSubmit", "test on submit");
 };
-
-// watch(
-//   () => props.show,
-//   (first, seecond) => {
-//     console.log(first, seecond);
-//     showModalPassword.value = true;
-//   }
-// );
 </script>

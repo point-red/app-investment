@@ -8,28 +8,7 @@ export type RootState = {
 export const useBanksStore = defineStore("banks", {
   state: () =>
     ({
-      banks: [
-        {
-          id: "1",
-          bankName: "PT. BANK CENTRAL ASIA",
-          branch: "Main",
-          address: "Jl. Streeet test",
-          phone: "628467263873",
-          fax: "383333",
-          code: "KCBDG001",
-          notes: "notes",
-          account: [
-            {
-              id: "1",
-              accountName: "John Doe",
-              accountNumber: "834734873482",
-              notes: "notes",
-              createdAt: new Date().toLocaleDateString(),
-            },
-          ],
-          createdAt: new Date().toLocaleDateString(),
-        },
-      ],
+      banks: [],
     } as RootState),
   getters: {
     dataBank(state) {

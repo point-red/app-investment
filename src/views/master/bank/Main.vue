@@ -299,16 +299,6 @@
     </ModalFooter>
   </Modal>
 
-  <Modal :show="modalSuccess" @hidden="modalSuccess = false">
-    <ModalBody class="p-0">
-      <div class="p-5 text-center">
-        <CheckCircleIcon class="w-16 h-16 text-success mx-auto mt-3" />
-        <div class="text-3xl mt-5">Good job!</div>
-        <div class="text-slate-500 mt-2">You clicked the button!</div>
-      </div>
-    </ModalBody>
-  </Modal>
-
   <Modal :show="dialogDelete" @hidden="dialogDelete = false">
     <ModalBody class="p-0">
       <div class="p-5 text-center">
@@ -356,7 +346,7 @@ const bankStore = useBanksStore();
 
 const dialogDelete = ref(false);
 const modalDelete = ref(false);
-const modalSuccess = ref(false);
+const modalSuccess = ref(modalStore.modalAlertSuccess);
 const modalDetailBank = ref(false);
 const modalFormRequestDelete = ref(false);
 
@@ -375,6 +365,10 @@ const formBank = ref<Bank>({
   account: [],
   createdAt: "",
 });
+
+if (bankStore.banks.length === 0) {
+  modalStore.setModalAlertNotFound(true);
+}
 
 const handleCreate = () => {
   router.push({ name: "create-bank" });
