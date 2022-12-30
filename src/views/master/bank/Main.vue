@@ -1,12 +1,13 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Bank</h2>
+    <h2 class="text-lg font-medium mr-auto" data-cy="title-page">Bank</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <Tippy
         @click="router.push({ name: 'archive-bank' })"
         tag="button"
         class="tooltip btn btn-secondary mr-2"
         content="Archive"
+        data-cy="btn-archive"
       >
         <ArchiveIcon class="w-5 h-5"
       /></Tippy>
@@ -33,17 +34,17 @@
           />
         </div>
         <div class="mt-2 xl:mt-0">
-          <Dropdown data-test="btn-sort">
+          <Dropdown data-cy="btn-sort">
             <DropdownToggle class="btn btn-primary" type="button">
               Sort by
               <ChevronDownIcon class="w-4 h-4 ml-2" />
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem>
+                <DropdownItem data-cy="sort-desc">
                   <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
                 </DropdownItem>
-                <DropdownItem>
+                <DropdownItem data-cy="sort-asc">
                   <ArrowDownIcon class="w-4 h-4 mr-2" /> Older
                 </DropdownItem>
               </DropdownContent>

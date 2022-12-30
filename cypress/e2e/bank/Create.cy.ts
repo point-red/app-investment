@@ -151,4 +151,97 @@ describe("Master Bank", () => {
           });
       });
   });
+
+  it("show detail bank popup", async () => {
+    cy.get("button[data-cy='btn-notfound-ok']")
+      .click()
+      .then(() => {
+        cy.get("[data-cy='alert-notfound']").should("exist", false);
+      });
+    const bankDummy: Bank = {
+      id: "1",
+      bankName: "PT. BANK CENTRAL ASIA",
+      branch: "Jakarta",
+      address: "Jl. kemana aja",
+      phone: "628434243232",
+      fax: "021478834",
+      code: "KCBDG001",
+      notes: "Lorem ipsum",
+      account: [
+        {
+          id: "1",
+          accountName: "Accountname holder",
+          accountNumber: "8373728233",
+          notes: "some notes",
+        },
+      ],
+    };
+
+    await banksStore.createBank(bankDummy);
+
+    cy.get('button[data-cy="btn-detail"]')
+      .click()
+      .then(() => {
+        cy.get("[data-cy='popup-detail']").should("exist", true);
+        cy.get("button[data-cy='btn-exit']").should("exist", true);
+        cy.get("select[data-cy='list-account-bank']").should("exist", true);
+        cy.get("option[data-cy='data-account-bank']").then(($accountBank) => {
+          expect($accountBank.length === bankDummy.account.length).to.be.true;
+        });
+      });
+
+    cy.get("button[data-cy='btn-exit']")
+      .click()
+      .then(() => {
+        cy.get("[data-cy='popup-detail']").should("exist", false);
+      });
+  });
+
+  it("go to page archive", () => {
+    cy.visit("http://localhost:3000/bank");
+    authStore.permissions = ["create banks", "read banks"];
+    cy.get("[data-cy='btn-archive']")
+      .click()
+      .then(() => {
+        cy.url().should("include", "/bank/archive");
+      });
+  });
+
+  it("try some search data", () => {
+    cy.get("button[data-cy='btn-notfound-ok']")
+      .click()
+      .then(() => {
+        cy.get("[data-cy='alert-notfound']").should("exist", false);
+      });
+    authStore.permissions = ["create banks", "read banks"];
+
+    cy.url().should("include", "/bank");
+
+    cy.get('[data-cy="title-page"]').should("contain.text", "Bank");
+
+    cy.get('input[type="search"]')
+      .click()
+      .then(() => {
+        cy.get('input[type="search"]').clear().type("type some name to search");
+      });
+  });
+
+  it("try some sort data data", () => {
+    cy.get("[data-cy='btn-notfound-ok']")
+      .click()
+      .then(() => {
+        cy.get("[data-cy='alert-notfound']").should("exist", false);
+      });
+    authStore.permissions = ["create banks", "read banks"];
+    cy.url().should("include", "/bank");
+
+    cy.get('[data-cy="title-page"]').should("contain.text", "Bank");
+
+    cy.get('[data-cy="btn-sort"]')
+      .click()
+      .then(() => {
+        cy.get('[data-cy="sort-asc"]').click();
+        cy.get('[data-cy="sort-desc"]').click();
+      });
+  });
 });
