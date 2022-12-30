@@ -101,4 +101,54 @@ describe("Master Bank", () => {
           });
       });
   });
+
+  it("create a new bank and try to ignore required field", () => {
+    cy.get("button[data-cy='btn-notfound-ok']")
+      .click()
+      .then(() => {
+        cy.get("[data-cy='alert-notfound']").should("exist", false);
+      });
+    authStore.permissions = ["create banks", "read banks"];
+    cy.get("button[data-cy='btn-create']")
+      .click()
+      .then(() => {
+        cy.url().should("include", "/bank/create");
+
+        cy.get('[data-cy="title-page"]').should("contain.text", "Create Bank");
+
+        const bankDummy: Bank = {
+          id: "1",
+          bankName: "PT. BANK CENTRAL ASIA",
+          branch: "Jakarta",
+          address: "Jl. kemana aja",
+          phone: "628434243232",
+          fax: "021478834",
+          code: "KCBDG001",
+          notes: "Lorem ipsum",
+          account: [],
+        };
+
+        const { bankName, branch, address, phone, fax, code, notes } =
+          bankDummy;
+
+        cy.get('input[name="bankName"]').clear().type(bankName);
+        cy.get('input[name="branch"]').clear().type(branch);
+        cy.get('input[name="address"]').clear().type(address);
+        cy.get('input[name="phone"]').clear().type(phone);
+        cy.get('input[name="fax"]').clear();
+        cy.get(' input[name="code"]').clear();
+        cy.get('input[name="notes"]').clear();
+
+        cy.get('[data-cy="btn-save"]')
+          .click()
+          .then(() => {
+            // check data shouldnt be stored
+            cy.wrap(banksStore).its("banks").should("be.empty");
+
+            cy.get("[data-cy='error-field']").then(($error) => {
+              expect($error.length > 0).to.be.true;
+            });
+          });
+      });
+  });
 });
