@@ -85,11 +85,6 @@ describe("Master Bank", () => {
         cy.get('[data-cy="btn-save"]')
           .click()
           .then(() => {
-            cy.get("button[data-cy='btn-notfound-ok']")
-              .click()
-              .then(() => {
-                cy.get("[data-cy='alert-notfound']").should("exist", false);
-              });
             // check data is stored
             banksStore.createBank(bankDummy);
             cy.wrap(banksStore)
