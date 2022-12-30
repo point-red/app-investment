@@ -214,6 +214,7 @@
                         <DropdownToggle
                           class="btn btn-secondary"
                           id="manage-permission"
+                          type="button"
                         >
                           <SettingsIcon class="w-5 h-5" />
                         </DropdownToggle>
@@ -403,14 +404,7 @@ import { Bank } from "@/types/Bank";
 import { reactive, ref, toRefs } from "vue";
 import { useRouter } from "vue-router";
 import { useVuelidate } from "@vuelidate/core";
-import {
-  required,
-  minLength,
-  maxLength,
-  email,
-  url,
-  integer,
-} from "@vuelidate/validators";
+import { required, minLength } from "@vuelidate/validators";
 
 const accountBankStore = useAccountBankStore();
 const router = useRouter();
@@ -492,7 +486,6 @@ const onSubmitBank = () => {
   if (validate.value.$invalid) {
     console.log("required");
   } else {
-    console.log({ ...formData });
     bankStore.createBank({
       ...formData,
       createdAt: new Date().toLocaleDateString(),

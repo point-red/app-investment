@@ -85,15 +85,12 @@
                 Details
               </button>
               <Dropdown>
-                <DropdownToggle
-                  class="btn btn-secondary"
-                  id="manage-permission"
-                >
+                <DropdownToggle class="btn btn-secondary" data-cy="btn-setting">
                   <SettingsIcon class="w-5 h-5" />
                 </DropdownToggle>
                 <DropdownMenu class="w-48">
                   <DropdownContent>
-                    <DropdownItem @click="onClickEdit(bank)">
+                    <DropdownItem @click="onClickEdit(bank)" data-cy="btn-edit">
                       <Edit2Icon class="w-4 h-4 mr-2" /> Edit
                     </DropdownItem>
                     <DropdownItem @click="onClicDelete(String(bank.id))">
