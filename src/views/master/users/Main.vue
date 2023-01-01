@@ -7,6 +7,7 @@
         tag="button"
         class="tooltip btn btn-secondary mr-2"
         content="Setting"
+        data-cy="btn-setting"
       >
         <SettingsIcon class="w-5 h-5" /></Tippy
       ><Tippy
@@ -14,6 +15,7 @@
         tag="button"
         class="tooltip btn btn-secondary mr-2"
         content="Archive"
+        data-cy="btn-archive"
       >
         <ArchiveIcon class="w-5 h-5"
       /></Tippy>
@@ -40,17 +42,17 @@
           />
         </div>
         <div class="mt-2 xl:mt-0">
-          <Dropdown data-test="btn-sort">
+          <Dropdown data-cy="btn-sort">
             <DropdownToggle class="btn btn-primary" type="button">
               Sort by
               <ChevronDownIcon class="w-4 h-4 ml-2" />
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem>
+                <DropdownItem data-cy="sort-desc">
                   <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
                 </DropdownItem>
-                <DropdownItem>
+                <DropdownItem data-cy="sort-asc">
                   <ArrowDownIcon class="w-4 h-4 mr-2" /> Older
                 </DropdownItem>
               </DropdownContent>

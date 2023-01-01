@@ -9,15 +9,15 @@ export const useUsers = defineStore("users", {
   state: () =>
     ({
       users: [
-        // {
-        //   id: "1",
-        //   username: "username",
-        //   firstName: "first name",
-        //   lastName: "last name",
-        //   email: "example@mail.com",
-        //   mobilePhone: "629346432432",
-        //   role: "1",
-        // },
+        {
+          id: "1",
+          username: "username",
+          firstName: "first name",
+          lastName: "last name",
+          email: "example@mail.com",
+          mobilePhone: "629346432432",
+          role: "1",
+        },
       ],
     } as RootState),
   getters: {
@@ -51,6 +51,9 @@ export const useUsers = defineStore("users", {
     },
     findIndexById(id: string) {
       return this.users.findIndex((item) => item.id === id);
+    },
+    findById(id: string) {
+      return this.users.filter((item) => item.id === id);
     },
   },
 });

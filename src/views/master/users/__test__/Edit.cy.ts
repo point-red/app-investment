@@ -29,11 +29,7 @@ describe("Edit and Remove", () => {
       lastName: "last name",
       email: "example@mail.com",
       mobilePhone: "629346432432",
-      role: {
-        id: "1",
-        roleName: "roleName",
-        createdAt: new Date().toLocaleDateString(),
-      },
+      role: "1",
     };
 
     usersStore.setUsers([userDummy]);
@@ -51,11 +47,7 @@ describe("Edit and Remove", () => {
       lastName: "last name",
       email: "example@mail.com",
       mobilePhone: "629346432432",
-      role: {
-        id: "1",
-        roleName: "roleName",
-        createdAt: new Date().toLocaleDateString(),
-      },
+      role: "1",
     };
 
     usersStore.setUsers([userDummy]);
@@ -78,11 +70,7 @@ describe("Edit and Remove", () => {
       lastName: "last name",
       email: "example@mail.com",
       mobilePhone: "629346432432",
-      role: {
-        id: "1",
-        roleName: "roleName",
-        createdAt: new Date().toLocaleDateString(),
-      },
+      role: "1",
     };
 
     usersStore.setUsers([userDummy]);
@@ -94,11 +82,7 @@ describe("Edit and Remove", () => {
       lastName: "new last name",
       email: "newexample@mail.com",
       mobilePhone: "629346",
-      role: {
-        id: "2",
-        roleName: "roleName",
-        createdAt: new Date().toLocaleDateString(),
-      },
+      role: "1",
     };
 
     const { username, firstName, lastName, email, mobilePhone, role } =
@@ -132,11 +116,7 @@ describe("Edit and Remove", () => {
       lastName: "last name",
       email: "example@mail.com",
       mobilePhone: "629346432432",
-      role: {
-        id: "1",
-        roleName: "roleName",
-        createdAt: new Date().toLocaleDateString(),
-      },
+      role: "1",
     };
 
     usersStore.setUsers([userDummy]);
@@ -179,11 +159,7 @@ describe("Edit and Remove", () => {
       lastName: "last name",
       email: "example@mail.com",
       mobilePhone: "629346432432",
-      role: {
-        id: "1",
-        roleName: "roleName",
-        createdAt: new Date().toLocaleDateString(),
-      },
+      role: "1",
     };
 
     usersStore.setUsers([userDummy]);

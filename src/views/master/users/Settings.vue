@@ -74,18 +74,18 @@
                 Details
               </button>
               <Dropdown>
-                <DropdownToggle
-                  class="btn btn-secondary"
-                  id="manage-permission"
-                >
+                <DropdownToggle class="btn btn-secondary" data-cy="btn-setting">
                   <SettingsIcon class="w-5 h-5" />
                 </DropdownToggle>
                 <DropdownMenu class="w-48">
                   <DropdownContent>
-                    <DropdownItem @click="onClickEdit(user)">
+                    <DropdownItem data-cy="btn-edit" @click="onClickEdit(user)">
                       <Edit2Icon class="w-4 h-4 mr-2" /> Edit
                     </DropdownItem>
-                    <DropdownItem @click="onClicDelete(String(user.id))">
+                    <DropdownItem
+                      data-cy="btn-delete"
+                      @click="onClicDelete(String(user.id))"
+                    >
                       <TrashIcon class="w-4 h-4 mr-2" /> Delete
                     </DropdownItem>
                   </DropdownContent>
@@ -225,6 +225,41 @@
     </ModalFooter>
   </Modal>
 
+  <Modal
+    :show="modalConfirmArchive"
+    @hidden="modalConfirmArchive = false"
+    data-cy="alert-warning"
+  >
+    <ModalHeader>
+      <h2 class="font-medium text-base mr-auto">Action Denied!</h2>
+    </ModalHeader>
+    <ModalBody class="px-5 py-10">
+      <div class="text-center">
+        <div class="">
+          You'r not allowed to delete a User that has a transaction record
+        </div>
+      </div>
+      <!-- END: Overlapping Modal Content -->
+    </ModalBody>
+    <ModalFooter class="flex justify-between">
+      <button
+        type="button"
+        @click="onClickSendToArchive"
+        class="btn btn-outline-secondary w-20 mr-1"
+        data-cy="btn-archive"
+      >
+        Archive
+      </button>
+      <button
+        @click="modalConfirmArchive = false"
+        type="button"
+        class="btn btn-primary w-20"
+      >
+        Cancel
+      </button>
+    </ModalFooter>
+  </Modal>
+
   <Modal :show="modalSuccess" @hidden="modalSuccess = false">
     <ModalBody class="p-0">
       <div class="p-5 text-center">
@@ -235,7 +270,11 @@
     </ModalBody>
   </Modal>
 
-  <Modal :show="dialogDelete" @hidden="dialogDelete = false">
+  <Modal
+    :show="dialogDelete"
+    @hidden="dialogDelete = false"
+    data-cy="confirm-remove"
+  >
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <XCircleIcon class="w-16 h-16 text-danger mx-auto mt-3" />
@@ -257,6 +296,7 @@
           type="button"
           @click="onClickConfirmDelete"
           class="btn btn-danger w-24"
+          data-cy="btn-yes"
         >
           Delete
         </button>
@@ -283,6 +323,7 @@ const modalDelete = ref(false);
 const modalSuccess = ref(false);
 // const modalConfirmPassword = ref(false);
 const modalFormRequestDelete = ref(false);
+const modalConfirmArchive = ref(false);
 
 const searchTerm = ref("");
 const tableData = ref<User[]>(userStore.users);
@@ -299,12 +340,18 @@ const onClickEdit = (user: User) => {
 const onClicDelete = (id: string) => {
   if (
     authStore.permissions.some((permission) => {
-      return "delete user".indexOf(permission) >= 0;
+      return "delete users".indexOf(permission) >= 0;
     })
   ) {
-    //confirm delete
-    dialogDelete.value = true;
-    form.value.id = id;
+    const transaction = [1];
+    if (transaction.length) {
+      //has transaction
+      modalConfirmArchive.value = true;
+    } else {
+      //confirm delete
+      dialogDelete.value = true;
+      form.value.id = id;
+    }
   } else {
     // request delete
     modalDelete.value = true;
@@ -313,7 +360,12 @@ const onClicDelete = (id: string) => {
 
 const onClickConfirmDelete = () => {
   // modalConfirmPassword.value = true;
+  userStore.setUsers([]);
   modalStore.setModalPassword(true);
+};
+
+const onClickSendToArchive = () => {
+  modalConfirmArchive.value = false;
 };
 
 function resetForm() {
