@@ -187,6 +187,7 @@
         type="button"
         @click="modalDetailOwner = false"
         class="btn btn-outline-secondary w-20 mr-1"
+        data-cy="btn-exit"
       >
         Cancel
       </button>

@@ -28,8 +28,20 @@
                   type="text"
                   class="form-control"
                   placeholder="First Name"
-                  v-model="formData.firstName"
+                  v-model.trim="validate.firstName.$model"
+                  name="firstName"
                 />
+
+                <template v-if="validate.firstName.$error">
+                  <div
+                    v-for="(error, index) in validate.firstName.$errors"
+                    :key="index"
+                    class="text-danger mt-2"
+                    data-cy="error-field"
+                  >
+                    {{ error.$message }}
+                  </div>
+                </template>
               </div>
               <div>
                 <label for="lastname" class="form-label">Last Name</label>
@@ -38,8 +50,20 @@
                   type="text"
                   class="form-control"
                   placeholder="Last Name"
-                  v-model="formData.lastName"
+                  v-model.trim="validate.lastName.$model"
+                  name="lastName"
                 />
+
+                <template v-if="validate.lastName.$error">
+                  <div
+                    v-for="(error, index) in validate.lastName.$errors"
+                    :key="index"
+                    class="text-danger mt-2"
+                    data-cy="error-field"
+                  >
+                    {{ error.$message }}
+                  </div>
+                </template>
               </div>
               <div>
                 <label for="email" class="form-label">Email</label>
@@ -48,8 +72,20 @@
                   type="email"
                   class="form-control"
                   placeholder="Email"
-                  v-model="formData.email"
+                  v-model.trim="validate.email.$model"
+                  name="email"
                 />
+
+                <template v-if="validate.email.$error">
+                  <div
+                    v-for="(error, index) in validate.email.$errors"
+                    :key="index"
+                    class="text-danger mt-2"
+                    data-cy="error-field"
+                  >
+                    {{ error.$message }}
+                  </div>
+                </template>
               </div>
               <div>
                 <label for="phone" class="form-label">Phone</label>
@@ -58,8 +94,20 @@
                   type="text"
                   class="form-control"
                   placeholder="Phone"
-                  v-model="formData.phone"
+                  v-model.trim="validate.phone.$model"
+                  name="phone"
                 />
+
+                <template v-if="validate.phone.$error">
+                  <div
+                    v-for="(error, index) in validate.phone.$errors"
+                    :key="index"
+                    class="text-danger mt-2"
+                    data-cy="error-field"
+                  >
+                    {{ error.$message }}
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -99,7 +147,7 @@
               Cancel
             </button>
             <button type="submit" class="btn btn-primary" data-cy="btn-save">
-              Edit Owner
+              Add Owner
             </button>
           </div>
         </div>
@@ -110,18 +158,22 @@
 
 <script setup lang="ts">
 import Uploader from "@/components/ImageUpload.vue";
+import { useModalStore } from "@/stores/modal";
 import { useOwnersStore } from "@/stores/owner";
 import { Owner } from "@/types/Owner";
-import { ref } from "vue";
+import useVuelidate from "@vuelidate/core";
+import { required, minLength, email } from "@vuelidate/validators";
+import { ref, reactive, toRefs } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
 const ownerStore = useOwnersStore();
+const modalStore = useModalStore();
 
 const [filledData] = ownerStore.findById(route.params.id);
 
-const formData = ref({
+const formData = reactive({
   firstName: filledData.firstName,
   lastName: filledData.lastName,
   email: filledData.email,
@@ -132,24 +184,50 @@ const formData = ref({
   },
 });
 
+const rulesOwner = {
+  firstName: {
+    required,
+    minLength: minLength(2),
+  },
+  lastName: {
+    required,
+    minLength: minLength(3),
+  },
+  email: {
+    required,
+    email,
+  },
+  phone: {
+    required,
+    minLength: minLength(10),
+  },
+};
+
+const validate = useVuelidate(rulesOwner, toRefs(formData));
+
 const onUploadAttachment = async (fileUpload) => {
   const { file, preview } = fileUpload;
-  formData.value.attachments = {
-    ...formData.value.attachments,
+  formData.attachments = {
+    ...formData.attachments,
     file: file,
     preview: preview,
   };
 };
 
 const onSubmit = () => {
-  ownerStore.updateOwner(filledData.id, {
-    id: filledData.id,
-    firstName: formData.value.firstName,
-    lastName: formData.value.lastName,
-    email: formData.value.email,
-    phone: formData.value.phone,
-    createdAt: new Date().toLocaleDateString(),
-  });
-  router.push({ name: "master-owner" });
+  validate.value.$touch();
+  if (validate.value.$invalid) {
+    console.log("invalid");
+  } else {
+    ownerStore.updateOwner(filledData.id, {
+      id: filledData.id,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      createdAt: new Date().toLocaleDateString(),
+    });
+    router.push({ name: "master-owner" });
+  }
 };
 </script>

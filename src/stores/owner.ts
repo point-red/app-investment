@@ -9,14 +9,14 @@ export const useOwnersStore = defineStore("owners", {
   state: () =>
     ({
       owners: [
-        // {
-        //   id: "1",
-        //   firstName: "John",
-        //   lastName: "Doe",
-        //   email: "example@mail.com",
-        //   phone: "628454342432",
-        //   createdAt: new Date().toLocaleDateString(),
-        // },
+        {
+          id: "1",
+          firstName: "John",
+          lastName: "Doe",
+          email: "example@mail.com",
+          phone: "628454342432",
+          createdAt: new Date().toLocaleDateString(),
+        },
       ],
     } as RootState),
   getters: {
