@@ -31,6 +31,7 @@
                   class="form-control"
                   placeholder="First Name"
                   v-model="formData.firstName"
+                  name="firstName"
                 />
               </div>
               <div>
@@ -41,6 +42,7 @@
                   class="form-control"
                   placeholder="Last Name"
                   v-model="formData.lastName"
+                  name="lastName"
                 />
               </div>
               <div>
@@ -51,6 +53,7 @@
                   class="form-control"
                   placeholder="Email"
                   v-model="formData.email"
+                  name="email"
                 />
               </div>
               <div>
@@ -61,6 +64,7 @@
                   class="form-control"
                   placeholder="Phone"
                   v-model="formData.phone"
+                  name="phone"
                 />
               </div>
             </div>
@@ -112,6 +116,7 @@
 
 <script setup lang="ts">
 import Uploader from "@/components/ImageUpload.vue";
+import { useModalStore } from "@/stores/modal";
 import { useOwnersStore } from "@/stores/owner";
 import { Owner } from "@/types/Owner";
 import { ref } from "vue";
@@ -119,6 +124,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const ownerStore = useOwnersStore();
+const modalStore = useModalStore();
 
 const formData = ref({
   firstName: "",
@@ -150,6 +156,7 @@ const onSubmit = () => {
     phone: formData.value.phone,
     createdAt: new Date().toLocaleDateString(),
   });
+  modalStore.setModalAlertSuccess(true);
   router.push({ name: "master-owner" });
 };
 </script>

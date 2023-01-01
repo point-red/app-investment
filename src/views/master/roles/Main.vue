@@ -90,6 +90,7 @@
                   router.push({ name: 'manage-role', params: { id: role.id } })
                 "
                 class="btn btn-secondary ml-2"
+                data-cy="btn-manage-data"
               >
                 <SettingsIcon class="w-5 h-5" />
               </button>

@@ -5,7 +5,7 @@ import { useRoleStore } from "@/stores/role";
 import { Role } from "@/types/Role";
 import { setActivePinia, createPinia } from "pinia";
 
-describe("Create Roles", () => {
+describe("Edit Roles", () => {
   let authStore: any,
     roleStore: any = null;
   beforeEach(() => {

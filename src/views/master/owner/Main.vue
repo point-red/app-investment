@@ -12,9 +12,10 @@
         <ArchiveIcon class="w-5 h-5"
       /></Tippy>
       <button
-        data-test="btn-create"
+        v-if="authStore.permissions.includes('create owner')"
         @click="router.push({ name: 'create-owner' })"
         class="btn btn-primary shadow-md mr-2"
+        data-cy="btn-create"
       >
         Create Owner
       </button>
@@ -346,6 +347,10 @@ const form = ref({
   note_request: "",
   createdAt: "",
 });
+
+if (ownerStore.owners.length === 0) {
+  modalStore.setModalAlertNotFound(true);
+}
 
 const onClickDetail = (owner: Owner) => {
   modalDetailOwner.value = true;

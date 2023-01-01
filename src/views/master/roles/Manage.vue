@@ -1,6 +1,6 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Roles</h2>
+    <h2 class="text-lg font-medium mr-auto" data-cy="title-page">Roles</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <button
         data-cy="btn-back"
@@ -15,7 +15,9 @@
     <div
       class="flex items-center p-5 border-b border-slate-200/60 dark:border-darkmode-400"
     >
-      <h2 class="font-medium text-base mr-auto">Manage Access & Permissions</h2>
+      <h2 class="font-medium text-base mr-auto" data-cy="subtitle-page">
+        Manage Access & Permissions
+      </h2>
     </div>
     <AccordionGroup class="accordion-boxed p-5">
       <AccordionItem v-for="feature in dataFeature" :key="feature">
@@ -58,7 +60,9 @@
         <button type="button" class="btn btn-outline-secondary w-20 mr-1">
           Cancel
         </button>
-        <button type="button" class="btn btn-primary w-20">Send</button>
+        <button type="button" class="btn btn-primary w-20" data-cy="btn-save">
+          Send
+        </button>
       </div>
     </div>
   </div>
