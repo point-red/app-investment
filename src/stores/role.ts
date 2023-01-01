@@ -9,11 +9,11 @@ export const useRoleStore = defineStore("roles", {
   state: () =>
     ({
       roles: [
-        {
-          id: "1",
-          roleName: "Test 1",
-          createdAt: new Date().toLocaleDateString(),
-        },
+        // {
+        //   id: "1",
+        //   roleName: "Test 1",
+        //   createdAt: new Date().toLocaleDateString(),
+        // },
       ],
     } as RootState),
   getters: {

@@ -1,11 +1,13 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Roles</h2>
+    <h2 class="text-lg font-medium mr-auto" data-cy="title-page">Roles</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <button
+        v-if="authStore.permissions.includes('create role')"
         data-test="btn-create"
         @click="modalForm = true"
         class="btn btn-primary shadow-md mr-2"
+        data-cy="btn-create"
       >
         Create Role
       </button>
@@ -25,17 +27,17 @@
           />
         </div>
         <div class="mt-2 xl:mt-0">
-          <Dropdown data-test="btn-sort">
+          <Dropdown data-cy="btn-sort">
             <DropdownToggle class="btn btn-primary" type="button">
               Sort by
               <ChevronDownIcon class="w-4 h-4 ml-2" />
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem>
+                <DropdownItem data-cy="sort-desc">
                   <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
                 </DropdownItem>
-                <DropdownItem>
+                <DropdownItem data-cy="sort-asc">
                   <ArrowDownIcon class="w-4 h-4 mr-2" /> Older
                 </DropdownItem>
               </DropdownContent>
@@ -147,7 +149,7 @@
     <ModalHeader>
       <h2 class="font-medium text-base mr-auto">Create Role</h2>
     </ModalHeader>
-    <form @submit.prevent="onClickSave">
+    <form @submit.prevent="onClickSave" data-cy="form-role">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div class="col-span-12">
           <label for="name" class="form-label">Name</label>
@@ -157,6 +159,7 @@
             type="text"
             class="form-control"
             placeholder="Name role"
+            name="roleName"
           />
         </div>
       </ModalBody>
@@ -168,7 +171,9 @@
         >
           Cancel
         </button>
-        <button type="submit" class="btn btn-primary w-20">Submit</button>
+        <button type="submit" class="btn btn-primary w-20" data-cy="btn-save">
+          Save
+        </button>
       </ModalFooter>
     </form>
   </Modal>
@@ -315,6 +320,10 @@ const searchTerm = ref("");
 const passwordText = ref("");
 const tableData = ref<Role[]>(roleStore.roles);
 const form = ref({ id: "", name: "", note_request: "" });
+
+if (roleStore.roles.length === 0) {
+  modalStore.setModalAlertNotFound(true);
+}
 
 const onClickSave = () => {
   if (form.value.id === "") {

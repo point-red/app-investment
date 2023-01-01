@@ -5,7 +5,7 @@ import { useBanksStore } from "@/stores/bank";
 import { Bank } from "@/types/Bank";
 import { setActivePinia, createPinia } from "pinia";
 
-describe("Master Bank", () => {
+describe("Edit Bank", () => {
   let authStore: any,
     banksStore: any = null;
   beforeEach(() => {
