@@ -1,6 +1,6 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto">Users</h2>
+    <h2 class="text-lg font-medium mr-auto" data-cy="title-page">Users</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <Tippy
         @click="router.push({ name: 'settings-users' })"
@@ -141,6 +141,7 @@
 </template>
 
 <script setup lang="ts">
+import { useModalStore } from "@/stores/modal";
 import { useUsers } from "@/stores/users";
 import { User } from "@/types/Users";
 import { ref } from "vue";
@@ -148,10 +149,15 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const userStore = useUsers();
+const modalStore = useModalStore();
 
 const searchTerm = ref("");
 const tableData = ref<User[]>(userStore.users);
 const form = ref({ id: "", name: "", note_request: "" });
+
+if (userStore.users.length === 0) {
+  modalStore.setModalAlertNotFound(true);
+}
 
 const handleCreate = () => {
   router.push({ name: "create-user" });
