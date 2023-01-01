@@ -7,7 +7,7 @@ export type RootState = {
 export const useAuthStore = defineStore("auth", {
   state: () =>
     ({
-      permissions: ["read role", "create role", "read bank"],
+      permissions: ["read role", "create role", "edit role", "read bank"],
     } as RootState),
   getters: {
     // permissions(state) {
