@@ -140,4 +140,44 @@ describe("Create Owners", () => {
 
     cy.get("[data-cy='alert-warning']").should("exist", false);
   });
+
+  it("removal request", () => {
+    authStore.setPermissions(["read owner"]);
+    const ownerDummy: Owner = {
+      id: "1",
+      firstName: "First name",
+      lastName: "Last name",
+      email: "example@mail.com",
+      phone: "62834342342",
+    };
+
+    ownersStore.setOwners([ownerDummy]);
+
+    cy.get('button[data-cy="btn-setting"]')
+      .click()
+      .then(() => {
+        cy.get('[data-cy="btn-remove"]').click();
+      });
+
+    //block
+    cy.get("[data-cy='alert-request']").should("exist", true);
+    cy.get('[data-cy="btn-request"]')
+      .click()
+      .then(() => {
+        cy.get("[data-cy='alert-form-request']").should("exist", true);
+        cy.get("[data-cy='form-request']");
+        cy.get('[name="noteRequest"]').clear().type("notes for request");
+      });
+
+    cy.get('[data-cy="btn-send"]')
+      .click()
+      .then(() => {
+        cy.wrap(ownersStore)
+          .its("owners")
+          .should("not.be.empty")
+          .and("include", ownerDummy);
+
+        cy.get("[data-cy='alert-request']").should("exist", false);
+      });
+  });
 });

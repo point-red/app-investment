@@ -194,7 +194,11 @@
     </ModalFooter>
   </Modal>
 
-  <Modal :show="modalDelete" @hidden="modalDelete = false">
+  <Modal
+    :show="modalDelete"
+    @hidden="modalDelete = false"
+    data-cy="alert-request"
+  >
     <ModalHeader>
       <h2 class="font-medium text-base mr-auto">Action Denied!</h2>
     </ModalHeader>
@@ -210,46 +214,51 @@
       <Modal
         :show="modalFormRequestDelete"
         @hidden="modalFormRequestDelete = false"
+        data-cy="alert-form-request"
       >
         <ModalHeader>
           <h2 class="font-medium text-base mr-auto">Removal Request</h2>
         </ModalHeader>
-        <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-          <div class="col-span-12">
-            <label for="note_request" class="form-label">Notes</label>
-            <textarea
-              name="note_request"
-              id="note_request"
-              cols="30"
-              rows="5"
-              class="form-control resize-none"
-              v-model="form.note_request"
-            ></textarea>
-          </div>
-        </ModalBody>
-        <ModalFooter class="flex justify-between">
-          <button
-            type="button"
-            @click="
-              modalFormRequestDelete = false;
-              modalDelete = false;
-            "
-            class="btn btn-outline-secondary w-20 mr-1"
-          >
-            Cancel
-          </button>
-          <button
-            @click="
-              modalFormRequestDelete = false;
-              modalDelete = false;
-              modalSuccess = true;
-            "
-            type="button"
-            class="btn btn-primary w-20"
-          >
-            Send
-          </button>
-        </ModalFooter>
+        <form
+          @submit.prevent="
+            modalFormRequestDelete = false;
+            modalDelete = false;
+          "
+          data-cy="form-request"
+        >
+          <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+            <div class="col-span-12">
+              <label for="note_request" class="form-label">Notes</label>
+              <textarea
+                id="note_request"
+                cols="30"
+                rows="5"
+                class="form-control resize-none"
+                v-model="form.note_request"
+                name="noteRequest"
+              ></textarea>
+            </div>
+          </ModalBody>
+          <ModalFooter class="flex justify-between">
+            <button
+              @click="
+                modalFormRequestDelete = false;
+                modalDelete = false;
+                modalSuccess = true;
+              "
+              class="btn btn-outline-secondary w-20 mr-1"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary w-20"
+              data-cy="btn-send"
+            >
+              Send
+            </button>
+          </ModalFooter>
+        </form>
       </Modal>
       <!-- END: Overlapping Modal Content -->
     </ModalBody>
@@ -258,6 +267,7 @@
         type="button"
         @click="modalFormRequestDelete = true"
         class="btn btn-outline-secondary w-20 mr-1"
+        data-cy="btn-request"
       >
         Request
       </button>
