@@ -38,7 +38,7 @@
                   <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
                 </DropdownItem>
                 <DropdownItem data-cy="sort-asc">
-                  <ArrowDownIcon class="w-4 h-4 mr-2" /> Older
+                  <ArrowDownIcon class="w-4 h-4 mr-2" /> Oldest
                 </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
