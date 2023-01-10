@@ -62,15 +62,26 @@
             <td>{{ role.roleName }}</td>
             <td>{{ role.createdAt }}</td>
             <td class="flex justify-center">
+              <button
+                @click="
+                  router.push({ name: 'manage-role', params: { id: role.id } })
+                "
+                class="btn btn-primary"
+                data-cy="btn-manage-data"
+              >
+                Manage
+              </button>
               <Dropdown>
-                <DropdownToggle class="btn btn-primary" data-cy="btn-setting">
-                  Manage
-                  <ChevronDownIcon class="w-4 h-4 ml-2" />
+                <DropdownToggle
+                  class="btn btn-secondary ml-2"
+                  data-cy="btn-setting"
+                >
+                  <SettingsIcon class="w-5 h-5" />
                 </DropdownToggle>
                 <DropdownMenu class="w-48">
                   <DropdownContent>
                     <DropdownItem
-                      v-if="authStore.permissions.includes('edit role')"
+                      v-if="authStore.permissions.includes('update role')"
                       @click="onClickEdit(role)"
                       data-cy="btn-edit"
                     >
@@ -85,15 +96,6 @@
                   </DropdownContent>
                 </DropdownMenu>
               </Dropdown>
-              <button
-                @click="
-                  router.push({ name: 'manage-role', params: { id: role.id } })
-                "
-                class="btn btn-secondary ml-2"
-                data-cy="btn-manage-data"
-              >
-                <SettingsIcon class="w-5 h-5" />
-              </button>
             </td>
           </tr>
         </tbody>
