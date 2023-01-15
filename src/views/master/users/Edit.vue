@@ -25,6 +25,7 @@
                 <div>
                   <label for="username" class="form-label">Username</label>
                   <input
+                    readonly
                     id="username"
                     type="text"
                     class="form-control"
@@ -47,6 +48,7 @@
                 <div class="mt-3">
                   <label for="first-name" class="form-label">First Name</label>
                   <input
+                    readonly
                     id="first-name"
                     type="text"
                     class="form-control"
@@ -100,6 +102,7 @@
                 </div>
                 <div class="form-check mt-5">
                   <input
+                    readonly
                     id="send-mail"
                     class="form-check-input"
                     type="checkbox"
@@ -114,6 +117,7 @@
                 <div>
                   <label for="email" class="form-label">Email</label>
                   <input
+                    readonly
                     id="email"
                     type="email"
                     class="form-control"
@@ -136,6 +140,7 @@
                 <div class="mt-3">
                   <label for="last-name" class="form-label">Last Name</label>
                   <input
+                    readonly
                     id="last-name"
                     type="text"
                     class="form-control"
@@ -160,6 +165,7 @@
                     >Mobile Phone</label
                   >
                   <input
+                    readonly
                     id="mobile-phone"
                     type="text"
                     class="form-control"

@@ -7,8 +7,8 @@
     <ModalBody class="p-0">
       <div class="p-5 text-center">
         <CheckCircleIcon class="w-16 h-16 text-success mx-auto mt-3" />
-        <div class="text-3xl mt-5">Success Add Data</div>
-        <div class="text-slate-500 mt-2">You have added data</div>
+        <div class="text-3xl mt-5">Success</div>
+        <div class="text-slate-500 mt-2"></div>
       </div>
     </ModalBody>
     <ModalFooter>

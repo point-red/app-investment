@@ -213,13 +213,7 @@
         <ModalHeader>
           <h2 class="font-medium text-base mr-auto">Removal Request</h2>
         </ModalHeader>
-        <form
-          @submit.prevent="
-            modalFormRequestDelete = false;
-            modalDelete = false;
-          "
-          data-cy="form-request"
-        >
+        <form @submit.prevent="onSubmitRequestDelete" data-cy="form-request">
           <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
             <div class="col-span-12">
               <label for="note_request" class="form-label">Notes</label>
@@ -238,7 +232,6 @@
               @click="
                 modalFormRequestDelete = false;
                 modalDelete = false;
-                modalSuccess = true;
               "
               class="btn btn-outline-secondary w-20 mr-1"
             >
@@ -273,16 +266,6 @@
         Cancel
       </button>
     </ModalFooter>
-  </Modal>
-
-  <Modal :show="modalSuccess" @hidden="modalSuccess = false">
-    <ModalBody class="p-0">
-      <div class="p-5 text-center">
-        <CheckCircleIcon class="w-16 h-16 text-success mx-auto mt-3" />
-        <div class="text-3xl mt-5">Good job!</div>
-        <div class="text-slate-500 mt-2">You clicked the button!</div>
-      </div>
-    </ModalBody>
   </Modal>
 
   <Modal
@@ -337,12 +320,10 @@ const roleStore = useRoleStore();
 const dialogDelete = ref(false);
 const modalForm = ref(false);
 const modalDelete = ref(false);
-const modalSuccess = ref(false);
 // const modalConfirmPassword = ref(false);
 const modalFormRequestDelete = ref(false);
 
 const searchTerm = ref("");
-const passwordText = ref("");
 const tableData = ref<Role[]>(roleStore.roles);
 const form = ref({ id: "", name: "", note_request: "" });
 
@@ -402,11 +383,11 @@ const onClickConfirmDelete = () => {
   modalStore.setModalPassword(true);
 };
 
-// const onClickSubmitPassword = () => {
-//   roleStore.deleteItem(form.value.id);
-//   dialogDelete.value = false;
-//   resetForm();
-// };
+const onSubmitRequestDelete = () => {
+  modalFormRequestDelete.value = false;
+  modalDelete.value = false;
+  modalStore.setModalAlertSuccess(true);
+};
 
 function resetForm() {
   form.value.id = "";
@@ -414,6 +395,6 @@ function resetForm() {
   form.value.note_request = "";
   // modalConfirmPassword.value = false;
   modalForm.value = false;
-  modalSuccess.value = true;
+  modalStore.setModalAlertSuccess(false);
 }
 </script>

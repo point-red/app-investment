@@ -168,42 +168,39 @@
         <ModalHeader>
           <h2 class="font-medium text-base mr-auto">Removal Request</h2>
         </ModalHeader>
-        <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-          <div class="col-span-12">
-            <label for="note_request" class="form-label">Notes</label>
-            <textarea
-              name="note_request"
-              id="note_request"
-              cols="30"
-              rows="5"
-              class="form-control resize-none"
-              v-model="form.note_request"
-            ></textarea>
-          </div>
-        </ModalBody>
-        <ModalFooter class="flex justify-between">
-          <button
-            type="button"
-            @click="
-              modalFormRequestDelete = false;
-              modalDelete = false;
-            "
-            class="btn btn-outline-secondary w-20 mr-1"
-          >
-            Cancel
-          </button>
-          <button
-            @click="
-              modalFormRequestDelete = false;
-              modalDelete = false;
-              modalSuccess = true;
-            "
-            type="button"
-            class="btn btn-primary w-20"
-          >
-            Send
-          </button>
-        </ModalFooter>
+        <form @submit.prevent="onSubmitRequestDelete" data-cy="form-request">
+          <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
+            <div class="col-span-12">
+              <label for="note_request" class="form-label">Notes</label>
+              <textarea
+                id="note_request"
+                cols="30"
+                rows="5"
+                class="form-control resize-none"
+                v-model="form.note_request"
+                name="noteRequest"
+              ></textarea>
+            </div>
+          </ModalBody>
+          <ModalFooter class="flex justify-between">
+            <button
+              @click="
+                modalFormRequestDelete = false;
+                modalDelete = false;
+              "
+              class="btn btn-outline-secondary w-20 mr-1"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary w-20"
+              data-cy="btn-send"
+            >
+              Send
+            </button>
+          </ModalFooter>
+        </form>
       </Modal>
       <!-- END: Overlapping Modal Content -->
     </ModalBody>
@@ -260,16 +257,6 @@
     </ModalFooter>
   </Modal>
 
-  <Modal :show="modalSuccess" @hidden="modalSuccess = false">
-    <ModalBody class="p-0">
-      <div class="p-5 text-center">
-        <CheckCircleIcon class="w-16 h-16 text-success mx-auto mt-3" />
-        <div class="text-3xl mt-5">Good job!</div>
-        <div class="text-slate-500 mt-2">You clicked the button!</div>
-      </div>
-    </ModalBody>
-  </Modal>
-
   <Modal
     :show="dialogDelete"
     @hidden="dialogDelete = false"
@@ -320,7 +307,6 @@ const userStore = useUsers();
 
 const dialogDelete = ref(false);
 const modalDelete = ref(false);
-const modalSuccess = ref(false);
 // const modalConfirmPassword = ref(false);
 const modalFormRequestDelete = ref(false);
 const modalConfirmArchive = ref(false);
@@ -368,9 +354,15 @@ const onClickSendToArchive = () => {
   modalConfirmArchive.value = false;
 };
 
+const onSubmitRequestDelete = () => {
+  modalFormRequestDelete.value = false;
+  modalDelete.value = false;
+  modalStore.setModalAlertSuccess(true);
+};
+
 function resetForm() {
   form.value.id = "";
   form.value.note_request = "";
-  modalSuccess.value = true;
+  modalStore.setModalAlertSuccess(false);
 }
 </script>
