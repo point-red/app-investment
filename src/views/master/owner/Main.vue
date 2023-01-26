@@ -239,6 +239,7 @@
                 modalFormRequestDelete = false;
                 modalDelete = false;
               "
+              type="button"
               class="btn btn-outline-secondary w-20 mr-1"
             >
               Cancel
