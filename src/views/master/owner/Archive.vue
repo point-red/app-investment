@@ -54,9 +54,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(owner, index) in tableData" :key="owner.id">
+          <tr v-for="(owner, index) in tableData" :key="owner._id">
             <td>{{ index + 1 }}</td>
-            <td>{{ `${owner.firstName} ${owner.lastName}` }}</td>
+            <td>{{ `${owner.name}` }}</td>
             <td>{{ owner.createdAt }}</td>
           </tr>
         </tbody>

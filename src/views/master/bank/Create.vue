@@ -33,11 +33,11 @@
                   class="form-control"
                   placeholder="Bank name"
                   name="bankName"
-                  v-model.trim="validate.bankName.$model"
+                  v-model.trim="validate.name.$model"
                 />
-                <template v-if="validate.bankName.$error">
+                <template v-if="validate.name.$error">
                   <div
-                    v-for="(error, index) in validate.bankName.$errors"
+                    v-for="(error, index) in validate.name.$errors"
                     :key="index"
                     class="text-danger mt-2"
                     data-cy="error-field"
@@ -200,14 +200,14 @@
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(accountBank, index) in tableData"
-                    :key="accountBank.id"
+                    v-for="(accountBank, index) in formData.accounts"
+                    :key="index"
                   >
                     <td>{{ index + 1 }}</td>
                     <td class="cursor-pointer">
-                      {{ accountBank.accountName }}
+                      {{ accountBank.name }}
                     </td>
-                    <td>{{ accountBank.accountNumber }}</td>
+                    <td>{{ accountBank.number }}</td>
                     <td>{{ accountBank.notes }}</td>
                     <td class="flex justify-center">
                       <Dropdown>
@@ -223,9 +223,7 @@
                             <DropdownItem @click="onClickEdit(accountBank)">
                               <Edit2Icon class="w-4 h-4 mr-2" /> Edit
                             </DropdownItem>
-                            <DropdownItem
-                              @click="onClicDelete(String(accountBank.id))"
-                            >
+                            <DropdownItem @click="onClickDelete(accountBank)">
                               <TrashIcon class="w-4 h-4 mr-2" /> Delete
                             </DropdownItem>
                           </DropdownContent>
@@ -323,12 +321,12 @@
             type="text"
             class="form-control"
             placeholder="Account Name"
-            v-model="validateAccountBank.accountName.$model"
+            v-model="validateAccountBank.name.$model"
           />
 
-          <template v-if="validateAccountBank.accountName.$error">
+          <template v-if="validateAccountBank.name.$error">
             <div
-              v-for="(error, index) in validateAccountBank.accountName.$errors"
+              v-for="(error, index) in validateAccountBank.name.$errors"
               :key="index"
               class="text-danger mt-2"
               data-cy="error-field"
@@ -341,16 +339,15 @@
           <label for="account-number" class="form-label">Account Number</label>
           <input
             id="account-number"
-            type="text"
+            type="number"
             class="form-control"
             placeholder="Account Number"
-            v-model="validateAccountBank.accountNumber.$model"
+            v-model="validateAccountBank.number.$model"
           />
 
-          <template v-if="validateAccountBank.accountNumber.$error">
+          <template v-if="validateAccountBank.number.$error">
             <div
-              v-for="(error, index) in validateAccountBank.accountNumber
-                .$errors"
+              v-for="(error, index) in validateAccountBank.number.$errors"
               :key="index"
               class="text-danger mt-2"
               data-cy="error-field"
@@ -396,7 +393,6 @@
 </template>
 
 <script setup lang="ts">
-import { useAccountBankStore } from "@/stores/account-bank";
 import { useBanksStore } from "@/stores/bank";
 import { useModalStore } from "@/stores/modal";
 import { AccountBank } from "@/types/AccountBank";
@@ -406,28 +402,26 @@ import { useRouter } from "vue-router";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minLength } from "@vuelidate/validators";
 
-const accountBankStore = useAccountBankStore();
 const router = useRouter();
 const modalStore = useModalStore();
 const bankStore = useBanksStore();
 
 const modalFormBankAccount = ref(false);
 
-const tableData = ref<AccountBank[]>(accountBankStore.accountBank);
-
 const formDataAccountBank = reactive({
-  id: "",
-  accountName: "",
-  accountNumber: "",
+  id: -1,
+  name: "",
+  number: 0,
   notes: "",
 });
+const $externalResults = ref({});
 
 const rulesAccountBank = {
-  accountName: {
+  name: {
     required,
     minLength: minLength(5),
   },
-  accountNumber: {
+  number: {
     required,
     minLength: minLength(5),
   },
@@ -436,23 +430,24 @@ const rulesAccountBank = {
 
 const validateAccountBank = useVuelidate(
   rulesAccountBank,
-  toRefs(formDataAccountBank)
+  toRefs(formDataAccountBank),
+  { $externalResults }
 );
 
 const formData = reactive<Bank>({
-  bankName: "",
+  name: "",
   branch: "",
   address: "",
   phone: "",
   fax: "",
   code: "",
   notes: "",
-  account: [],
+  accounts: [],
   createdAt: "",
 });
 
 const rulesBank = {
-  bankName: {
+  name: {
     required,
     minLength: minLength(5),
   },
@@ -476,22 +471,28 @@ const rulesBank = {
     required,
     minLength: minLength(2),
   },
-  notes: {},
+  notes: {
+    required,
+    minLength: minLength(5),
+  },
 };
 
 const validate = useVuelidate(rulesBank, toRefs(formData));
 
-const onSubmitBank = () => {
+const onSubmitBank = async () => {
   validate.value.$touch();
   if (validate.value.$invalid) {
     console.log("required");
   } else {
-    bankStore.createBank({
-      ...formData,
-      createdAt: new Date().toLocaleDateString(),
-    });
-    modalStore.setModalAlertSuccess(true);
-    router.push({ name: "master-bank" });
+    const { error } = await bankStore.createBank(formData);
+    if (!error) {
+      modalStore.setModalAlertSuccess(
+        true,
+        "Bank Successfully Added",
+        "You have added a new Bank."
+      );
+      router.push({ name: "master-bank" });
+    }
   }
 };
 
@@ -501,56 +502,75 @@ const onClickAddBankAccount = () => {
 };
 
 const onClickSaveBankAccount = () => {
-  if (formDataAccountBank.id === "") {
-    handleCreateBankAccount();
+  const checkIndex = formData.accounts?.findIndex(
+    (e) => e.number === formDataAccountBank.number
+  );
+  if (formDataAccountBank.id > -1) {
+    if (checkIndex === formDataAccountBank.id) {
+      if (formData.accounts) {
+        const accountBank = formData.accounts[formDataAccountBank.id];
+        accountBank.name = formDataAccountBank.name;
+        accountBank.number = formDataAccountBank.number;
+        accountBank.notes = formDataAccountBank.notes;
+      }
+      resetForm();
+    } else {
+      $externalResults.value = { number: ["account number already exist."] };
+    }
   } else {
-    handleUpdateBankAccount();
-  }
-};
-
-const handleCreateBankAccount = () => {
-  validateAccountBank.value.$touch();
-
-  if (validateAccountBank.value.$invalid) {
-    console.log("required");
-  } else {
-    const lengthRole = accountBankStore.accountBank.length;
-    accountBankStore.createAccountBank({
-      ...formDataAccountBank,
-      id: String(lengthRole + 1),
-      createdAt: new Date().toLocaleDateString(),
-    });
-    resetForm();
+    if (checkIndex === -1) {
+      formData.accounts?.push({ ...formDataAccountBank });
+      resetForm();
+    } else {
+      $externalResults.value = { number: ["account number already exist."] };
+    }
   }
 };
 
 const handleUpdateBankAccount = () => {
-  const lengthRole = accountBankStore.accountBank.length;
-  accountBankStore.updateAccountBank(formDataAccountBank.id, {
-    ...formDataAccountBank,
-    createdAt: new Date().toLocaleDateString(),
-  });
+  // accountBankStore.updateAccountBank(formDataAccountBank.id, {
+  //   ...formDataAccountBank,
+  //   createdAt: new Date().toLocaleDateString(),
+  // });
   resetForm();
 };
 
 const onClickEdit = (accountBank: AccountBank) => {
   modalFormBankAccount.value = true;
-  formDataAccountBank.id = accountBank.id;
-  formDataAccountBank.accountName = accountBank.accountName;
-  formDataAccountBank.accountNumber = accountBank.accountNumber;
-  formDataAccountBank.notes = accountBank.notes;
+  // use position in array as index
+  const index = formData.accounts?.findIndex(
+    (e) =>
+      e.number === accountBank.number &&
+      e.name === accountBank.name &&
+      e.notes === accountBank.notes
+  );
+  if (typeof index === "number") {
+    formDataAccountBank.id = index;
+  }
+  formDataAccountBank.name = accountBank.name;
+  formDataAccountBank.number = accountBank.number;
+  formDataAccountBank.notes = String(accountBank.notes);
 };
 
-const onClicDelete = (id: string) => {
-  accountBankStore.deleteItem(id);
+const onClickDelete = (accountBank: AccountBank) => {
+  const index = formData.accounts?.findIndex(
+    (e) =>
+      e.number === accountBank.number &&
+      e.name === accountBank.name &&
+      e.notes === accountBank.notes
+  );
+  formData.accounts?.splice(1, index);
+  //accountBankStore.deleteItem(id);
   resetForm();
 };
 
 function resetForm() {
-  formDataAccountBank.id = "";
-  formDataAccountBank.accountName = "";
-  formDataAccountBank.accountNumber = "";
+  formDataAccountBank.id = -1;
+  formDataAccountBank.name = "";
+  formDataAccountBank.number = 0;
   formDataAccountBank.notes = "";
   modalFormBankAccount.value = false;
+
+  validateAccountBank.value.$reset();
 }
 </script>

@@ -1,8 +1,17 @@
+import api from "@/api";
 import { Owner } from "@/types/Owner";
+import { ApiResponse, ErrorResponse } from "@/types/api/ApiResponse";
+import { IPagination } from "@/types/api/Pagination";
+import { QueryParams } from "@/types/api/QueryParams";
+import { AxiosError } from "axios";
 import { defineStore } from "pinia";
+
+const url = "/owners";
 
 export type RootState = {
   owners: Owner[];
+  owner: Owner;
+  pagination: IPagination;
 };
 
 export const useOwnersStore = defineStore("owners", {
@@ -10,14 +19,22 @@ export const useOwnersStore = defineStore("owners", {
     ({
       owners: [
         {
-          id: "1",
-          firstName: "John",
-          lastName: "Doe",
-          email: "example@mail.com",
-          phone: "628454342432",
+          _id: "1",
+          name: "John",
           createdAt: new Date().toLocaleDateString(),
         },
       ],
+      owner: {
+        _id: "",
+        name: "",
+        createdAt: "",
+      },
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        pageCount: 0,
+        totalDocument: 0,
+      },
     } as RootState),
   getters: {
     dataOwner(state) {
@@ -25,34 +42,66 @@ export const useOwnersStore = defineStore("owners", {
     },
   },
   actions: {
-    createOwner(owner: Owner) {
-      if (!owner) return;
-      this.owners.push(owner);
+    async getOwner(params: QueryParams) {
+      try {
+        const owners = await api.get<RootState>(url, { params: { ...params } });
+        this.owners = owners.data.owners;
+        this.pagination = owners.data.pagination;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async findOwner(id: string) {
+      try {
+        const owner = await api.get<Owner>(url + "/" + id);
+        this.owner = owner.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async createOwner(owner: Owner): Promise<ApiResponse> {
+      try {
+        const res = await api.post(url, { ...owner });
+        return { data: res.data };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
     setOwners(owners: Owner[]) {
       this.owners = owners;
     },
-    updateOwner(id: string, payload: Owner) {
-      if (!id || !payload) return;
-
-      const index = this.findIndexById(id);
-
-      if (index !== -1) {
-        this.owners[index] = payload;
+    async updateOwner(id: string, payload: Owner): Promise<ApiResponse> {
+      try {
+        const res = await api.patch(url + "/" + id, { ...payload });
+        return { data: res.data };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
       }
     },
-    deleteItem(id: string) {
-      const index = this.findIndexById(id);
-
-      if (index === -1) return;
-
-      this.owners.splice(index, 1);
+    async deleteOwner(id: string, password: string): Promise<ApiResponse> {
+      try {
+        const res = await api.delete(url + "/" + id, { data: { password } });
+        console.log(res.data);
+        return { data: res.data };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
     findIndexById(id: string) {
-      return this.owners.findIndex((item) => item.id === id);
+      return this.owners.findIndex((item) => item._id === id);
     },
     findById(id: string) {
-      return this.owners.filter((item) => item.id === id);
+      return this.owners.filter((item) => item._id === id);
+    },
+    refresh() {
+      this.owner = {
+        _id: "",
+        name: "",
+        createdAt: "",
+      };
     },
   },
 });

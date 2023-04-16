@@ -1,7 +1,7 @@
 <template>
   <div class="py-5 md:py-0">
-    <DarkModeSwitcher />
-    <MainColorSwitcher />
+    <!-- <DarkModeSwitcher />
+    <MainColorSwitcher /> -->
     <MobileMenu />
     <TopBar />
     <div class="flex overflow-hidden">
@@ -65,7 +65,7 @@
                       @click="linkTo(subMenu, router, $event)"
                     >
                       <div class="side-menu__icon">
-                        <ActivityIcon />
+                        <component :is="subMenu.icon" />
                       </div>
                       <div class="side-menu__title">
                         {{ subMenu.title }}

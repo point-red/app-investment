@@ -3,11 +3,12 @@
     :show="modalStore.modalPassword"
     @hidden="modalStore.setModalPassword(false)"
     data-cy="form-fill-password"
+    backdrop="static"
   >
     <ModalHeader>
       <h2 class="font-medium text-base mr-auto">Password Confirm</h2>
     </ModalHeader>
-    <form action="">
+    <form @submit.prevent="onSubmitForm">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
         <div class="col-span-12">
           <label for="password" class="form-label">Password</label>
@@ -30,7 +31,6 @@
           Cancel
         </button>
         <button
-          @click="onSubmitForm"
           type="submit"
           class="btn btn-primary w-20"
           data-cy="btn-confirm-password"
@@ -56,6 +56,6 @@ const onCancelForm = () => {
   emit("hidden", false);
 };
 const onSubmitForm = () => {
-  modalStore.setModalPassword(false);
+  emit("onSubmit", passwordText.value);
 };
 </script>

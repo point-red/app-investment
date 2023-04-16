@@ -72,71 +72,27 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, index) in tableData" :key="user.id">
+          <tr v-for="(user, index) in tableData" :key="user._id">
             <td>{{ index + 1 }}</td>
             <td
               @click="
-                router.push({ name: 'detail-user', params: { id: user.id } })
+                router.push({ name: 'detail-user', params: { id: user._id } })
               "
               class="cursor-pointer"
             >
-              {{ `${user.firstName} ${user.lastName}` }}
+              {{ user.name }}
             </td>
             <td>{{ user.email }}</td>
-            <td>{{ user.role.roleName }}</td>
+            <td>A</td>
           </tr>
         </tbody>
       </table>
 
-      <div
-        class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-6"
-      >
-        <select class="w-20 form-select box mt-3 sm:mt-0 sm:mr-auto">
-          <option>10</option>
-          <option>25</option>
-          <option>35</option>
-          <option>50</option>
-        </select>
-        <nav class="w-full sm:w-auto">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item active">
-              <a class="page-link" href="#">2</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">3</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      <Pagination
+        :current-page="userStore.pagination.page"
+        :last-page="userStore.pagination.pageCount"
+        @update-page="updatePage"
+      />
     </div>
   </div>
   <!-- END: HTML Table Data -->
@@ -146,7 +102,8 @@
 import { useModalStore } from "@/stores/modal";
 import { useUsers } from "@/stores/users";
 import { User } from "@/types/Users";
-import { ref } from "vue";
+import { QueryParams } from "@/types/api/QueryParams";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -154,14 +111,39 @@ const userStore = useUsers();
 const modalStore = useModalStore();
 
 const searchTerm = ref("");
-const tableData = ref<User[]>(userStore.users);
+const tableData = ref<User[]>(userStore.data);
 const form = ref({ id: "", name: "", note_request: "" });
+const query = ref<QueryParams>({
+  page: userStore.pagination.page,
+  pageSize: userStore.pagination.pageSize,
+});
 
-if (userStore.users.length === 0) {
+if (userStore.data.length === 0) {
   modalStore.setModalAlertNotFound(true);
 }
 
 const handleCreate = () => {
   router.push({ name: "create-user" });
 };
+
+const getUsers = async () => {
+  await userStore.getUsers({ ...query.value });
+  if (userStore.data.length === 0) {
+    modalStore.setModalAlertNotFound(true);
+  }
+
+  // update ref value
+  tableData.value = userStore.data;
+  query.value.page = userStore.pagination.page;
+  query.value.pageSize = userStore.pagination.pageSize;
+};
+
+const updatePage = async (value: number) => {
+  query.value.page = value;
+  await getUsers();
+};
+
+onMounted(async () => {
+  await getUsers();
+});
 </script>

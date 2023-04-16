@@ -25,6 +25,27 @@
         <AccordionPanel
           class="text-slate-600 dark:text-slate-500 leading-relaxed"
         >
+          <div
+            class="inbox__item inline-block sm:block text-slate-600 dark:text-slate-500 bg-white dark:bg-darkmode-400/70 border-b border-slate-200/60 dark:border-darkmode-400"
+          >
+            <label
+              :for="`${feature}-All`"
+              class="cursor-pointer flex px-5 py-3"
+            >
+              <div class="flex-1 flex items-center mr-5">
+                <span class="inbox__item--sender truncate"> Select All </span>
+              </div>
+              <div class="inbox__item--time whitespace-nowrap ml-auto pl-10">
+                <input
+                  :id="`${feature}-All`"
+                  class="form-check-input flex-none"
+                  type="checkbox"
+                  :checked="checkPermissions(feature)"
+                  @click="togglePermissionsAll(feature)"
+                />
+              </div>
+            </label>
+          </div>
           <div class="intro-y" v-for="data in dataCrud" :key="data">
             <div
               class="inbox__item inline-block sm:block text-slate-600 dark:text-slate-500 bg-white dark:bg-darkmode-400/70 border-b border-slate-200/60 dark:border-darkmode-400"
@@ -43,7 +64,12 @@
                     :id="`${feature}-${data}`"
                     class="form-check-input flex-none"
                     type="checkbox"
-                    :checked="false"
+                    :checked="
+                      role.permissions.includes(
+                        `${feature.toLowerCase()}.${data.toLowerCase()}`
+                      )
+                    "
+                    @click="togglePermissions(feature, data)"
                   />
                 </div>
               </label>
@@ -60,7 +86,12 @@
         <button type="button" class="btn btn-outline-secondary w-20 mr-1">
           Cancel
         </button>
-        <button type="button" class="btn btn-primary w-20" data-cy="btn-save">
+        <button
+          type="button"
+          class="btn btn-primary w-20"
+          data-cy="btn-save"
+          @click="updateRole"
+        >
           Send
         </button>
       </div>
@@ -69,11 +100,94 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { useRoleStore } from "@/stores/role";
+import { useRouter, useRoute } from "vue-router";
+import { Role } from "@/types/Role";
+import { useModalStore } from "@/stores/modal";
 
 const router = useRouter();
+const route = useRoute();
+const roleStore = useRoleStore();
+const modalStore = useModalStore();
 
-const dataFeature = ref(["Report", "Invesment", "Master", "Setting"]);
-const dataCrud = ref(["Select All", "Create", "Read", "Update", "Delete"]);
+const role = ref<Role>(roleStore.role);
+
+const togglePermissions = (feature: string, data: string) => {
+  const key = `${feature.toLowerCase()}.${data.toLowerCase()}`;
+  if (role.value.permissions.includes(key)) {
+    const index = role.value.permissions.indexOf(key);
+    role.value.permissions.splice(index, 1);
+  } else {
+    role.value.permissions.push(key);
+  }
+};
+
+const togglePermissionsAll = (feature: string) => {
+  const checkPermission = checkPermissions(feature);
+  for (const crud of dataCrud.value) {
+    const key = `${feature.toLowerCase()}.${crud.toLowerCase()}`;
+    if (role.value.permissions.includes(key)) {
+      if (checkPermission) {
+        const index = role.value.permissions.indexOf(key);
+        role.value.permissions.splice(index, 1);
+      }
+    } else {
+      if (!checkPermission) {
+        role.value.permissions.push(key);
+      }
+    }
+  }
+};
+
+const checkPermissions = (feature: string) => {
+  let isTrue = true;
+
+  if (role.value.permissions.length === 0) {
+    return false;
+  }
+
+  for (const crud of dataCrud.value) {
+    if (
+      !role.value.permissions.includes(
+        `${feature.toLowerCase()}.${crud.toLowerCase()}`
+      )
+    ) {
+      isTrue = false;
+      break;
+    }
+  }
+
+  return isTrue;
+};
+
+const getRole = async () => {
+  await roleStore.findRole(route.params.id as string);
+
+  // update ref value
+  role.value = roleStore.role;
+};
+
+const updateRole = async () => {
+  const { error } = await roleStore.updateRole(
+    role.value._id as string,
+    role.value
+  );
+
+  if (!error) {
+    modalStore.setModalAlertSuccess(
+      true,
+      "Updated Successfully",
+      "You have successfully updated the Roles permission and access for the selected Role."
+    );
+    router.push({ name: "master-roles" });
+  }
+};
+
+onMounted(async () => {
+  await getRole();
+});
+
+const dataFeature = ref(["User", "Role", "Owner", "Bank"]);
+const dataCrud = ref(["Create", "View", "Update", "Delete"]);
 </script>

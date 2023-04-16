@@ -9,26 +9,26 @@ export const useSideMenuStore = defineStore("sideMenu", {
         title: "Master Data",
         subMenu: [
           {
-            icon: "",
+            icon: "ShieldCheckIcon",
             pageName: "master-roles",
             title: "Roles",
           },
           {
-            icon: "",
+            icon: "UsersIcon",
             pageName: "master-users",
             title: "Users",
           },
           {
-            icon: "",
+            icon: "LandmarkIcon",
             pageName: "master-bank",
             title: "Bank",
           },
           {
-            icon: "",
+            icon: "UserCheckIcon",
             pageName: "master-owner",
             title: "Owner",
-          }
-        ]
+          },
+        ],
       },
       {
         icon: "HomeIcon",

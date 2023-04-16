@@ -65,18 +65,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(owner, index) in tableData" :key="owner.id">
+          <tr v-for="(owner, index) in tableData" :key="owner._id">
             <td>{{ index + 1 }}</td>
-            <td>{{ `${owner.firstName} ${owner.lastName}` }}</td>
-            <td>{{ owner.createdAt }}</td>
+            <td>{{ owner.name }}</td>
+            <td>{{ $h.formatDate(owner.createdAt, "DD/MM/YYYY") }}</td>
             <td class="flex justify-center">
-              <button
-                @click="onClickDetail(owner)"
-                class="btn btn-primary mr-2"
-                data-cy="btn-detail"
-              >
-                Details
-              </button>
               <Dropdown>
                 <DropdownToggle class="btn btn-secondary" data-cy="btn-setting">
                   <SettingsIcon class="w-5 h-5" />
@@ -90,7 +83,7 @@
                       <Edit2Icon class="w-4 h-4 mr-2" /> Edit
                     </DropdownItem>
                     <DropdownItem
-                      @click="onClicDelete(String(owner.id))"
+                      @click="onClicDelete(String(owner._id))"
                       data-cy="btn-remove"
                     >
                       <TrashIcon class="w-4 h-4 mr-2" /> Delete
@@ -103,96 +96,14 @@
         </tbody>
       </table>
 
-      <div
-        class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-6"
-      >
-        <select class="w-20 form-select box mt-3 sm:mt-0 sm:mr-auto">
-          <option>10</option>
-          <option>25</option>
-          <option>35</option>
-          <option>50</option>
-        </select>
-        <nav class="w-full sm:w-auto">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item active">
-              <a class="page-link" href="#">2</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">3</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      <Pagination
+        :current-page="ownerStore.pagination.page"
+        :last-page="ownerStore.pagination.pageCount"
+        @update-page="updatePage"
+      />
     </div>
   </div>
   <!-- END: HTML Table Data -->
-
-  <Modal
-    :show="modalDetailOwner"
-    @hidden="modalDetailOwner = false"
-    data-cy="popup-detail"
-  >
-    <ModalHeader>
-      <h2 class="font-medium text-base mr-auto">Detail Owner</h2>
-    </ModalHeader>
-    <ModalBody class="flex flex-col gap-3">
-      <div>
-        <label for="bank-name" class="form-label">First Name</label>
-        <div class="font-bold">{{ form.firstName }}</div>
-      </div>
-      <div>
-        <label for="branch" class="form-label">Last Name</label>
-        <div class="font-bold">{{ form.lastName }}</div>
-      </div>
-      <div>
-        <label for="address" class="form-label">Email</label>
-        <div class="font-bold">{{ form.email }}</div>
-      </div>
-      <div>
-        <label for="phone" class="form-label">Phone</label>
-        <div class="font-bold">{{ form.phone }}</div>
-      </div>
-    </ModalBody>
-    <ModalFooter>
-      <button
-        type="button"
-        @click="modalDetailOwner = false"
-        class="btn btn-outline-secondary w-20 mr-1"
-        data-cy="btn-exit"
-      >
-        Cancel
-      </button>
-    </ModalFooter>
-  </Modal>
 
   <Modal
     :show="modalDelete"
@@ -228,7 +139,7 @@
                 cols="30"
                 rows="5"
                 class="form-control resize-none"
-                v-model="form.note_request"
+                v-model="noteRequest"
                 name="noteRequest"
               ></textarea>
             </div>
@@ -309,6 +220,8 @@
     </ModalBody>
   </Modal>
   <div class="manage-role"></div>
+  <ModalPassword @on-submit="confirmPassword" />
+  <ModalAlertSuccess @on-success="getOwners" />
 </template>
 
 <script setup lang="ts">
@@ -316,7 +229,9 @@ import { useAuthStore } from "@/stores/auth";
 import { useModalStore } from "@/stores/modal";
 import { useOwnersStore } from "@/stores/owner";
 import { Owner } from "@/types/Owner";
-import { ref } from "vue";
+import { helper as $h } from "@/utils/helper";
+import { QueryParams } from "@/types/api/QueryParams";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -325,41 +240,26 @@ const modalStore = useModalStore();
 const ownerStore = useOwnersStore();
 
 const dialogDelete = ref(false);
-const modalDetailOwner = ref(false);
 const modalDelete = ref(false);
 
 const modalFormRequestDelete = ref(false);
 
 const searchTerm = ref("");
 const tableData = ref<Owner[]>(ownerStore.owners);
-const form = ref({
-  id: "",
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  note_request: "",
-  createdAt: "",
+const form = ref<Owner>(ownerStore.owner);
+const query = ref<QueryParams>({
+  page: ownerStore.pagination.page,
+  pageSize: ownerStore.pagination.pageSize,
 });
+const noteRequest = ref("");
 
 if (ownerStore.owners.length === 0) {
   modalStore.setModalAlertNotFound(true);
 }
 
-const onClickDetail = (owner: Owner) => {
-  modalDetailOwner.value = true;
-
-  form.value.id = String(owner.id);
-  form.value.firstName = owner.firstName;
-  form.value.lastName = owner.lastName;
-  form.value.email = owner.email;
-  form.value.phone = owner.phone;
-  form.value.createdAt = String(owner.createdAt);
-};
-
 const onClickEdit = (owner: Owner) => {
-  console.log(owner.id);
-  router.push({ name: "edit-owner", params: { id: owner.id } });
+  console.log(owner._id);
+  router.push({ name: "edit-owner", params: { id: owner._id } });
 };
 
 const onClicDelete = (id: string) => {
@@ -370,7 +270,7 @@ const onClicDelete = (id: string) => {
   ) {
     //confirm delete
     dialogDelete.value = true;
-    form.value.id = id;
+    form.value._id = id;
   } else {
     // request delete
     modalDelete.value = true;
@@ -388,9 +288,44 @@ const onSubmitRequestDelete = () => {
   modalStore.setModalAlertSuccess(true);
 };
 
-function resetForm() {
-  form.value.id = "";
-  form.value.note_request = "";
-  modalStore.setModalAlertSuccess(false);
-}
+const getOwners = async () => {
+  await ownerStore.getOwner({ ...query.value });
+  if (ownerStore.owners.length === 0) {
+    modalStore.setModalAlertNotFound(true);
+  }
+
+  // update ref value
+  tableData.value = ownerStore.owners;
+  query.value.page = ownerStore.pagination.page;
+  query.value.pageSize = ownerStore.pagination.pageSize;
+};
+
+const confirmPassword = async (password: string) => {
+  const { error } = await ownerStore.deleteOwner(
+    String(form.value._id),
+    password
+  );
+  if (!error) {
+    modalFormRequestDelete.value = false;
+    modalDelete.value = false;
+    dialogDelete.value = false;
+    modalStore.setModalPassword(false);
+
+    modalStore.setModalAlertSuccess(
+      true,
+      "Changes Saved!",
+      "The selected bank has been deleted."
+    );
+    // resetForm();
+  }
+};
+
+const updatePage = async (value: number) => {
+  query.value.page = value;
+  await getOwners();
+};
+
+onMounted(async () => {
+  await getOwners();
+});
 </script>

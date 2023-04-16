@@ -59,7 +59,7 @@ describe("Create Roles", () => {
     authStore.setPermissions(["read role"]);
     const rolesDummy: Role = {
       id: "1",
-      roleName: "Admin",
+      name: "Admin",
     };
 
     roleStore.setRoles([rolesDummy]);
@@ -90,10 +90,10 @@ describe("Create Roles", () => {
 
         const rolesDummy: Role = {
           id: "1",
-          roleName: "Admin",
+          name: "Admin",
         };
 
-        cy.get('input[name="roleName"]').clear().type(rolesDummy.roleName);
+        cy.get('input[name="roleName"]').clear().type(rolesDummy.name);
 
         cy.get('[data-cy="btn-save"]')
           .click()

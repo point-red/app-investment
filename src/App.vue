@@ -1,12 +1,12 @@
 <template>
   <router-view />
 
-  <ModalPassword />
+  <!-- <ModalPassword /> -->
   <ModalAlertNotfound />
-  <ModalAlertSuccess />
+  <!-- <ModalAlertSuccess /> -->
 </template>
 <script setup lang="ts">
-import ModalPassword from "@/components/Modal/ModalPassword.vue";
+// import ModalPassword from "@/components/Modal/ModalPassword.vue";
 import ModalAlertNotfound from "@/components/Modal/ModalAlertNotfound.vue";
-import ModalAlertSuccess from "@/components/Modal/ModalAlertSuccess.vue";
+// import ModalAlertSuccess from "@/components/Modal/ModalAlertSuccess.vue";
 </script>

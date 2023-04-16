@@ -10,9 +10,6 @@
     >
       <ShieldCheckIcon class="block w-12 h-12 text-primary mx-auto" />
       <div class="font-medium text-center text-base mt-3">Roles</div>
-      <div class="text-slate-500 mt-2 w-3/4 text-center mx-auto">
-        Lorem Ipsum is simply dummy text of the printing
-      </div>
     </router-link>
     <router-link
       :to="{ name: 'master-users' }"
@@ -20,9 +17,6 @@
     >
       <UsersIcon class="block w-12 h-12 text-primary mx-auto" />
       <div class="font-medium text-center text-base mt-3">Users</div>
-      <div class="text-slate-500 mt-2 w-3/4 text-center mx-auto">
-        Lorem Ipsum is simply dummy text of the printing
-      </div>
     </router-link>
     <router-link
       :to="{ name: 'master-bank' }"
@@ -30,9 +24,6 @@
     >
       <LandmarkIcon class="block w-12 h-12 text-primary mx-auto" />
       <div class="font-medium text-center text-base mt-3">Bank</div>
-      <div class="text-slate-500 mt-2 w-3/4 text-center mx-auto">
-        Lorem Ipsum is simply dummy text of the printing
-      </div>
     </router-link>
     <router-link
       :to="{ name: 'master-owner' }"
@@ -40,9 +31,6 @@
     >
       <UserCheckIcon class="block w-12 h-12 text-primary mx-auto" />
       <div class="font-medium text-center text-base mt-3">Owner</div>
-      <div class="text-slate-500 mt-2 w-3/4 text-center mx-auto">
-        Lorem Ipsum is simply dummy text of the printing
-      </div>
     </router-link>
   </div>
   <!-- END: Page Layout -->

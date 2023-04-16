@@ -49,10 +49,10 @@ const linkTo = (menu, router, event) => {
     menu.activeDropdown = !menu.activeDropdown;
   }
   // } else {
-    event.preventDefault();
-    router.push({
-      name: menu.pageName,
-    });
+  event.preventDefault();
+  router.push({
+    name: menu.pageName,
+  });
   // }
 };
 

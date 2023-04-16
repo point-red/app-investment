@@ -5,7 +5,7 @@
       <button
         v-if="authStore.permissions.includes('create role')"
         data-test="btn-create"
-        @click="modalForm = true"
+        @click="onClickCreate"
         class="btn btn-primary shadow-md mr-2"
         data-cy="btn-create"
       >
@@ -34,10 +34,10 @@
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem data-cy="sort-desc">
+                <DropdownItem @click="onClickSort('desc')" data-cy="sort-desc">
                   <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
                 </DropdownItem>
-                <DropdownItem data-cy="sort-asc">
+                <DropdownItem @click="onClickSort('asc')" data-cy="sort-asc">
                   <ArrowDownIcon class="w-4 h-4 mr-2" /> Oldest
                 </DropdownItem>
               </DropdownContent>
@@ -57,14 +57,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(role, index) in tableData" :key="role.id">
+          <tr v-for="(role, index) in tableData" :key="role._id">
             <td>{{ index + 1 }}</td>
-            <td>{{ role.roleName }}</td>
-            <td>{{ role.createdAt }}</td>
+            <td>{{ role.name }}</td>
+            <td>{{ $h.formatDate(role.createdAt, "DD/MM/YYYY hh:mm") }}</td>
             <td class="flex justify-center">
               <button
                 @click="
-                  router.push({ name: 'manage-role', params: { id: role.id } })
+                  router.push({ name: 'manage-role', params: { id: role._id } })
                 "
                 class="btn btn-primary"
                 data-cy="btn-manage-data"
@@ -81,14 +81,14 @@
                 <DropdownMenu class="w-48">
                   <DropdownContent>
                     <DropdownItem
-                      v-if="authStore.permissions.includes('update role')"
+                      v-if="authStore.permissions.includes('role.update')"
                       @click="onClickEdit(role)"
                       data-cy="btn-edit"
                     >
                       <Edit2Icon class="w-4 h-4 mr-2" /> Edit
                     </DropdownItem>
                     <DropdownItem
-                      @click="onClicDelete(String(role.id))"
+                      @click="onClickDelete(String(role._id))"
                       data-cy="btn-delete"
                     >
                       <TrashIcon class="w-4 h-4 mr-2" /> Delete
@@ -101,55 +101,11 @@
         </tbody>
       </table>
 
-      <div
-        class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-6"
-      >
-        <select class="w-20 form-select box mt-3 sm:mt-0 sm:mr-auto">
-          <option>10</option>
-          <option>25</option>
-          <option>35</option>
-          <option>50</option>
-        </select>
-        <nav class="w-full sm:w-auto">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item active">
-              <a class="page-link" href="#">2</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">3</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      <Pagination
+        :current-page="roleStore.pagination.page"
+        :last-page="roleStore.pagination.pageCount"
+        @update-page="updatePage"
+      />
     </div>
   </div>
   <!-- END: HTML Table Data -->
@@ -157,7 +113,7 @@
   <!-- Modal -->
   <Modal :show="modalForm" @hidden="modalForm = false">
     <ModalHeader>
-      <h2 class="font-medium text-base mr-auto">Create Role</h2>
+      <h2 class="font-medium text-base mr-auto">{{ form.title }} Role</h2>
     </ModalHeader>
     <form @submit.prevent="onClickSave" data-cy="form-role">
       <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
@@ -303,6 +259,9 @@
     </ModalBody>
   </Modal>
   <div class="manage-role"></div>
+
+  <ModalPassword @on-submit="confirmPassword" />
+  <ModalAlertSuccess @on-success="getRoles" />
 </template>
 
 <script setup lang="ts">
@@ -310,8 +269,10 @@ import { useAuthStore } from "@/stores/auth";
 import { useModalStore } from "@/stores/modal";
 import { useRoleStore } from "@/stores/role";
 import { Role } from "@/types/Role";
-import { ref } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import { helper as $h } from "@/utils/helper";
+import { QueryParams } from "@/types/api/QueryParams";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -326,11 +287,30 @@ const modalFormRequestDelete = ref(false);
 
 const searchTerm = ref("");
 const tableData = ref<Role[]>(roleStore.roles);
-const form = ref({ id: "", name: "", note_request: "" });
+const form = ref({
+  id: "",
+  name: "",
+  note_request: "",
+  title: "Create",
+  permissions: [] as string[],
+});
+const query = ref<QueryParams>({
+  page: roleStore.pagination.page,
+  pageSize: roleStore.pagination.pageSize,
+  sort: {
+    createdAt: "desc",
+  },
+});
 
-if (roleStore.roles.length === 0) {
-  modalStore.setModalAlertNotFound(true);
-}
+watch(searchTerm, async (searchTerm) => {
+  if (searchTerm.length) {
+    query.value.search = { name: `.*${searchTerm}*.` };
+  } else {
+    delete query.value.search;
+  }
+
+  await getRoles();
+});
 
 const onClickSave = () => {
   if (form.value.id === "") {
@@ -340,34 +320,52 @@ const onClickSave = () => {
   }
 };
 
-const handleCreate = () => {
-  const lengthRole = roleStore.roles.length;
+const handleCreate = async () => {
   roleStore.createRole({
-    id: String(lengthRole + 1),
-    roleName: form.value.name,
+    name: form.value.name,
+    permissions: [],
     createdAt: new Date().toLocaleDateString(),
   });
   resetForm();
+  modalStore.setModalAlertSuccess(
+    true,
+    "Role Successfully Created",
+    "You have created a new Role"
+  );
+  // await getRoles();
+};
+
+const onClickCreate = () => {
+  resetForm();
+  modalForm.value = true;
 };
 
 const onClickEdit = (role: Role) => {
   modalForm.value = true;
-  form.value.id = String(role.id);
-  form.value.name = role.roleName;
+  form.value.id = String(role._id);
+  form.value.name = role.name;
+  form.value.permissions = role.permissions;
+  form.value.title = "Edit";
 };
 
-const handleUpdate = () => {
+const handleUpdate = async () => {
   roleStore.updateRole(form.value.id, {
-    roleName: form.value.name,
+    name: form.value.name,
+    permissions: form.value.permissions,
     createdAt: new Date().toLocaleDateString(),
   });
   resetForm();
+  modalStore.setModalAlertSuccess(
+    true,
+    "Changes Saved!",
+    "Your update to the role has been applied"
+  );
 };
 
-const onClicDelete = (id: string) => {
+const onClickDelete = (id: string) => {
   if (
     authStore.permissions.some((permission) => {
-      return "delete role".indexOf(permission) >= 0;
+      return "role.delete".indexOf(permission) >= 0;
     })
   ) {
     //confirm delete
@@ -390,12 +388,57 @@ const onSubmitRequestDelete = () => {
   modalStore.setModalAlertSuccess(true);
 };
 
+const onClickSort = async (sort: string) => {
+  query.value.sort = { createdAt: sort };
+  await getRoles();
+};
+
 function resetForm() {
   form.value.id = "";
   form.value.name = "";
   form.value.note_request = "";
+  form.value.permissions = [];
+  form.value.title = "Create";
   // modalConfirmPassword.value = false;
   modalForm.value = false;
-  modalStore.setModalAlertSuccess(false);
+  // modalStore.setModalAlertSuccess(false);
 }
+
+const getRoles = async () => {
+  await roleStore.getRoles({ ...query.value });
+  if (roleStore.roles.length === 0) {
+    modalStore.setModalAlertNotFound(true);
+  }
+
+  // update ref value
+  tableData.value = roleStore.roles;
+  query.value.page = roleStore.pagination.page;
+  query.value.pageSize = roleStore.pagination.pageSize;
+};
+
+const confirmPassword = async (password: string) => {
+  const { error } = await roleStore.deleteRole(form.value.id, password);
+  if (!error) {
+    modalFormRequestDelete.value = false;
+    modalDelete.value = false;
+    dialogDelete.value = false;
+    modalStore.setModalPassword(false);
+
+    modalStore.setModalAlertSuccess(
+      true,
+      "Changes Saved!",
+      "The role has been deleted"
+    );
+    resetForm();
+  }
+};
+
+const updatePage = async (value: number) => {
+  query.value.page = value;
+  await getRoles();
+};
+
+onMounted(async () => {
+  await getRoles();
+});
 </script>

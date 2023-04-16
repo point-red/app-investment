@@ -11,6 +11,9 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "forceConsistentCasingInFileNames": false,
+    "noImplicitAny": false,
+    "types": ["vite/client", "vue3-toastify/global"],
     "paths": {
       "@/*": ["./src/*"]
     },

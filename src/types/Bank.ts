@@ -1,14 +1,19 @@
 import { AccountBank } from "./AccountBank";
 
 export interface Bank {
-  id?: string;
-  bankName: string;
+  _id?: string;
+  name: string;
   branch: string;
   address: string;
   phone: string;
   fax: string;
   code: string;
-  notes?: string;
-  account?: AccountBank[];
+  notes: string;
+  accounts: AccountBank[];
   createdAt?: string;
+}
+
+export interface BankValidationErrors {
+  name: string[];
+  accounts: string[];
 }

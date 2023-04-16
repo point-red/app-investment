@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import cookie from "@point-hub/vue-cookie";
 import SideMenu from "../layouts/side-menu/Main.vue";
 import SimpleMenu from "../layouts/simple-menu/Main.vue";
 import TopMenu from "../layouts/top-menu/Main.vue";
@@ -13,7 +15,14 @@ import Roles from "./roles";
 import Users from "./users";
 import Owner from "./owner";
 
+import Auth from "../views/auth/SignIn.vue";
+
 const routes = [
+  {
+    path: "/signin",
+    name: "sign-in",
+    component: Auth,
+  },
   {
     path: "/",
     component: SideMenu,
@@ -90,6 +99,21 @@ const router = createRouter({
   scrollBehavior(to, from, savedPosition) {
     return savedPosition || { left: 0, top: 0 };
   },
+});
+
+router.beforeEach(async (to) => {
+  // redirect to login page if not logged in and trying to access a restricted page
+  const publicPages = ["/signin"];
+  const authRequired = !publicPages.includes(to.path);
+  const useAuth = useAuthStore();
+
+  if (
+    (authRequired && !useAuth.user.name) ||
+    (authRequired && !cookie.get("token"))
+  ) {
+    useAuth.returnUrl = to.fullPath;
+    return "/signin";
+  }
 });
 
 export default router;

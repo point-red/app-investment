@@ -198,7 +198,10 @@
               <HelpCircleIcon class="w-4 h-4 mr-2" /> Help</DropdownItem
             >
             <DropdownDivider class="border-white/[0.08]" />
-            <DropdownItem class="dropdown-item hover:bg-white/5">
+            <DropdownItem
+              class="dropdown-item hover:bg-white/5"
+              @click="signout"
+            >
               <ToggleRightIcon class="w-4 h-4 mr-2" /> Logout</DropdownItem
             >
           </DropdownContent>
@@ -210,8 +213,9 @@
   <!-- END: Top Bar -->
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
+import { useAuthStore } from "@/stores/auth";
 
 const searchDropdown = ref(false);
 
@@ -227,5 +231,9 @@ const showSearchDropdown = () => {
 };
 const hideSearchDropdown = () => {
   searchDropdown.value = false;
+};
+
+const signout = async () => {
+  useAuthStore().logout();
 };
 </script>

@@ -54,20 +54,20 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, index) in tableData" :key="user.id">
+          <tr v-for="(user, index) in tableData" :key="user._id">
             <td>{{ index + 1 }}</td>
             <td
               @click="
-                router.push({ name: 'detail-user', params: { id: user.id } })
+                router.push({ name: 'detail-user', params: { id: user._id } })
               "
               class="cursor-pointer"
             >
-              {{ `${user.firstName} ${user.lastName}` }}
+              {{ user.name }}
             </td>
             <td class="flex justify-center">
               <button
                 @click="
-                  router.push({ name: 'detail-user', params: { id: user.id } })
+                  router.push({ name: 'detail-user', params: { id: user._id } })
                 "
                 class="btn btn-primary mr-2"
               >
@@ -84,7 +84,7 @@
                     </DropdownItem>
                     <DropdownItem
                       data-cy="btn-delete"
-                      @click="onClicDelete(String(user.id))"
+                      @click="onClicDelete(String(user._id))"
                     >
                       <TrashIcon class="w-4 h-4 mr-2" /> Delete
                     </DropdownItem>
@@ -96,55 +96,11 @@
         </tbody>
       </table>
 
-      <div
-        class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-6"
-      >
-        <select class="w-20 form-select box mt-3 sm:mt-0 sm:mr-auto">
-          <option>10</option>
-          <option>25</option>
-          <option>35</option>
-          <option>50</option>
-        </select>
-        <nav class="w-full sm:w-auto">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item active">
-              <a class="page-link" href="#">2</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">3</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      <Pagination
+        :current-page="userStore.pagination.page"
+        :last-page="userStore.pagination.pageCount"
+        @update-page="updatePage"
+      />
     </div>
   </div>
 
@@ -291,6 +247,9 @@
       </div>
     </ModalBody>
   </Modal>
+
+  <ModalPassword @on-submit="confirmPassword" />
+  <ModalAlertSuccess @on-success="getUsers" />
 </template>
 
 <script setup lang="ts">
@@ -298,7 +257,8 @@ import { useAuthStore } from "@/stores/auth";
 import { useModalStore } from "@/stores/modal";
 import { useUsers } from "@/stores/users";
 import { User } from "@/types/Users";
-import { ref } from "vue";
+import { QueryParams } from "@/types/api/QueryParams";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -313,15 +273,19 @@ const modalFormRequestDelete = ref(false);
 const modalConfirmArchive = ref(false);
 
 const searchTerm = ref("");
-const tableData = ref<User[]>(userStore.users);
-const form = ref({ id: "", note_request: "" });
+const tableData = ref<User[]>(userStore.data);
+const form = ref({ _id: "", note_request: "" });
+const query = ref<QueryParams>({
+  page: userStore.pagination.page,
+  pageSize: userStore.pagination.pageSize,
+});
 
 const handleBack = () => {
   router.push({ name: "master-users" });
 };
 
 const onClickEdit = (user: User) => {
-  router.push({ name: "edit-user", params: { id: user.id } });
+  router.push({ name: "edit-user", params: { id: user._id } });
 };
 
 const onClicDelete = (id: string) => {
@@ -330,15 +294,18 @@ const onClicDelete = (id: string) => {
       return "delete users".indexOf(permission) >= 0;
     })
   ) {
-    const transaction = [1];
-    if (transaction.length) {
-      //has transaction
-      modalConfirmArchive.value = true;
-    } else {
-      //confirm delete
-      dialogDelete.value = true;
-      form.value.id = id;
-    }
+    // const transaction = [1];
+    // if (transaction.length) {
+    //   //has transaction
+    //   modalConfirmArchive.value = true;
+    // } else {
+    //   //confirm delete
+    //   dialogDelete.value = true;
+    //   form.value._id = id;
+    // }
+
+    dialogDelete.value = true;
+    form.value._id = id;
   } else {
     // request delete
     modalDelete.value = true;
@@ -362,8 +329,49 @@ const onSubmitRequestDelete = () => {
 };
 
 function resetForm() {
-  form.value.id = "";
+  form.value._id = "";
   form.value.note_request = "";
   modalStore.setModalAlertSuccess(false);
 }
+
+const getUsers = async () => {
+  await userStore.getUsers({ ...query.value });
+  if (userStore.data.length === 0) {
+    modalStore.setModalAlertNotFound(true);
+  }
+
+  // update ref value
+  tableData.value = userStore.data;
+  query.value.page = userStore.pagination.page;
+  query.value.pageSize = userStore.pagination.pageSize;
+};
+
+const confirmPassword = async (password: string) => {
+  const { error } = await userStore.deleteUser(
+    String(form.value._id),
+    password
+  );
+  if (!error) {
+    modalFormRequestDelete.value = false;
+    modalDelete.value = false;
+    dialogDelete.value = false;
+    modalStore.setModalPassword(false);
+
+    modalStore.setModalAlertSuccess(
+      true,
+      "Changes Saved!",
+      "The selected user has been deleted."
+    );
+    // resetForm();
+  }
+};
+
+const updatePage = async (value: number) => {
+  query.value.page = value;
+  await getUsers();
+};
+
+onMounted(async () => {
+  await getUsers();
+});
 </script>

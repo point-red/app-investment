@@ -9,7 +9,7 @@ export default [
     component: Roles,
     beforeEnter: async (to, from, next) => {
       const authStore = useAuthStore();
-      if (authStore.permissions.includes("read role")) {
+      if (authStore.permissions.includes("role.view")) {
         next();
       } else {
         next({ name: "404" });
@@ -22,7 +22,11 @@ export default [
     component: ManageRole,
     beforeEnter: async (to, from, next) => {
       const authStore = useAuthStore();
-      if (authStore.permissions.includes("manage role")) {
+      if (
+        authStore.permissions.includes("role.create") ||
+        authStore.permissions.includes("role.update") ||
+        authStore.permissions.includes("role.delete")
+      ) {
         next();
       } else {
         next({ name: "404" });

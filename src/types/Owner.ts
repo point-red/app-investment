@@ -1,8 +1,5 @@
 export interface Owner {
-  id?: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
+  _id?: string;
+  name: string;
   createdAt?: string;
 }
