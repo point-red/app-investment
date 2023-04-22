@@ -101,6 +101,7 @@
         :current-page="userStore.pagination.page"
         :last-page="userStore.pagination.pageCount"
         @update-page="updatePage"
+        @update-page-size="updatePageSize"
       />
     </div>
   </div>
@@ -165,6 +166,11 @@ const getUsers = async () => {
 
 const updatePage = async (value: number) => {
   query.value.page = value;
+  await getUsers();
+};
+
+const updatePageSize = async (value: number) => {
+  query.value.pageSize = value;
   await getUsers();
 };
 
