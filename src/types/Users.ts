@@ -5,7 +5,8 @@ export interface User {
   username: string;
   email: string;
   name: string;
-  // lastName: string;
+  lastname: string;
   role_id: string;
-  // mobilePhone: string;
+  mobilephone: string;
+  role?: Role;
 }

@@ -29,6 +29,7 @@
                   'side-menu--active': menu.active,
                   'side-menu--open': menu.activeDropdown,
                 }"
+                v-if="menu.canView"
                 @click="linkTo(menu, router, $event)"
               >
                 <div class="side-menu__icon">
@@ -62,6 +63,7 @@
                       "
                       class="side-menu"
                       :class="{ 'side-menu--active': subMenu.active }"
+                      v-if="subMenu.canView"
                       @click="linkTo(subMenu, router, $event)"
                     >
                       <div class="side-menu__icon">
@@ -153,9 +155,10 @@ console.log("route", route.name);
 const router = useRouter();
 const formattedMenu = ref([]);
 const sideMenuStore = useSideMenuStore();
-const sideMenu = computed(() => nestedMenu(sideMenuStore.menu, route));
+const sideMenu = computed(() => nestedMenu(sideMenuStore.getMenu, route));
 
 provide("forceActiveMenu", (pageName) => {
+  console.log(pageName);
   route.forceActiveMenu = pageName;
   formattedMenu.value = $h.toRaw(sideMenu.value);
 });
@@ -163,12 +166,14 @@ provide("forceActiveMenu", (pageName) => {
 watch(
   computed(() => route.path),
   () => {
+    console.log(route.path);
     delete route.forceActiveMenu;
     formattedMenu.value = $h.toRaw(sideMenu.value);
   }
 );
 
 onMounted(() => {
+  console.log(sideMenu.value);
   dom("body").removeClass("error-page").removeClass("login").addClass("main");
   formattedMenu.value = $h.toRaw(sideMenu.value);
 });

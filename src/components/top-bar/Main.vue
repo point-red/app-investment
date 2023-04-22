@@ -18,7 +18,21 @@
       <nav aria-label="breadcrumb" class="-intro-x h-[45px] mr-auto">
         <ol class="breadcrumb breadcrumb-light">
           <li class="breadcrumb-item"><a href="#">Application</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+          <li
+            class="breadcrumb-item"
+            v-for="(item, index) in items"
+            :key="index"
+            :class="{ active: index === items.length - 1 }"
+          >
+            <a
+              v-if="index !== items.length - 1"
+              @click="router.push({ name: item.name })"
+              href="#"
+              >{{ item.label }}</a
+            >
+            <span v-else>{{ item.label }}</span>
+          </li>
+          <!-- <li class="breadcrumb-item active" aria-current="page">Dashboard</li> -->
         </ol>
       </nav>
       <!-- END: Breadcrumb -->
@@ -216,8 +230,15 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
+import { useNavStore } from "@/stores/nav";
+import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
 
+const navStore = useNavStore();
+const router = useRouter();
 const searchDropdown = ref(false);
+
+const { items } = storeToRefs(navStore);
 
 // const props = defineProps({
 //   list: {

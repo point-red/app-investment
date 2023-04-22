@@ -2,11 +2,14 @@
   <div
     class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-6"
   >
-    <select class="w-20 form-select box mt-3 sm:mt-0 sm:mr-auto">
-      <option>10</option>
-      <option>25</option>
-      <option>35</option>
-      <option>50</option>
+    <select
+      @change="updatePageSize"
+      class="w-20 form-select box mt-3 sm:mt-0 sm:mr-auto"
+    >
+      <option value="10">10</option>
+      <option value="25">25</option>
+      <option value="35">35</option>
+      <option value="50">50</option>
     </select>
     <nav class="w-full sm:w-auto">
       <ul class="pagination">
@@ -69,7 +72,7 @@ const mutable = reactive({
   hiddenNextPage: false,
 });
 
-const emit = defineEmits(["updatePage"]);
+const emit = defineEmits(["updatePage", "updatePageSize"]);
 
 watch(props, () => {
   mutable.currentPage = props.currentPage;
@@ -87,5 +90,12 @@ const showPageNumber = (n: number) => {
 const paginatePage = (n: number) => {
   mutable.currentPage = n;
   emit("updatePage", mutable.currentPage);
+};
+
+const updatePageSize = (event: Event) => {
+  if (event.target) {
+    const element = event.target as HTMLSelectElement;
+    emit("updatePageSize", Number(element.value));
+  }
 };
 </script>

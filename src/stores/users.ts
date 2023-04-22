@@ -17,20 +17,14 @@ export type RootState = {
 export const useUsers = defineStore("users", {
   state: () =>
     ({
-      data: [
-        {
-          _id: "1",
-          username: "username",
-          name: "first name",
-          email: "example@mail.com",
-          role_id: "1",
-        },
-      ],
+      data: [],
       user: {
         _id: "",
         username: "",
         name: "",
+        lastname: "",
         email: "",
+        mobilephone: "",
         role_id: "1",
       },
       pagination: {
@@ -46,54 +40,53 @@ export const useUsers = defineStore("users", {
     },
   },
   actions: {
-    async getUsers(params: QueryParams) {
+    async get(params: QueryParams): Promise<ApiResponse> {
       try {
-        const users = await api.get<RootState>(url, { params: { ...params } });
+        const users = await api.get<RootState>(url, { params });
         this.data = users.data.data;
         this.pagination = users.data.pagination;
+        return { data: users.data };
       } catch (error) {
-        console.log(error);
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
       }
     },
-    async findUser(id: string) {
+    async find(id: string, params?: QueryParams): Promise<ApiResponse> {
       try {
-        const user = await api.get<User>(url + "/" + id);
+        const user = await api.get<User>(url + "/" + id, { params });
         this.user = user.data;
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    createUser(user: User) {
-      if (!user) return;
-      this.data.push(user);
-    },
-    setUsers(users: User[]) {
-      this.data = users;
-    },
-    async updateUser(id: string, payload: User): Promise<ApiResponse> {
-      try {
-        const res = await api.patch(url + "/" + id, { ...payload });
-        return { data: res.data };
+        return { data: user.data };
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    async deleteUser(id: string, password: string): Promise<ApiResponse> {
+    async create(user: User): Promise<ApiResponse> {
       try {
-        const res = await api.delete(url + "/" + id, { data: { password } });
-        console.log(res.data);
-        return { data: res.data };
+        await api.post(url, { ...user });
+        return { error: null };
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    findIndexById(id: string) {
-      return this.data.findIndex((item) => item._id === id);
+    async update(id: string, payload: User): Promise<ApiResponse> {
+      try {
+        await api.patch(url + "/" + id, { ...payload });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
-    findById(id: string) {
-      return this.data.filter((item) => item._id === id);
+    async delete(id: string, password: string): Promise<ApiResponse> {
+      try {
+        await api.delete(url + "/" + id, { data: { password } });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
   },
 });

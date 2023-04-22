@@ -54,7 +54,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(owner, index) in tableData" :key="owner._id">
+          <tr v-for="(owner, index) in owners" :key="owner._id">
             <td>{{ index + 1 }}</td>
             <td>{{ `${owner.name}` }}</td>
             <td>{{ owner.createdAt }}</td>
@@ -62,89 +62,80 @@
         </tbody>
       </table>
 
-      <div
-        class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-6"
-      >
-        <select class="w-20 form-select box mt-3 sm:mt-0 sm:mr-auto">
-          <option>10</option>
-          <option>25</option>
-          <option>35</option>
-          <option>50</option>
-        </select>
-        <nav class="w-full sm:w-auto">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item active">
-              <a class="page-link" href="#">2</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">3</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      <Pagination
+        :current-page="ownerStore.pagination.page"
+        :last-page="ownerStore.pagination.pageCount"
+        @update-page="updatePage"
+        @update-page-size="updatePageSize"
+      />
     </div>
   </div>
   <!-- END: HTML Table Data -->
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "@/stores/auth";
+import { masterNav, ownerNav } from "@/router/master";
 import { useModalStore } from "@/stores/modal";
+import { useNavStore } from "@/stores/nav";
 import { useOwnersStore } from "@/stores/owner";
-import { Owner } from "@/types/Owner";
-import { ref } from "vue";
+import { QueryParams } from "@/types/api/QueryParams";
+import { storeToRefs } from "pinia";
+import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const authStore = useAuthStore();
 const modalStore = useModalStore();
 const ownerStore = useOwnersStore();
+const navStore = useNavStore();
 
-const dialogDelete = ref(false);
-const modalDetailOwner = ref(false);
-const modalDelete = ref(false);
-const modalSuccess = ref(false);
-
-const modalFormRequestDelete = ref(false);
+navStore.create([masterNav.master, ownerNav.home, ownerNav.archive]);
 
 const searchTerm = ref("");
-const tableData = ref<Owner[]>(ownerStore.owners);
-const form = ref({
-  id: "",
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  note_request: "",
-  createdAt: "",
+const { owners, pagination } = storeToRefs(ownerStore);
+const query = ref<QueryParams>({
+  page: pagination.value.page,
+  pageSize: pagination.value.pageSize,
+  archived: true,
+  sort: {
+    createdAt: "desc",
+  },
+});
+
+watch(searchTerm, async (searchTerm) => {
+  if (searchTerm.length) {
+    query.value.search = {
+      name: searchTerm,
+    };
+  } else {
+    delete query.value.search;
+  }
+
+  await getOwners();
+});
+
+const getOwners = async () => {
+  await ownerStore.get({ ...query.value });
+
+  if (ownerStore.owners.length === 0) {
+    modalStore.setModalAlertNotFound(true);
+  }
+
+  // update ref value
+  query.value.page = pagination.value.page;
+  query.value.pageSize = pagination.value.pageSize;
+};
+
+const updatePage = async (value: number) => {
+  query.value.page = value;
+  await getOwners();
+};
+
+const updatePageSize = async (value: number) => {
+  query.value.pageSize = value;
+  await getOwners();
+};
+
+onMounted(async () => {
+  await getOwners();
 });
 </script>

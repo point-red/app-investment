@@ -25,7 +25,7 @@ export const useRoleStore = defineStore("roles", {
       pagination: {
         page: 1,
         pageSize: 10,
-        pageCount: 0,
+        pageCount: 1,
         totalDocument: 0,
       },
     } as RootState),
@@ -35,57 +35,54 @@ export const useRoleStore = defineStore("roles", {
     },
   },
   actions: {
-    async getRoles(params: QueryParams) {
+    async get(params: QueryParams): Promise<ApiResponse> {
       try {
-        const roles = await api.get<{ roles: Role[]; pagination: IPagination }>(
-          url,
-          { params: { ...params } }
-        );
+        const roles = await api.get<RootState>(url, { params: { ...params } });
         this.roles = roles.data.roles;
         this.pagination = roles.data.pagination;
+        return { data: roles.data };
       } catch (error) {
-        console.log(error);
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
       }
     },
-    async findRole(id: string) {
+    async find(id: string): Promise<ApiResponse> {
       try {
-        const roles = await api.get<Role>(url + "/" + id);
-        this.role = roles.data;
+        const role = await api.get<Role>(url + "/" + id);
+        this.role = role.data;
+        return { data: role.data };
       } catch (error) {
-        console.log(error);
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
       }
     },
-    async createRole(role: Role) {
+    async create(role: Role): Promise<ApiResponse> {
       try {
         await api.post(url, { ...role });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async update(id: string, payload: Role): Promise<ApiResponse> {
+      try {
+        await api.patch(url + "/" + id, { ...payload });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async delete(id: string, password: string): Promise<ApiResponse> {
+      try {
+        await api.delete(url + "/" + id, { data: { password } });
+        return { error: null };
       } catch (error) {
         console.log(error);
-      }
-    },
-    setRoles(roles: Role[]) {
-      this.roles = roles;
-    },
-    async updateRole(id: string, payload: Role): Promise<ApiResponse> {
-      try {
-        const res = await api.patch(url + "/" + id, { ...payload });
-        return { data: res.data };
-      } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }
-    },
-    async deleteRole(id: string, password: string): Promise<ApiResponse> {
-      try {
-        const res = await api.delete(url + "/" + id, { data: { password } });
-        console.log(res.data);
-        return { data: res.data };
-      } catch (error) {
-        const err = error as AxiosError;
-        return { error: err.response?.data as ErrorResponse };
-      }
-    },
-    findIndexById(id: string) {
-      return this.roles.findIndex((item) => item._id === id);
     },
   },
 });

@@ -3,7 +3,7 @@
     <h2 class="text-lg font-medium mr-auto" data-cy="title-page">Roles</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <button
-        v-if="authStore.permissions.includes('create role')"
+        v-if="authStore.permissions.includes('role.create')"
         data-test="btn-create"
         @click="onClickCreate"
         class="btn btn-primary shadow-md mr-2"
@@ -57,21 +57,29 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(role, index) in tableData" :key="role._id">
+          <tr v-for="(role, index) in roles" :key="role._id">
             <td>{{ index + 1 }}</td>
             <td>{{ role.name }}</td>
             <td>{{ $h.formatDate(role.createdAt, "DD/MM/YYYY hh:mm") }}</td>
             <td class="flex justify-center">
               <button
                 @click="
-                  router.push({ name: 'manage-role', params: { id: role._id } })
+                  router.push({
+                    name: roleNav.manage.name,
+                    params: { id: role._id },
+                  })
                 "
                 class="btn btn-primary"
                 data-cy="btn-manage-data"
               >
                 Manage
               </button>
-              <Dropdown>
+              <Dropdown
+                v-if="
+                  authStore.permissions.includes('role.update') ||
+                  authStore.permissions.includes('role.delete')
+                "
+              >
                 <DropdownToggle
                   class="btn btn-secondary ml-2"
                   data-cy="btn-setting"
@@ -88,6 +96,7 @@
                       <Edit2Icon class="w-4 h-4 mr-2" /> Edit
                     </DropdownItem>
                     <DropdownItem
+                      v-if="authStore.permissions.includes('role.delete')"
                       @click="onClickDelete(String(role._id))"
                       data-cy="btn-delete"
                     >
@@ -102,9 +111,10 @@
       </table>
 
       <Pagination
-        :current-page="roleStore.pagination.page"
-        :last-page="roleStore.pagination.pageCount"
+        :current-page="pagination.page"
+        :last-page="pagination.pageCount"
         @update-page="updatePage"
+        @update-page-size="updatePageSize"
       />
     </div>
   </div>
@@ -143,125 +153,10 @@
       </ModalFooter>
     </form>
   </Modal>
-
-  <Modal
-    :show="modalDelete"
-    @hidden="modalDelete = false"
-    data-cy="alert-request"
-  >
-    <ModalHeader>
-      <h2 class="font-medium text-base mr-auto">Action Denied!</h2>
-    </ModalHeader>
-    <ModalBody class="px-5 py-10">
-      <div class="text-center">
-        <div class="">
-          You do not have the authority to take this action. You can choose the
-          "Request" button below if you wish to proceed with the removal by the
-          Authorized User.
-        </div>
-      </div>
-      <!-- BEGIN: Overlapping Modal Content -->
-      <Modal
-        :show="modalFormRequestDelete"
-        @hidden="modalFormRequestDelete = false"
-        data-cy="alert-form-request"
-      >
-        <ModalHeader>
-          <h2 class="font-medium text-base mr-auto">Removal Request</h2>
-        </ModalHeader>
-        <form @submit.prevent="onSubmitRequestDelete" data-cy="form-request">
-          <ModalBody class="grid grid-cols-12 gap-4 gap-y-3">
-            <div class="col-span-12">
-              <label for="note_request" class="form-label">Notes</label>
-              <textarea
-                id="note_request"
-                cols="30"
-                rows="5"
-                class="form-control resize-none"
-                v-model="form.note_request"
-                name="noteRequest"
-              ></textarea>
-            </div>
-          </ModalBody>
-          <ModalFooter class="flex justify-between">
-            <button
-              @click="
-                modalFormRequestDelete = false;
-                modalDelete = false;
-              "
-              type="button"
-              class="btn btn-outline-secondary w-20 mr-1"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="btn btn-primary w-20"
-              data-cy="btn-send"
-            >
-              Send
-            </button>
-          </ModalFooter>
-        </form>
-      </Modal>
-      <!-- END: Overlapping Modal Content -->
-    </ModalBody>
-    <ModalFooter class="flex justify-between">
-      <button
-        type="button"
-        @click="modalFormRequestDelete = true"
-        class="btn btn-outline-secondary w-20 mr-1"
-        data-cy="btn-request"
-      >
-        Request
-      </button>
-      <button
-        @click="modalDelete = false"
-        type="button"
-        class="btn btn-primary w-20"
-      >
-        Cancel
-      </button>
-    </ModalFooter>
-  </Modal>
-
-  <Modal
-    :show="dialogDelete"
-    @hidden="dialogDelete = false"
-    data-cy="confirm-remove"
-  >
-    <ModalBody class="p-0">
-      <div class="p-5 text-center">
-        <XCircleIcon class="w-16 h-16 text-danger mx-auto mt-3" />
-        <div class="text-3xl mt-5">Are you sure?</div>
-        <div class="text-slate-500 mt-2">
-          Do you really want to delete these records? <br />This process cannot
-          be undone.
-        </div>
-      </div>
-      <div class="px-5 pb-8 text-center">
-        <button
-          type="button"
-          @click="dialogDelete = false"
-          class="btn btn-outline-secondary w-24 mr-1"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          @click="onClickConfirmDelete"
-          class="btn btn-danger w-24"
-          data-cy="btn-yes"
-        >
-          Delete
-        </button>
-      </div>
-    </ModalBody>
-  </Modal>
   <div class="manage-role"></div>
 
-  <ModalPassword @on-submit="confirmPassword" />
-  <ModalAlertSuccess @on-success="getRoles" />
+  <!-- <ModalPassword @on-submit="confirmPassword" /> -->
+  <!-- <ModalAlertSuccess @on-success="getRoles" /> -->
 </template>
 
 <script setup lang="ts">
@@ -269,24 +164,30 @@ import { useAuthStore } from "@/stores/auth";
 import { useModalStore } from "@/stores/modal";
 import { useRoleStore } from "@/stores/role";
 import { Role } from "@/types/Role";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useRouter } from "vue-router";
 import { helper as $h } from "@/utils/helper";
 import { QueryParams } from "@/types/api/QueryParams";
+import { toast } from "vue3-toastify";
+import { storeToRefs } from "pinia";
+import { masterNav, roleNav } from "@/router/master";
+import { useNavStore } from "@/stores/nav";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const modalStore = useModalStore();
 const roleStore = useRoleStore();
+const navStore = useNavStore();
+
+navStore.create([masterNav.master, roleNav.home]);
 
 const dialogDelete = ref(false);
 const modalForm = ref(false);
 const modalDelete = ref(false);
-// const modalConfirmPassword = ref(false);
 const modalFormRequestDelete = ref(false);
 
 const searchTerm = ref("");
-const tableData = ref<Role[]>(roleStore.roles);
+const { roles, pagination } = storeToRefs(roleStore);
 const form = ref({
   id: "",
   name: "",
@@ -295,8 +196,8 @@ const form = ref({
   permissions: [] as string[],
 });
 const query = ref<QueryParams>({
-  page: roleStore.pagination.page,
-  pageSize: roleStore.pagination.pageSize,
+  page: pagination.value.page,
+  pageSize: pagination.value.pageSize,
   sort: {
     createdAt: "desc",
   },
@@ -312,6 +213,29 @@ watch(searchTerm, async (searchTerm) => {
   await getRoles();
 });
 
+const modalSuccessState = computed(() => modalStore.modalAlertSuccess);
+const modalPasswordValueState = computed(() => modalStore.modalPasswordValue);
+const confirmDeleteState = computed(() => modalStore.confirmDelete);
+
+watch(
+  [modalSuccessState, modalPasswordValueState, confirmDeleteState],
+  async ([modalSuccess, modalPassword, confirmDelete], [oldModalSuccess]) => {
+    // reload data if modal success state change
+    if (!modalSuccess && modalSuccess !== oldModalSuccess) {
+      await getRoles();
+    }
+
+    if (modalPassword) {
+      await onConfirmPassword(modalPassword);
+    }
+
+    if (confirmDelete) {
+      onClickConfirmDelete();
+      modalStore.setConfirmDelete(false);
+    }
+  }
+);
+
 const onClickSave = () => {
   if (form.value.id === "") {
     handleCreate();
@@ -321,7 +245,7 @@ const onClickSave = () => {
 };
 
 const handleCreate = async () => {
-  roleStore.createRole({
+  roleStore.create({
     name: form.value.name,
     permissions: [],
     createdAt: new Date().toLocaleDateString(),
@@ -332,7 +256,7 @@ const handleCreate = async () => {
     "Role Successfully Created",
     "You have created a new Role"
   );
-  // await getRoles();
+  await getRoles();
 };
 
 const onClickCreate = () => {
@@ -349,7 +273,7 @@ const onClickEdit = (role: Role) => {
 };
 
 const handleUpdate = async () => {
-  roleStore.updateRole(form.value.id, {
+  roleStore.update(form.value.id, {
     name: form.value.name,
     permissions: form.value.permissions,
     createdAt: new Date().toLocaleDateString(),
@@ -369,11 +293,11 @@ const onClickDelete = (id: string) => {
     })
   ) {
     //confirm delete
-    dialogDelete.value = true;
+    modalStore.setModalDelete(true);
     form.value.id = id;
   } else {
     // request delete
-    modalDelete.value = true;
+    modalStore.setModalRequestDelete(true);
   }
 };
 
@@ -386,6 +310,26 @@ const onSubmitRequestDelete = () => {
   modalFormRequestDelete.value = false;
   modalDelete.value = false;
   modalStore.setModalAlertSuccess(true);
+};
+
+const onConfirmPassword = async (password: string) => {
+  const { error } = await roleStore.delete(form.value.id, password);
+  if (!error) {
+    modalFormRequestDelete.value = false;
+    modalDelete.value = false;
+    dialogDelete.value = false;
+    modalStore.setModalPassword(false);
+    modalStore.setModalDelete(false);
+
+    modalStore.setModalAlertSuccess(
+      true,
+      "Changes Saved!",
+      "The role has been deleted"
+    );
+    resetForm();
+  } else {
+    toast.error("Invalid password");
+  }
 };
 
 const onClickSort = async (sort: string) => {
@@ -405,36 +349,23 @@ function resetForm() {
 }
 
 const getRoles = async () => {
-  await roleStore.getRoles({ ...query.value });
+  await roleStore.get({ ...query.value });
   if (roleStore.roles.length === 0) {
     modalStore.setModalAlertNotFound(true);
   }
 
   // update ref value
-  tableData.value = roleStore.roles;
-  query.value.page = roleStore.pagination.page;
-  query.value.pageSize = roleStore.pagination.pageSize;
-};
-
-const confirmPassword = async (password: string) => {
-  const { error } = await roleStore.deleteRole(form.value.id, password);
-  if (!error) {
-    modalFormRequestDelete.value = false;
-    modalDelete.value = false;
-    dialogDelete.value = false;
-    modalStore.setModalPassword(false);
-
-    modalStore.setModalAlertSuccess(
-      true,
-      "Changes Saved!",
-      "The role has been deleted"
-    );
-    resetForm();
-  }
+  query.value.page = pagination.value.page;
+  query.value.pageSize = pagination.value.pageSize;
 };
 
 const updatePage = async (value: number) => {
   query.value.page = value;
+  await getRoles();
+};
+
+const updatePageSize = async (value: number) => {
+  query.value.pageSize = value;
   await getRoles();
 };
 

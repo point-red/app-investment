@@ -3,11 +3,6 @@
     <h2 class="text-lg font-medium mr-auto" data-cy="title-page">
       Create Bank
     </h2>
-    <!-- <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <button data-test="btn-create" class="btn btn-primary shadow-md mr-2">
-        Create Role
-      </button>
-    </div> -->
   </div>
 
   <div class="intro-y box lg:mt-5 flex">
@@ -234,55 +229,12 @@
                 </tbody>
               </table>
 
-              <div
-                class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-6"
-              >
-                <select class="w-20 form-select box mt-3 sm:mt-0 sm:mr-auto">
-                  <option>10</option>
-                  <option>25</option>
-                  <option>35</option>
-                  <option>50</option>
-                </select>
-                <nav class="w-full sm:w-auto">
-                  <ul class="pagination">
-                    <li class="page-item">
-                      <a class="page-link" href="#">
-                        <ChevronsLeftIcon class="w-4 h-4" />
-                      </a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="#">
-                        <ChevronLeftIcon class="w-4 h-4" />
-                      </a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="#">...</a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="#">1</a>
-                    </li>
-                    <li class="page-item active">
-                      <a class="page-link" href="#">2</a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="#">3</a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="#">...</a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="#">
-                        <ChevronRightIcon class="w-4 h-4" />
-                      </a>
-                    </li>
-                    <li class="page-item">
-                      <a class="page-link" href="#">
-                        <ChevronsRightIcon class="w-4 h-4" />
-                      </a>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
+              <Pagination
+                :current-page="query.page"
+                :last-page="query.pageCount"
+                @update-page="updatePage"
+                @update-page-size="updatePageSize"
+              />
             </div>
           </div>
         </div>
@@ -293,7 +245,7 @@
         >
           <div>
             <button
-              @click="router.push({ name: 'master-bank' })"
+              @click="router.push({ name: bankNav.home.name })"
               type="button"
               class="btn btn-outline-secondary mr-1"
             >
@@ -397,18 +349,29 @@ import { useBanksStore } from "@/stores/bank";
 import { useModalStore } from "@/stores/modal";
 import { AccountBank } from "@/types/AccountBank";
 import { Bank } from "@/types/Bank";
-import { reactive, ref, toRefs } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minLength } from "@vuelidate/validators";
+import { useNavStore } from "@/stores/nav";
+import { bankNav, masterNav } from "@/router/master";
 
 const router = useRouter();
 const modalStore = useModalStore();
 const bankStore = useBanksStore();
+const navStore = useNavStore();
+
+navStore.create([masterNav.master, bankNav.home, bankNav.create]);
+
+const query = ref({
+  page: 1,
+  pageSize: 10,
+  pageCount: 1,
+});
 
 const modalFormBankAccount = ref(false);
 
-const formDataAccountBank = reactive({
+const formDataAccountBank = ref({
   id: -1,
   name: "",
   number: 0,
@@ -419,7 +382,7 @@ const $externalResults = ref({});
 const rulesAccountBank = {
   name: {
     required,
-    minLength: minLength(5),
+    minLength: minLength(3),
   },
   number: {
     required,
@@ -430,11 +393,11 @@ const rulesAccountBank = {
 
 const validateAccountBank = useVuelidate(
   rulesAccountBank,
-  toRefs(formDataAccountBank),
+  formDataAccountBank,
   { $externalResults }
 );
 
-const formData = reactive<Bank>({
+const formData = ref<Bank>({
   name: "",
   branch: "",
   address: "",
@@ -445,11 +408,12 @@ const formData = reactive<Bank>({
   accounts: [],
   createdAt: "",
 });
+const accounts = ref<AccountBank[]>([]);
 
 const rulesBank = {
   name: {
     required,
-    minLength: minLength(5),
+    minLength: minLength(3),
   },
   branch: {
     required,
@@ -477,21 +441,19 @@ const rulesBank = {
   },
 };
 
-const validate = useVuelidate(rulesBank, toRefs(formData));
+const validate = useVuelidate(rulesBank, formData);
 
 const onSubmitBank = async () => {
   validate.value.$touch();
-  if (validate.value.$invalid) {
-    console.log("required");
-  } else {
-    const { error } = await bankStore.createBank(formData);
+  if (!validate.value.$invalid) {
+    const { error } = await bankStore.create(formData.value);
     if (!error) {
       modalStore.setModalAlertSuccess(
         true,
         "Bank Successfully Added",
         "You have added a new Bank."
       );
-      router.push({ name: "master-bank" });
+      router.push({ name: bankNav.home.name });
     }
   }
 };
@@ -502,24 +464,27 @@ const onClickAddBankAccount = () => {
 };
 
 const onClickSaveBankAccount = () => {
-  const checkIndex = formData.accounts?.findIndex(
-    (e) => e.number === formDataAccountBank.number
+  const checkIndex = formData.value.accounts?.findIndex(
+    (e) => e.number === formDataAccountBank.value.number
   );
-  if (formDataAccountBank.id > -1) {
-    if (checkIndex === formDataAccountBank.id) {
-      if (formData.accounts) {
-        const accountBank = formData.accounts[formDataAccountBank.id];
-        accountBank.name = formDataAccountBank.name;
-        accountBank.number = formDataAccountBank.number;
-        accountBank.notes = formDataAccountBank.notes;
+  if (formDataAccountBank.value.id > -1) {
+    if (checkIndex === formDataAccountBank.value.id) {
+      if (formData.value.accounts) {
+        const accountBank =
+          formData.value.accounts[formDataAccountBank.value.id];
+        accountBank.name = formDataAccountBank.value.name;
+        accountBank.number = formDataAccountBank.value.number;
+        accountBank.notes = formDataAccountBank.value.notes;
       }
       resetForm();
+      refreshAccount();
     } else {
       $externalResults.value = { number: ["account number already exist."] };
     }
   } else {
     if (checkIndex === -1) {
-      formData.accounts?.push({ ...formDataAccountBank });
+      formData.value.accounts?.push({ ...formDataAccountBank.value });
+      refreshAccount();
       resetForm();
     } else {
       $externalResults.value = { number: ["account number already exist."] };
@@ -527,50 +492,72 @@ const onClickSaveBankAccount = () => {
   }
 };
 
-const handleUpdateBankAccount = () => {
-  // accountBankStore.updateAccountBank(formDataAccountBank.id, {
-  //   ...formDataAccountBank,
-  //   createdAt: new Date().toLocaleDateString(),
-  // });
-  resetForm();
-};
-
 const onClickEdit = (accountBank: AccountBank) => {
   modalFormBankAccount.value = true;
   // use position in array as index
-  const index = formData.accounts?.findIndex(
+  const index = formData.value.accounts?.findIndex(
     (e) =>
       e.number === accountBank.number &&
       e.name === accountBank.name &&
       e.notes === accountBank.notes
   );
   if (typeof index === "number") {
-    formDataAccountBank.id = index;
+    formDataAccountBank.value.id = index;
   }
-  formDataAccountBank.name = accountBank.name;
-  formDataAccountBank.number = accountBank.number;
-  formDataAccountBank.notes = String(accountBank.notes);
+  formDataAccountBank.value.name = accountBank.name;
+  formDataAccountBank.value.number = accountBank.number;
+  formDataAccountBank.value.notes = String(accountBank.notes);
 };
 
 const onClickDelete = (accountBank: AccountBank) => {
-  const index = formData.accounts?.findIndex(
+  const index = formData.value.accounts?.findIndex(
     (e) =>
       e.number === accountBank.number &&
       e.name === accountBank.name &&
       e.notes === accountBank.notes
   );
-  formData.accounts?.splice(1, index);
-  //accountBankStore.deleteItem(id);
+  formData.value.accounts?.splice(1, index);
   resetForm();
 };
 
 function resetForm() {
-  formDataAccountBank.id = -1;
-  formDataAccountBank.name = "";
-  formDataAccountBank.number = 0;
-  formDataAccountBank.notes = "";
+  formDataAccountBank.value = {
+    id: -1,
+    name: "",
+    number: 0,
+    notes: "",
+  };
   modalFormBankAccount.value = false;
-
   validateAccountBank.value.$reset();
 }
+
+const refreshAccount = () => {
+  const index = (query.value.page - 1) * query.value.pageSize;
+  let length = 0;
+  const max = query.value.pageSize;
+
+  // empty first
+  accounts.value = [];
+  if (formData.value.accounts) {
+    const accountLength = formData.value.accounts.length;
+    query.value.pageCount = Math.ceil(accountLength / max);
+    length = accountLength - index;
+
+    for (let i = length - 1; i >= length - max; i--) {
+      if (formData.value.accounts[i]) {
+        accounts.value.push(formData.value.accounts[i]);
+      }
+    }
+  }
+};
+
+const updatePage = async (value: number) => {
+  query.value.page = value;
+  refreshAccount();
+};
+
+const updatePageSize = async (value: number) => {
+  query.value.pageSize = value;
+  refreshAccount();
+};
 </script>

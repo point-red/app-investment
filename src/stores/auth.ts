@@ -42,10 +42,7 @@ export const useAuthStore = defineStore("auth", {
     setPermissions(payload: string[]) {
       this.permissions = payload;
     },
-    async login(
-      username: string,
-      password: string
-    ): Promise<{ success: boolean; error?: unknown }> {
+    async login(username: string, password: string) {
       try {
         const user = await api.post(url + "/signin", {
           username,
@@ -57,9 +54,27 @@ export const useAuthStore = defineStore("auth", {
         localStorage.setItem("name", user.data.name);
         localStorage.setItem("username", user.data.username);
         localStorage.setItem("email", user.data.email);
+        localStorage.setItem(
+          "permissions",
+          JSON.stringify(user.data.role.permissions)
+        );
+        this.permissions = JSON.parse(
+          localStorage.getItem("permissions") as string
+        );
 
         cookie.set("token", user.data.accessToken);
-        await this.getPermissions();
+
+        // set instance after receive token
+        api.defaults.headers.common["Authorization"] = `Bearer ${cookie.get(
+          "token"
+        )}`;
+
+        // await this.getPermissions();
+        if (this.returnUrl) {
+          router.push(this.returnUrl);
+        } else {
+          router.push("/");
+        }
         return { success: true };
       } catch (error) {
         return { success: false, error };
@@ -68,12 +83,11 @@ export const useAuthStore = defineStore("auth", {
     async getPermissions(): Promise<boolean> {
       try {
         const verify = await api.post<User>(url + "/verify-token");
-        console.log(verify);
         if (verify.data._id) {
           const roleStore = useRoleStore();
           const userStore = useUsers();
           await userStore.findUser(verify.data._id);
-          await roleStore.findRole(String(userStore.user.role_id));
+          await roleStore.find(String(userStore.user.role_id));
           localStorage.setItem(
             "permissions",
             JSON.stringify(roleStore.role.permissions)
@@ -89,6 +103,7 @@ export const useAuthStore = defineStore("auth", {
       localStorage.removeItem("name");
       localStorage.removeItem("username");
       localStorage.removeItem("email");
+      localStorage.removeItem("permissions");
       cookie.remove("token");
       router.push({ name: "sign-in" });
     },

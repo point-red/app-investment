@@ -1,6 +1,6 @@
 export interface ApiResponse {
   data?: unknown;
-  error?: ErrorResponse;
+  error?: ErrorResponse | null;
 }
 
 export interface ErrorResponse {

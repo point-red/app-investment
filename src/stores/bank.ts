@@ -4,6 +4,7 @@ import { ApiResponse, ErrorResponse } from "@/types/api/ApiResponse";
 import { IPagination } from "@/types/api/Pagination";
 import { QueryParams } from "@/types/api/QueryParams";
 import { AxiosError } from "axios";
+import { create, update } from "cypress/types/lodash";
 import { defineStore } from "pinia";
 
 const url = "/banks";
@@ -43,62 +44,64 @@ export const useBanksStore = defineStore("banks", {
     },
   },
   actions: {
-    async getBank(params: QueryParams) {
+    async get(params: QueryParams): Promise<ApiResponse> {
       try {
-        const roles = await api.get<RootState>(url, { params: { ...params } });
-        this.banks = roles.data.banks;
-        this.pagination = roles.data.pagination;
+        const banks = await api.get<RootState>(url, { params: { ...params } });
+        this.banks = banks.data.banks;
+        this.pagination = banks.data.pagination;
+        return { data: banks.data };
       } catch (error) {
-        console.log(error);
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
       }
     },
-    async findBank(id: string) {
+    async find(id: string): Promise<ApiResponse> {
       try {
         const bank = await api.get<Bank>(url + "/" + id);
         this.bank = bank.data;
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    async createBank(bank: Bank): Promise<ApiResponse> {
-      try {
-        const res = await api.post(url, { ...bank });
-        return { data: res.data };
+        return { data: bank.data };
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    setBanks(banks: Bank[]) {
-      this.banks = banks;
-    },
-    async updateBank(id: string, payload: Bank): Promise<ApiResponse> {
+    async create(bank: Bank): Promise<ApiResponse> {
       try {
-        const res = await api.patch(url + "/" + id, { ...payload });
-        return { data: res.data };
+        await api.post(url, { ...bank });
+        return { error: null };
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    async deleteBank(id: string, password: string): Promise<ApiResponse> {
+    async update(id: string, payload: Bank): Promise<ApiResponse> {
       try {
-        const res = await api.delete(url + "/" + id, { data: { password } });
-        console.log(res.data);
-        return { data: res.data };
+        await api.patch(url + "/" + id, { ...payload });
+        return { error: null };
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    findIndexById(id: string) {
-      return this.banks.findIndex((item) => item._id === id);
+    async delete(id: string, password: string): Promise<ApiResponse> {
+      try {
+        await api.delete(url + "/" + id, { data: { password } });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
-    findById(id: string) {
-      return this.banks.filter((item) => item._id === id);
-    },
-    setBank(bank: Bank) {
-      this.bank = bank;
+    async requestDelete(id: string, params: any): Promise<ApiResponse> {
+      try {
+        await api.post(url + "/" + id + "/request-delete", {
+          ...params,
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
   },
 });

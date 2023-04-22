@@ -1,7 +1,7 @@
 import { ErrorResponse } from "@/types/api/ApiResponse";
 import cookie from "@point-hub/vue-cookie";
+import router from "@/router";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 
 const api = axios.create({
@@ -17,14 +17,24 @@ const onResponse = (response: AxiosResponse): AxiosResponse => {
 
 const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
   if (axios.isAxiosError(error)) {
-    const { status } = (error.response as AxiosResponse) ?? {};
+    const { status, config } = (error.response as AxiosResponse) ?? {};
     if (error.response?.data) {
       const data = error.response?.data as ErrorResponse;
       switch (status) {
         case 401: {
+          if (config.method != "delete") {
+            toast.error(data.message);
+            localStorage.removeItem("name");
+            localStorage.removeItem("username");
+            localStorage.removeItem("email");
+            localStorage.removeItem("permissions");
+            cookie.remove("token");
+            router.push({ name: "sign-in" });
+          }
+          break;
+        }
+        case 403: {
           toast.error(data.message);
-          const router = useRouter();
-          router.push("/signin");
           break;
         }
         case 422: {
@@ -43,7 +53,7 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
     }
   }
 
-  return Promise.reject(error);
+  throw error;
 };
 
 api.interceptors.response.use(onResponse, onErrorResponse);

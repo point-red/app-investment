@@ -17,13 +17,7 @@ export type RootState = {
 export const useOwnersStore = defineStore("owners", {
   state: () =>
     ({
-      owners: [
-        {
-          _id: "1",
-          name: "John",
-          createdAt: new Date().toLocaleDateString(),
-        },
-      ],
+      owners: [],
       owner: {
         _id: "",
         name: "",
@@ -42,66 +36,64 @@ export const useOwnersStore = defineStore("owners", {
     },
   },
   actions: {
-    async getOwner(params: QueryParams) {
+    async get(params: QueryParams): Promise<ApiResponse> {
       try {
         const owners = await api.get<RootState>(url, { params: { ...params } });
         this.owners = owners.data.owners;
         this.pagination = owners.data.pagination;
+        return { data: owners.data };
       } catch (error) {
-        console.log(error);
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
       }
     },
-    async findOwner(id: string) {
+    async find(id: string): Promise<ApiResponse> {
       try {
         const owner = await api.get<Owner>(url + "/" + id);
         this.owner = owner.data;
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    async createOwner(owner: Owner): Promise<ApiResponse> {
-      try {
-        const res = await api.post(url, { ...owner });
-        return { data: res.data };
+        return { data: owner.data };
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    setOwners(owners: Owner[]) {
-      this.owners = owners;
-    },
-    async updateOwner(id: string, payload: Owner): Promise<ApiResponse> {
+    async create(owner: Owner): Promise<ApiResponse> {
       try {
-        const res = await api.patch(url + "/" + id, { ...payload });
-        return { data: res.data };
+        await api.post(url, { ...owner });
+        return { error: null };
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    async deleteOwner(id: string, password: string): Promise<ApiResponse> {
+    async update(id: string, payload: Owner): Promise<ApiResponse> {
       try {
-        const res = await api.delete(url + "/" + id, { data: { password } });
-        console.log(res.data);
-        return { data: res.data };
+        await api.patch(url + "/" + id, { ...payload });
+        return { error: null };
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    findIndexById(id: string) {
-      return this.owners.findIndex((item) => item._id === id);
+    async delete(id: string, password: string): Promise<ApiResponse> {
+      try {
+        await api.delete(url + "/" + id, { data: { password } });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
-    findById(id: string) {
-      return this.owners.filter((item) => item._id === id);
-    },
-    refresh() {
-      this.owner = {
-        _id: "",
-        name: "",
-        createdAt: "",
-      };
+    async requestDelete(id: string, params: any): Promise<ApiResponse> {
+      try {
+        await api.post(url + "/" + id + "/request-delete", {
+          ...params,
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
   },
 });

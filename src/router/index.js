@@ -7,13 +7,15 @@ import TopMenu from "../layouts/top-menu/Main.vue";
 import Page1 from "../views/page-1/Main.vue";
 import Page2 from "../views/page-2/Main.vue";
 
-import Master from "../views/master/Main.vue";
 import V404 from "../views/404.vue";
 
-import Bank from "./bank";
-import Roles from "./roles";
-import Users from "./users";
-import Owner from "./owner";
+import {
+  bankRoute,
+  masterRoute,
+  ownerRoute,
+  roleRoute,
+  userRoute,
+} from "./master";
 
 import Auth from "../views/auth/SignIn.vue";
 
@@ -48,15 +50,11 @@ const routes = [
     path: "/master",
     component: SideMenu,
     children: [
-      {
-        path: "/master",
-        name: "master-data",
-        component: Master,
-      },
-      ...Roles,
-      ...Users,
-      ...Bank,
-      ...Owner,
+      ...masterRoute,
+      ...roleRoute,
+      ...userRoute,
+      ...bankRoute,
+      ...ownerRoute,
     ],
   },
   {

@@ -48,7 +48,7 @@
         >
           <div>
             <button
-              @click="router.push({ name: 'master-owner' })"
+              @click="router.push({ name: ownerNav.home.name })"
               type="button"
               class="btn btn-outline-secondary mr-1"
             >
@@ -65,7 +65,9 @@
 </template>
 
 <script setup lang="ts">
+import { masterNav, ownerNav } from "@/router/master";
 import { useModalStore } from "@/stores/modal";
+import { useNavStore } from "@/stores/nav";
 import { useOwnersStore } from "@/stores/owner";
 import { Owner } from "@/types/Owner";
 import useVuelidate from "@vuelidate/core";
@@ -77,13 +79,16 @@ const route = useRoute();
 const router = useRouter();
 const ownerStore = useOwnersStore();
 const modalStore = useModalStore();
+const navStore = useNavStore();
+
+navStore.create([masterNav.master, ownerNav.home, ownerNav.edit]);
 
 const formData = ref<Owner>(ownerStore.owner);
 
 const rulesOwner = {
   name: {
     required,
-    minLength: minLength(2),
+    minLength: minLength(5),
   },
 };
 
@@ -91,10 +96,8 @@ const validate = useVuelidate(rulesOwner, formData);
 
 const onSubmit = async () => {
   validate.value.$touch();
-  if (validate.value.$invalid) {
-    console.log("invalid");
-  } else {
-    const { error } = await ownerStore.updateOwner(
+  if (!validate.value.$invalid) {
+    const { error } = await ownerStore.update(
       String(formData.value._id),
       formData.value
     );
@@ -104,13 +107,13 @@ const onSubmit = async () => {
         "Changes Saved!",
         "Your update to the selected owner has been applied."
       );
-      router.push({ name: "master-owner" });
+      router.push({ name: ownerNav.home.name });
     }
   }
 };
 
 const findOwner = async () => {
-  await ownerStore.findOwner(String(route.params.id));
+  await ownerStore.find(String(route.params.id));
   formData.value = ownerStore.owner;
 };
 

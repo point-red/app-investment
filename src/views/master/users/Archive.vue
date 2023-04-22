@@ -63,11 +63,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, index) in tableData" :key="user.id">
+          <tr v-for="(user, index) in tableData" :key="user._id">
             <td>{{ index + 1 }}</td>
-            <td>{{ `${user.firstName} ${user.lastName}` }}</td>
+            <td>{{ `${user.name} ${user.lastname}` }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.role.roleName }}</td>
+            <td>{{ user.role?.name }}</td>
           </tr>
         </tbody>
       </table>
@@ -138,7 +138,7 @@ const userStore = useUsers();
 
 const searchTerm = ref("");
 
-const tableData = ref<User[]>(userStore.users);
+const tableData = ref<User[]>(userStore.data);
 
 const handleBack = () => {
   router.push({ name: "master-users" });

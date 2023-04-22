@@ -7,8 +7,9 @@ const findActiveMenu = (subMenu, route) => {
     if (
       ((route.forceActiveMenu !== undefined &&
         item.pageName === route.forceActiveMenu) ||
+        (route.forceActiveMenu === undefined && item.pageName === route.name) ||
         (route.forceActiveMenu === undefined &&
-          item.pageName === route.name)) &&
+          route.path.includes(item.path))) &&
       !item.ignore
     ) {
       match = true;
@@ -28,6 +29,8 @@ const nestedMenu = (menu, route) => {
           item.pageName === route.forceActiveMenu) ||
           (route.forceActiveMenu === undefined &&
             item.pageName === route.name) ||
+          (route.forceActiveMenu === undefined &&
+            route.path.includes(item.path)) ||
           (item.subMenu && findActiveMenu(item.subMenu, route))) &&
         !item.ignore;
 

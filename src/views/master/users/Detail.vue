@@ -1,11 +1,18 @@
 <template>
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
     <h2 class="text-lg font-medium mr-auto">Detail User</h2>
-    <!-- <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <button data-test="btn-create" class="btn btn-primary shadow-md mr-2">
-        Create Role
-      </button>
-    </div> -->
+    <Dropdown>
+      <DropdownToggle class="btn btn-secondary" data-cy="btn-setting">
+        <SettingsIcon class="w-5 h-5" />
+      </DropdownToggle>
+      <DropdownMenu class="w-48">
+        <DropdownContent>
+          <DropdownItem data-cy="btn-edit" @click="onClickEdit(user)">
+            <Edit2Icon class="w-4 h-4 mr-2" /> Edit
+          </DropdownItem>
+        </DropdownContent>
+      </DropdownMenu>
+    </Dropdown>
   </div>
 
   <div class="intro-y box lg:mt-5 flex">
@@ -20,78 +27,91 @@
             User info
           </h2>
           <div class="pt-4 flex gap-5">
-            <div class="w-1/2">
-              <div>
-                <label for="username" class="form-label">Username</label>
-                <input
-                  id="username"
-                  type="text"
-                  class="form-control"
-                  placeholder="Username"
-                />
-              </div>
-              <div class="mt-3">
-                <label for="first-name" class="form-label">First Name</label>
-                <input
-                  id="first-name"
-                  type="text"
-                  class="form-control"
-                  placeholder="First Name"
-                />
-              </div>
-              <div class="mt-3">
-                <label>Role</label>
-                <div class="mt-2">Role name</div>
-              </div>
-            </div>
-            <div class="w-1/2">
-              <div>
-                <label for="email" class="form-label">Email</label>
-                <input
-                  id="email"
-                  type="email"
-                  class="form-control"
-                  placeholder="Email"
-                />
-              </div>
-              <div class="mt-3">
-                <label for="last-name" class="form-label">Last Name</label>
-                <input
-                  id="last-name"
-                  type="text"
-                  class="form-control"
-                  placeholder="Last Name"
-                />
-              </div>
-              <div class="mt-3">
-                <label for="mobile-phone" class="form-label"
-                  >Mobile Phone</label
-                >
-                <input
-                  id="mobile-phone"
-                  type="text"
-                  class="form-control"
-                  placeholder="Mobile phone"
-                />
-              </div>
+            <div class="w-2/3">
+              <table class="table table-bordered w-full">
+                <tbody>
+                  <tr>
+                    <td class="font-bold">Username</td>
+                    <td>
+                      {{ user.username }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold">Name</td>
+                    <td>
+                      {{
+                        user.name + (user.lastname ? " " + user.lastname : "")
+                      }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold">Role</td>
+                    <td>{{ user.role?.name }}</td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold">Email</td>
+                    <td>{{ user.email }}</td>
+                  </tr>
+                  <tr>
+                    <td class="font-bold">Mobile Phone</td>
+                    <td>{{ user.mobilephone }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-        <div class="w-1/3">
-          <h2
-            class="font-medium text-base pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
+      </div>
+
+      <div
+        class="flex justify-end p-5 border-t border-slate-200/60 dark:border-darkmode-400"
+      >
+        <div>
+          <button
+            type="button"
+            @click="router.push({ name: userNav.setting.name })"
+            class="btn btn-primary"
           >
-            Profile picture
-          </h2>
-          <div class="pt-4">
-            <img
-              :src="'https://via.placeholder.com/150'"
-              :alt="'https://via.placeholder.com/150'"
-              class="rounded-lg shadow-lg overflow-hidden mx-auto"
-            />
-          </div>
+            Back
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useUsers } from "@/stores/users";
+import { onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { storeToRefs } from "pinia";
+import { User } from "@/types/Users";
+import { useNavStore } from "@/stores/nav";
+import { masterNav, userNav } from "@/router/master";
+
+const route = useRoute();
+const router = useRouter();
+const userStore = useUsers();
+const navStore = useNavStore();
+
+navStore.create([
+  masterNav.master,
+  userNav.home,
+  userNav.setting,
+  userNav.detail,
+]);
+
+const { user } = storeToRefs(userStore);
+
+const onClickEdit = (user: User) => {
+  router.push({ name: userNav.edit.name, params: { id: user._id } });
+};
+
+const findUser = async () => {
+  await userStore.find(String(route.params.id), { includes: "role" });
+};
+
+onMounted(async () => {
+  await findUser();
+});
+</script>

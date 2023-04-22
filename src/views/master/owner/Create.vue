@@ -52,7 +52,7 @@
         >
           <div>
             <button
-              @click="router.push({ name: 'master-owner' })"
+              @click="router.push({ name: ownerNav.home.name })"
               type="button"
               class="btn btn-outline-secondary mr-1"
             >
@@ -76,17 +76,22 @@ import { toRefs, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minLength } from "@vuelidate/validators";
+import { useNavStore } from "@/stores/nav";
+import { masterNav, ownerNav } from "@/router/master";
 
 const router = useRouter();
 const ownerStore = useOwnersStore();
 const modalStore = useModalStore();
+const navStore = useNavStore();
 
-const formData = reactive<Owner>(ownerStore.owner);
+navStore.create([masterNav.master, ownerNav.home, ownerNav.create]);
+
+const formData = reactive<Owner>({ name: "" });
 
 const rulesOwner = {
   name: {
     required,
-    minLength: minLength(10),
+    minLength: minLength(5),
   },
 };
 
@@ -94,17 +99,15 @@ const validate = useVuelidate(rulesOwner, toRefs(formData));
 
 const onSubmit = async () => {
   validate.value.$touch();
-  if (validate.value.$invalid) {
-    console.log("invalid");
-  } else {
-    const { error } = await ownerStore.createOwner(formData);
+  if (!validate.value.$invalid) {
+    const { error } = await ownerStore.create(formData);
     if (!error) {
       modalStore.setModalAlertSuccess(
         true,
         "Owner Successfully Added",
         "You have added a new Owner."
       );
-      router.push({ name: "master-owner" });
+      router.push({ name: ownerNav.home.name });
     }
   }
 };

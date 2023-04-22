@@ -227,6 +227,7 @@
                 :current-page="query.page"
                 :last-page="query.pageCount"
                 @update-page="updatePage"
+                @update-page-size="updatePageSize"
               />
             </div>
           </div>
@@ -238,7 +239,7 @@
         >
           <div>
             <button
-              @click="router.push({ name: 'master-bank' })"
+              @click="router.push({ name: bankNav.home.name })"
               type="button"
               class="btn btn-outline-secondary mr-1"
             >
@@ -341,21 +342,25 @@
 import { useBanksStore } from "@/stores/bank";
 import { AccountBank } from "@/types/AccountBank";
 import { Bank } from "@/types/Bank";
-import { onMounted, reactive, ref, toRefs } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minLength } from "@vuelidate/validators";
 import { useModalStore } from "@/stores/modal";
+import { useNavStore } from "@/stores/nav";
+import { bankNav, masterNav } from "@/router/master";
 
 const bankStore = useBanksStore();
 const modalStore = useModalStore();
 const router = useRouter();
-const route = useRoute();
+const navStore = useNavStore();
+
+navStore.create([masterNav.master, bankNav.home, bankNav.edit]);
 
 const query = ref({
   page: 1,
-  pageSize: 5,
-  pageCount: 10,
+  pageSize: 10,
+  pageCount: 1,
 });
 
 const formData = ref<Bank>(bankStore.bank);
@@ -394,7 +399,7 @@ const rulesBank = {
 
 const validate = useVuelidate(rulesBank, formData);
 
-const formDataAccountBank = reactive({
+const formDataAccountBank = ref({
   id: -1,
   name: "",
   number: 0,
@@ -405,7 +410,7 @@ const $externalResults = ref({});
 const rulesAccountBank = {
   name: {
     required,
-    minLength: minLength(5),
+    minLength: minLength(3),
   },
   number: {
     required,
@@ -416,7 +421,7 @@ const rulesAccountBank = {
 
 const validateAccountBank = useVuelidate(
   rulesAccountBank,
-  toRefs(formDataAccountBank),
+  formDataAccountBank,
   { $externalResults }
 );
 
@@ -429,16 +434,16 @@ const onClickAddBankAccount = () => {
 
 const onClickSaveBankAccount = () => {
   const checkIndex = formData.value.accounts?.findIndex(
-    (e) => e.number === formDataAccountBank.number
+    (e) => e.number === formDataAccountBank.value.number
   );
-  if (formDataAccountBank.id > -1) {
-    console.log(formDataAccountBank);
-    if (checkIndex === formDataAccountBank.id) {
+  if (formDataAccountBank.value.id > -1) {
+    if (checkIndex === formDataAccountBank.value.id) {
       if (formData.value.accounts) {
-        const accountBank = formData.value.accounts[formDataAccountBank.id];
-        accountBank.name = formDataAccountBank.name;
-        accountBank.number = formDataAccountBank.number;
-        accountBank.notes = formDataAccountBank.notes;
+        const accountBank =
+          formData.value.accounts[formDataAccountBank.value.id];
+        accountBank.name = formDataAccountBank.value.name;
+        accountBank.number = formDataAccountBank.value.number;
+        accountBank.notes = formDataAccountBank.value.notes;
       }
       resetForm();
       refreshAccount();
@@ -447,7 +452,7 @@ const onClickSaveBankAccount = () => {
     }
   } else {
     if (checkIndex === -1) {
-      formData.value.accounts?.push({ ...formDataAccountBank });
+      formData.value.accounts?.push({ ...formDataAccountBank.value });
       resetForm();
       refreshAccount();
     } else {
@@ -466,12 +471,11 @@ const onClickEdit = (accountBank: AccountBank) => {
       e.notes === accountBank.notes
   );
   if (typeof index === "number") {
-    console.log(index);
-    formDataAccountBank.id = index;
+    formDataAccountBank.value.id = index;
   }
-  formDataAccountBank.name = accountBank.name;
-  formDataAccountBank.number = accountBank.number;
-  formDataAccountBank.notes = String(accountBank.notes);
+  formDataAccountBank.value.name = accountBank.name;
+  formDataAccountBank.value.number = accountBank.number;
+  formDataAccountBank.value.notes = String(accountBank.notes);
 };
 
 const onClickDelete = (accountBank: AccountBank) => {
@@ -482,16 +486,13 @@ const onClickDelete = (accountBank: AccountBank) => {
       e.notes === accountBank.notes
   );
   formData.value.accounts?.splice(1, index);
-  //accountBankStore.deleteItem(id);
   resetForm();
 };
 
 const onSubmitBank = async () => {
   validate.value.$touch();
-  if (validate.value.$invalid) {
-    console.log("required");
-  } else {
-    const { error } = await bankStore.updateBank(
+  if (!validate.value.$invalid) {
+    const { error } = await bankStore.update(
       String(formData.value._id),
       formData.value
     );
@@ -501,18 +502,19 @@ const onSubmitBank = async () => {
         "Changes Saved!",
         "Your update has been applied."
       );
-      router.push({ name: "master-bank" });
+      router.push({ name: bankNav.home.name });
     }
   }
 };
 
 function resetForm() {
-  formDataAccountBank.id = -1;
-  formDataAccountBank.name = "";
-  formDataAccountBank.number = 0;
-  formDataAccountBank.notes = "";
+  formDataAccountBank.value = {
+    id: -1,
+    name: "",
+    number: 0,
+    notes: "",
+  };
   modalFormBankAccount.value = false;
-
   validateAccountBank.value.$reset();
 }
 
@@ -520,7 +522,6 @@ const refreshAccount = () => {
   const index = (query.value.page - 1) * query.value.pageSize;
   let length = 0;
   const max = query.value.pageSize;
-  console.log(index);
 
   // empty first
   accounts.value = [];
@@ -536,11 +537,15 @@ const refreshAccount = () => {
       }
     }
   }
-  console.log(accounts);
 };
 
 const updatePage = async (value: number) => {
   query.value.page = value;
+  refreshAccount();
+};
+
+const updatePageSize = async (value: number) => {
+  query.value.pageSize = value;
   refreshAccount();
 };
 

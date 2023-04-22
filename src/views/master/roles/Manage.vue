@@ -4,7 +4,7 @@
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <button
         data-cy="btn-back"
-        @click="router.push({ name: 'master-roles' })"
+        @click="router.push({ name: roleNav.home.name })"
         class="btn btn-primary shadow-md mr-2"
       >
         Back
@@ -105,11 +105,16 @@ import { useRoleStore } from "@/stores/role";
 import { useRouter, useRoute } from "vue-router";
 import { Role } from "@/types/Role";
 import { useModalStore } from "@/stores/modal";
+import { masterNav, roleNav } from "@/router/master";
+import { useNavStore } from "@/stores/nav";
 
 const router = useRouter();
 const route = useRoute();
 const roleStore = useRoleStore();
 const modalStore = useModalStore();
+const navStore = useNavStore();
+
+navStore.create([masterNav.master, roleNav.home, roleNav.manage]);
 
 const role = ref<Role>(roleStore.role);
 
@@ -162,14 +167,14 @@ const checkPermissions = (feature: string) => {
 };
 
 const getRole = async () => {
-  await roleStore.findRole(route.params.id as string);
+  await roleStore.find(route.params.id as string);
 
   // update ref value
   role.value = roleStore.role;
 };
 
 const updateRole = async () => {
-  const { error } = await roleStore.updateRole(
+  const { error } = await roleStore.update(
     role.value._id as string,
     role.value
   );
@@ -180,7 +185,7 @@ const updateRole = async () => {
       "Updated Successfully",
       "You have successfully updated the Roles permission and access for the selected Role."
     );
-    router.push({ name: "master-roles" });
+    router.push({ name: roleNav.home.name });
   }
 };
 

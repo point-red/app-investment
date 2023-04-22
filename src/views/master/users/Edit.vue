@@ -43,7 +43,6 @@
                 <div class="mt-3">
                   <label for="first-name" class="form-label">First Name</label>
                   <input
-                    readonly
                     id="first-name"
                     type="text"
                     class="form-control"
@@ -123,26 +122,48 @@
                 <div class="mt-3">
                   <label for="last-name" class="form-label">Last Name</label>
                   <input
-                    readonly
                     id="last-name"
                     type="text"
                     class="form-control"
                     placeholder="Last Name"
                     name="lastName"
+                    v-model.trim="validate.lastname.$model"
                   />
+
+                  <template v-if="validate.lastname.$error">
+                    <div
+                      v-for="(error, index) in validate.lastname.$errors"
+                      :key="index"
+                      class="text-danger mt-2"
+                      data-cy="error-field"
+                    >
+                      {{ error.$message }}
+                    </div>
+                  </template>
                 </div>
                 <div class="mt-3">
                   <label for="mobile-phone" class="form-label"
                     >Mobile Phone</label
                   >
                   <input
-                    readonly
                     id="mobile-phone"
                     type="text"
                     class="form-control"
                     placeholder="Mobile phone"
                     name="mobilePhone"
+                    v-model.trim="validate.mobilephone.$model"
                   />
+
+                  <template v-if="validate.mobilephone.$error">
+                    <div
+                      v-for="(error, index) in validate.mobilephone.$errors"
+                      :key="index"
+                      class="text-danger mt-2"
+                      data-cy="error-field"
+                    >
+                      {{ error.$message }}
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
@@ -154,7 +175,11 @@
           class="flex justify-end p-5 border-t border-slate-200/60 dark:border-darkmode-400"
         >
           <div>
-            <button type="button" class="btn btn-outline-secondary mr-1">
+            <button
+              type="button"
+              @click="router.push({ name: userNav.setting.name })"
+              class="btn btn-outline-secondary mr-1"
+            >
               Cancel
             </button>
             <button type="submit" class="btn btn-primary" data-cy="btn-save">
@@ -170,27 +195,30 @@
 <script setup lang="ts">
 import { useRoleStore } from "@/stores/role";
 import { useUsers } from "@/stores/users";
-import { Role } from "@/types/Role";
-import { ref, toRefs, onMounted } from "vue";
+import { onMounted } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minLength, email } from "@vuelidate/validators";
 import { useRoute, useRouter } from "vue-router";
 import { useModalStore } from "@/stores/modal";
-import { QueryParams } from "@/types/api/QueryParams";
-import { User } from "@/types/Users";
+import { storeToRefs } from "pinia";
+import { useNavStore } from "@/stores/nav";
+import { masterNav, userNav } from "@/router/master";
 
 const route = useRoute();
 const router = useRouter();
 const roleStore = useRoleStore();
 const userStore = useUsers();
 const modalStore = useModalStore();
+const navStore = useNavStore();
 
-const query = ref<QueryParams>({
-  page: userStore.pagination.page,
-  pageSize: userStore.pagination.pageSize,
-});
+navStore.create([
+  masterNav.master,
+  userNav.home,
+  userNav.setting,
+  userNav.edit,
+]);
 
-const formData = ref<User>(userStore.user);
+const { user } = storeToRefs(userStore);
 
 const rulesUser = {
   username: {
@@ -199,30 +227,36 @@ const rulesUser = {
   },
   name: {
     required,
-    minLength: minLength(2),
+    minLength: minLength(3),
+  },
+  lastname: {
+    required,
+    minLength: minLength(3),
   },
   email: {
     required,
     email,
     minLength: minLength(4),
   },
+  mobilephone: {
+    required,
+    minLength: minLength(11),
+  },
   role_id: {
     required,
   },
 };
 
-const validate = useVuelidate(rulesUser, formData);
+const validate = useVuelidate(rulesUser, user);
 
-const roles = ref<Role[]>(roleStore.roles);
+const { roles } = storeToRefs(roleStore);
 
 const onSubmit = async () => {
   validate.value.$touch();
-  if (validate.value.$invalid) {
-    console.log("invalid");
-  } else {
-    const { error } = await userStore.updateUser(
-      String(formData.value._id),
-      formData.value
+  if (!validate.value.$invalid) {
+    const { error } = await userStore.update(
+      String(user.value._id),
+      user.value
     );
     if (!error) {
       modalStore.setModalAlertSuccess(
@@ -230,26 +264,20 @@ const onSubmit = async () => {
         "Changes Saved!",
         "Your update to the selected User has been applied."
       );
-      router.push({ name: "settings-users" });
+      router.push({ name: userNav.setting.name });
     }
   }
 };
 
 const findUser = async () => {
-  await userStore.findUser(String(route.params.id));
-  formData.value = userStore.user;
+  await userStore.find(String(route.params.id));
 };
 
 const getRoles = async () => {
-  await roleStore.getRoles({ ...query.value });
-  if (userStore.data.length === 0) {
-    modalStore.setModalAlertNotFound(true);
-  }
-
-  // update ref value
-  roles.value = roleStore.roles;
-  query.value.page = userStore.pagination.page;
-  query.value.pageSize = userStore.pagination.pageSize;
+  await roleStore.get({
+    page: 1,
+    pageSize: 100,
+  });
 };
 
 onMounted(async () => {
