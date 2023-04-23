@@ -437,7 +437,7 @@ const onClickSaveBankAccount = () => {
     (e) => e.number === formDataAccountBank.value.number
   );
   if (formDataAccountBank.value.id > -1) {
-    if (checkIndex === formDataAccountBank.value.id) {
+    if (checkIndex === formDataAccountBank.value.id || checkIndex === -1) {
       if (formData.value.accounts) {
         const accountBank =
           formData.value.accounts[formDataAccountBank.value.id];
@@ -539,7 +539,6 @@ const refreshAccount = () => {
       accounts.value.push(formData.value.accounts[i]);
     }
   }
-  console.log(accounts.value);
 };
 
 const updatePage = async (value: number) => {
