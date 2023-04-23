@@ -3,7 +3,7 @@
     <h2 class="text-lg font-medium mr-auto" data-cy="title-page">Bank</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
       <button
-        v-if="authStore.permissions.includes('bank.create')"
+        @click="router.push({ name: bankNav.home.name })"
         data-cy="btn-create"
         class="btn btn-primary shadow-md"
       >

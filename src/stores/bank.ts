@@ -103,5 +103,8 @@ export const useBanksStore = defineStore("banks", {
         return { error: err.response?.data as ErrorResponse };
       }
     },
+    setBank(bank: Bank) {
+      this.bank = bank;
+    },
   },
 });
