@@ -200,7 +200,6 @@ watch(
 );
 
 const onClickEdit = (owner: Owner) => {
-  console.log(owner._id);
   router.push({ name: ownerNav.edit.name, params: { id: owner._id } });
 };
 

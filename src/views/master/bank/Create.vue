@@ -483,7 +483,11 @@ const onClickSaveBankAccount = () => {
     }
   } else {
     if (checkIndex === -1) {
-      formData.value.accounts?.push({ ...formDataAccountBank.value });
+      formData.value.accounts?.push({
+        name: formDataAccountBank.value.name,
+        number: formDataAccountBank.value.number,
+        notes: formDataAccountBank.value.notes,
+      });
       refreshAccount();
       resetForm();
     } else {
@@ -516,7 +520,7 @@ const onClickDelete = (accountBank: AccountBank) => {
       e.name === accountBank.name &&
       e.notes === accountBank.notes
   );
-  formData.value.accounts?.splice(1, index);
+  formData.value.accounts?.splice(index, 1);
   resetForm();
 };
 

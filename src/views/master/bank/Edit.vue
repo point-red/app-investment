@@ -452,7 +452,11 @@ const onClickSaveBankAccount = () => {
     }
   } else {
     if (checkIndex === -1) {
-      formData.value.accounts?.push({ ...formDataAccountBank.value });
+      formData.value.accounts?.push({
+        name: formDataAccountBank.value.name,
+        number: formDataAccountBank.value.number,
+        notes: formDataAccountBank.value.notes,
+      });
       resetForm();
       refreshAccount();
     } else {
@@ -485,8 +489,9 @@ const onClickDelete = (accountBank: AccountBank) => {
       e.name === accountBank.name &&
       e.notes === accountBank.notes
   );
-  formData.value.accounts?.splice(1, index);
+  formData.value.accounts?.splice(index, 1);
   resetForm();
+  refreshAccount();
 };
 
 const onSubmitBank = async () => {
@@ -525,18 +530,16 @@ const refreshAccount = () => {
 
   // empty first
   accounts.value = [];
-  if (bankStore.bank.accounts) {
-    const accountLength = bankStore.bank.accounts.length;
-    query.value.pageCount = Math.ceil(accountLength / max);
-    console.log(query.value.pageCount);
-    length = accountLength - index;
+  const accountLength = formData.value.accounts.length;
+  query.value.pageCount = Math.ceil(accountLength / max);
+  length = accountLength - index;
 
-    for (let i = length - 1; i >= length - max; i--) {
-      if (bankStore.bank.accounts[i]) {
-        accounts.value.push(bankStore.bank.accounts[i]);
-      }
+  for (let i = length - 1; i >= length - max; i--) {
+    if (formData.value.accounts[i]) {
+      accounts.value.push(formData.value.accounts[i]);
     }
   }
+  console.log(accounts.value);
 };
 
 const updatePage = async (value: number) => {

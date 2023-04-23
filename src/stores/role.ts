@@ -79,7 +79,6 @@ export const useRoleStore = defineStore("roles", {
         await api.delete(url + "/" + id, { data: { password } });
         return { error: null };
       } catch (error) {
-        console.log(error);
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
       }

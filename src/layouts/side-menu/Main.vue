@@ -151,14 +151,12 @@ import { linkTo, nestedMenu, enter, leave } from "./index";
 import dom from "@left4code/tw-starter/dist/js/dom";
 
 const route = useRoute();
-console.log("route", route.name);
 const router = useRouter();
 const formattedMenu = ref([]);
 const sideMenuStore = useSideMenuStore();
 const sideMenu = computed(() => nestedMenu(sideMenuStore.getMenu, route));
 
 provide("forceActiveMenu", (pageName) => {
-  console.log(pageName);
   route.forceActiveMenu = pageName;
   formattedMenu.value = $h.toRaw(sideMenu.value);
 });
@@ -166,14 +164,12 @@ provide("forceActiveMenu", (pageName) => {
 watch(
   computed(() => route.path),
   () => {
-    console.log(route.path);
     delete route.forceActiveMenu;
     formattedMenu.value = $h.toRaw(sideMenu.value);
   }
 );
 
 onMounted(() => {
-  console.log(sideMenu.value);
   dom("body").removeClass("error-page").removeClass("login").addClass("main");
   formattedMenu.value = $h.toRaw(sideMenu.value);
 });
