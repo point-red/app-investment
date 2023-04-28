@@ -1,6 +1,6 @@
 <template>
   <div
-    class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-6"
+    class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center my-6"
   >
     <select
       @change="updatePageSize"
@@ -14,12 +14,12 @@
     <nav class="w-full sm:w-auto">
       <ul class="pagination">
         <li class="page-item">
-          <a class="page-link" href="#">
+          <a class="page-link" href="#" @click="goToFirstPage">
             <ChevronsLeftIcon class="w-4 h-4" />
           </a>
         </li>
         <li class="page-item">
-          <a class="page-link" href="#">
+          <a class="page-link" href="#" @click="goToPrevPage">
             <ChevronLeftIcon class="w-4 h-4" />
           </a>
         </li>
@@ -37,12 +37,12 @@
           <a v-if="mutable.hiddenNextPage" class="page-link" href="#">...</a>
         </li> -->
         <li class="page-item">
-          <a class="page-link" href="#">
+          <a class="page-link" href="#" @click="goToNextPage">
             <ChevronRightIcon class="w-4 h-4" />
           </a>
         </li>
         <li class="page-item">
-          <a class="page-link" href="#">
+          <a class="page-link" href="#" @click="goToLastPage">
             <ChevronsRightIcon class="w-4 h-4" />
           </a>
         </li>
@@ -85,6 +85,30 @@ const showPageNumber = (n: number) => {
   }
 
   return false;
+};
+
+const goToFirstPage = () => {
+  mutable.currentPage = 1;
+  emit("updatePage", mutable.currentPage);
+};
+
+const goToPrevPage = () => {
+  if (mutable.currentPage - 1 >= 1) {
+    mutable.currentPage--;
+    emit("updatePage", mutable.currentPage);
+  }
+};
+
+const goToNextPage = () => {
+  if (mutable.currentPage + 1 <= mutable.lastPage) {
+    mutable.currentPage++;
+    emit("updatePage", mutable.currentPage);
+  }
+};
+
+const goToLastPage = () => {
+  mutable.currentPage = mutable.lastPage;
+  emit("updatePage", mutable.currentPage);
 };
 
 const paginatePage = (n: number) => {

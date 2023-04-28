@@ -79,7 +79,13 @@
         </thead>
         <tbody>
           <tr v-for="(user, index) in data" :key="user._id">
-            <td>{{ index + 1 }}</td>
+            <td>
+              {{
+                index +
+                1 +
+                (userStore.pagination.page - 1) * userStore.pagination.pageSize
+              }}
+            </td>
             <td
               @click="
                 router.push({

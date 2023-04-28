@@ -70,7 +70,14 @@
         </thead>
         <tbody>
           <tr v-for="(owner, index) in owners" :key="owner._id">
-            <td>{{ index + 1 }}</td>
+            <td>
+              {{
+                index +
+                1 +
+                (ownerStore.pagination.page - 1) *
+                  ownerStore.pagination.pageSize
+              }}
+            </td>
             <td>{{ owner.name }}</td>
             <td>{{ $h.formatDate(owner.createdAt, "DD/MM/YYYY hh:mm:ss") }}</td>
             <td class="flex justify-center">

@@ -58,7 +58,9 @@
         </thead>
         <tbody>
           <tr v-for="(role, index) in roles" :key="role._id">
-            <td>{{ index + 1 }}</td>
+            <td>
+              {{ index + 1 + (pagination.page - 1) * pagination.pageSize }}
+            </td>
             <td>{{ role.name }}</td>
             <td>{{ $h.formatDate(role.createdAt, "DD/MM/YYYY hh:mm") }}</td>
             <td class="flex justify-center">
