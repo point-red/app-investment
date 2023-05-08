@@ -25,7 +25,7 @@ describe("Edit Roles", () => {
 
     const rolesDummy: Role = {
       id: "1",
-      roleName: "Admin",
+      name: "Admin",
     };
 
     roleStore.setRoles([rolesDummy]);
@@ -49,7 +49,7 @@ describe("Edit Roles", () => {
 
     const rolesDummy: Role = {
       id: "1",
-      roleName: "Admin",
+      name: "Admin",
     };
 
     roleStore.setRoles([rolesDummy]);
@@ -75,12 +75,12 @@ describe("Edit Roles", () => {
 
             const updateRolesDummy: Role = {
               id: "1",
-              roleName: "Admin update",
+              name: "Admin update",
             };
             // edit current data
             cy.get('input[name="roleName"]')
               .clear()
-              .type(updateRolesDummy.roleName);
+              .type(updateRolesDummy.name);
 
             cy.get('[data-cy="btn-save"]')
               .click()
@@ -106,7 +106,7 @@ describe("Edit Roles", () => {
 
     const rolesDummy: Role = {
       id: "1",
-      roleName: "Admin",
+      name: "Admin",
     };
 
     roleStore.setRoles([rolesDummy]);
@@ -144,7 +144,7 @@ describe("Edit Roles", () => {
 
     const rolesDummy: Role = {
       id: "1",
-      roleName: "Admin",
+      name: "Admin",
     };
 
     roleStore.setRoles([rolesDummy]);

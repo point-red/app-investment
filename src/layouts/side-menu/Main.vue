@@ -1,7 +1,7 @@
 <template>
   <div class="py-5 md:py-0">
-    <DarkModeSwitcher />
-    <MainColorSwitcher />
+    <!-- <DarkModeSwitcher />
+    <MainColorSwitcher /> -->
     <MobileMenu />
     <TopBar />
     <div class="flex overflow-hidden">
@@ -29,6 +29,7 @@
                   'side-menu--active': menu.active,
                   'side-menu--open': menu.activeDropdown,
                 }"
+                v-if="menu.canView"
                 @click="linkTo(menu, router, $event)"
               >
                 <div class="side-menu__icon">
@@ -62,10 +63,11 @@
                       "
                       class="side-menu"
                       :class="{ 'side-menu--active': subMenu.active }"
+                      v-if="subMenu.canView"
                       @click="linkTo(subMenu, router, $event)"
                     >
                       <div class="side-menu__icon">
-                        <ActivityIcon />
+                        <component :is="subMenu.icon" />
                       </div>
                       <div class="side-menu__title">
                         {{ subMenu.title }}
@@ -149,11 +151,10 @@ import { linkTo, nestedMenu, enter, leave } from "./index";
 import dom from "@left4code/tw-starter/dist/js/dom";
 
 const route = useRoute();
-console.log("route", route.name);
 const router = useRouter();
 const formattedMenu = ref([]);
 const sideMenuStore = useSideMenuStore();
-const sideMenu = computed(() => nestedMenu(sideMenuStore.menu, route));
+const sideMenu = computed(() => nestedMenu(sideMenuStore.getMenu, route));
 
 provide("forceActiveMenu", (pageName) => {
   route.forceActiveMenu = pageName;

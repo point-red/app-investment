@@ -1,23 +1,34 @@
+import api from "@/api";
 import { Owner } from "@/types/Owner";
+import { ApiResponse, ErrorResponse } from "@/types/api/ApiResponse";
+import { IPagination } from "@/types/api/Pagination";
+import { QueryParams } from "@/types/api/QueryParams";
+import { AxiosError } from "axios";
 import { defineStore } from "pinia";
+
+const url = "/owners";
 
 export type RootState = {
   owners: Owner[];
+  owner: Owner;
+  pagination: IPagination;
 };
 
 export const useOwnersStore = defineStore("owners", {
   state: () =>
     ({
-      owners: [
-        {
-          id: "1",
-          firstName: "John",
-          lastName: "Doe",
-          email: "example@mail.com",
-          phone: "628454342432",
-          createdAt: new Date().toLocaleDateString(),
-        },
-      ],
+      owners: [],
+      owner: {
+        _id: "",
+        name: "",
+        createdAt: "",
+      },
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        pageCount: 0,
+        totalDocument: 0,
+      },
     } as RootState),
   getters: {
     dataOwner(state) {
@@ -25,34 +36,64 @@ export const useOwnersStore = defineStore("owners", {
     },
   },
   actions: {
-    createOwner(owner: Owner) {
-      if (!owner) return;
-      this.owners.push(owner);
-    },
-    setOwners(owners: Owner[]) {
-      this.owners = owners;
-    },
-    updateOwner(id: string, payload: Owner) {
-      if (!id || !payload) return;
-
-      const index = this.findIndexById(id);
-
-      if (index !== -1) {
-        this.owners[index] = payload;
+    async get(params: QueryParams): Promise<ApiResponse> {
+      try {
+        const owners = await api.get<RootState>(url, { params: { ...params } });
+        this.owners = owners.data.owners;
+        this.pagination = owners.data.pagination;
+        return { data: owners.data };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
       }
     },
-    deleteItem(id: string) {
-      const index = this.findIndexById(id);
-
-      if (index === -1) return;
-
-      this.owners.splice(index, 1);
+    async find(id: string): Promise<ApiResponse> {
+      try {
+        const owner = await api.get<Owner>(url + "/" + id);
+        this.owner = owner.data;
+        return { data: owner.data };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
-    findIndexById(id: string) {
-      return this.owners.findIndex((item) => item.id === id);
+    async create(owner: Owner): Promise<ApiResponse> {
+      try {
+        await api.post(url, { ...owner });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
-    findById(id: string) {
-      return this.owners.filter((item) => item.id === id);
+    async update(id: string, payload: Owner): Promise<ApiResponse> {
+      try {
+        await api.patch(url + "/" + id, { ...payload });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async delete(id: string, password: string): Promise<ApiResponse> {
+      try {
+        await api.delete(url + "/" + id, { data: { password } });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async requestDelete(id: string, params: any): Promise<ApiResponse> {
+      try {
+        await api.post(url + "/" + id + "/request-delete", {
+          ...params,
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
     },
   },
 });

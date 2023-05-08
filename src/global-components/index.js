@@ -42,6 +42,9 @@ import {
   Highlight,
 } from "./preview-component";
 import LucideIcons from "./lucide";
+import Pagination from "./pagination/Main.vue";
+import ModalPassword from "./modal/ModalPassword.vue";
+import ModalAlertSuccess from "./modal/ModalAlertSuccess.vue";
 
 export default (app) => {
   app.component("Chart", Chart);
@@ -87,6 +90,9 @@ export default (app) => {
   app.component("Preview", Preview);
   app.component("Source", Source);
   app.component("Highlight", Highlight);
+  app.component("Pagination", Pagination);
+  app.component("ModalPassword", ModalPassword);
+  app.component("ModalAlertSuccess", ModalAlertSuccess);
 
   for (const [key, icon] of Object.entries(LucideIcons)) {
     app.component(key, icon);

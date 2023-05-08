@@ -1,11 +1,12 @@
 import { Role } from "./Role";
 
 export interface User {
-  id?: string;
+  _id?: string;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  mobilePhone: string;
+  name: string;
+  lastname: string;
+  role_id: string;
+  mobilephone: string;
+  role?: Role;
 }

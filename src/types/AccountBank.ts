@@ -1,7 +1,6 @@
 export interface AccountBank {
-  id?: string;
-  accountName: string;
-  accountNumber: string;
+  name: string;
+  number: number;
   notes?: string;
   createdAt?: string;
 }

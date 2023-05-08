@@ -146,7 +146,7 @@ const route = useRoute();
 const router = useRouter();
 const formattedMenu = ref([]);
 const sideMenuStore = useSideMenuStore();
-const mobileMenu = computed(() => nestedMenu(sideMenuStore.menu, route));
+const mobileMenu = computed(() => nestedMenu(sideMenuStore.getMenu, route));
 
 watch(
   computed(() => route.path),

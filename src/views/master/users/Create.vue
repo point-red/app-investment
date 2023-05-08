@@ -20,7 +20,7 @@
             <h2
               class="font-medium text-base pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
-              New user detail
+              New User Details
             </h2>
             <div class="pt-4 flex gap-5">
               <div class="w-1/2">
@@ -54,12 +54,12 @@
                     class="form-control"
                     placeholder="First Name"
                     name="firstName"
-                    v-model.trim="validate.firstName.$model"
+                    v-model.trim="validate.name.$model"
                   />
 
-                  <template v-if="validate.firstName.$error">
+                  <template v-if="validate.name.$error">
                     <div
-                      v-for="(error, index) in validate.firstName.$errors"
+                      v-for="(error, index) in validate.name.$errors"
                       :key="index"
                       class="text-danger mt-2"
                       data-cy="error-field"
@@ -77,20 +77,20 @@
                       }"
                       name="role"
                       class="w-full"
-                      v-model="validate.role.$model"
+                      v-model="validate.role_id.$model"
                     >
                       <option
-                        :value="role.id"
+                        :value="role._id"
                         v-for="role in roles"
-                        :key="role.id"
+                        :key="role._id"
                       >
-                        {{ role.roleName }}
+                        {{ role.name }}
                       </option>
                     </TomSelect>
 
-                    <template v-if="validate.role.$error">
+                    <template v-if="validate.role_id.$error">
                       <div
-                        v-for="(error, index) in validate.role.$errors"
+                        v-for="(error, index) in validate.role_id.$errors"
                         :key="index"
                         class="text-danger mt-2"
                         data-cy="error-field"
@@ -143,12 +143,12 @@
                     class="form-control"
                     placeholder="Last Name"
                     name="lastName"
-                    v-model.trim="validate.lastName.$model"
+                    v-model.trim="validate.lastname.$model"
                   />
 
-                  <template v-if="validate.lastName.$error">
+                  <template v-if="validate.lastname.$error">
                     <div
-                      v-for="(error, index) in validate.lastName.$errors"
+                      v-for="(error, index) in validate.lastname.$errors"
                       :key="index"
                       class="text-danger mt-2"
                       data-cy="error-field"
@@ -167,12 +167,12 @@
                     class="form-control"
                     placeholder="Mobile phone"
                     name="mobilePhone"
-                    v-model.trim="validate.mobilePhone.$model"
+                    v-model.trim="validate.mobilephone.$model"
                   />
 
-                  <template v-if="validate.mobilePhone.$error">
+                  <template v-if="validate.mobilephone.$error">
                     <div
-                      v-for="(error, index) in validate.mobilePhone.$errors"
+                      v-for="(error, index) in validate.mobilephone.$errors"
                       :key="index"
                       class="text-danger mt-2"
                       data-cy="error-field"
@@ -184,27 +184,6 @@
               </div>
             </div>
           </div>
-          <div class="w-1/3">
-            <h2
-              class="font-medium text-base pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-            >
-              Profile picture
-            </h2>
-            <div class="pt-4">
-              <Uploader
-                v-model="formData.attachments.preview"
-                @on-upload="
-                  (file) => {
-                    onUploadAttachment(file);
-                  }
-                "
-                :auto-upload="true"
-                :loading="false"
-                text-error=""
-                upload-field-name="image-profile"
-              />
-            </div>
-          </div>
         </div>
 
         <!-- btn -->
@@ -212,11 +191,25 @@
           class="flex justify-end p-5 border-t border-slate-200/60 dark:border-darkmode-400"
         >
           <div>
-            <button type="button" class="btn btn-outline-secondary mr-1">
+            <button
+              type="button"
+              class="btn btn-outline-secondary mr-1"
+              @click="router.push({ name: userNav.home.name })"
+            >
               Cancel
             </button>
-            <button type="submit" class="btn btn-primary" data-cy="btn-save">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              data-cy="btn-save"
+              :disabled="isSaving"
+            >
               Add User
+              <LoadingIcon
+                icon="three-dots"
+                class="w-4 h-4 ml-2"
+                v-show="isSaving"
+              />
             </button>
           </div>
         </div>
@@ -226,44 +219,46 @@
 </template>
 
 <script setup lang="ts">
-import Uploader from "@/components/ImageUpload.vue";
 import { useRoleStore } from "@/stores/role";
 import { useUsers } from "@/stores/users";
-import { Role } from "@/types/Role";
-import { ref, toRefs, reactive } from "vue";
+import { onMounted, ref } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minLength, email } from "@vuelidate/validators";
 import { useRouter } from "vue-router";
 import { useModalStore } from "@/stores/modal";
+import { User } from "@/types/Users";
+import { storeToRefs } from "pinia";
+import { useNavStore } from "@/stores/nav";
+import { masterNav, userNav } from "@/router/master";
 
 const router = useRouter();
 const roleStore = useRoleStore();
 const userStore = useUsers();
 const modalStore = useModalStore();
+const navStore = useNavStore();
 
-const formData = reactive({
+navStore.create([masterNav.master, userNav.home, userNav.create]);
+
+const formData = ref<User>({
   username: "",
-  firstName: "",
-  lastName: "",
+  name: "",
+  lastname: "",
   email: "",
-  mobilePhone: "",
-  role: "1",
-  attachments: {
-    file: null,
-    preview: "",
-  },
+  mobilephone: "",
+  role_id: "",
 });
+const isSaving = ref<boolean>(false);
 
 const rulesUser = {
   username: {
     required,
     minLength: minLength(4),
   },
-  firstName: {
+  name: {
     required,
     minLength: minLength(2),
   },
-  lastName: {
+  lastname: {
     minLength: minLength(2),
   },
   email: {
@@ -271,45 +266,44 @@ const rulesUser = {
     email,
     minLength: minLength(4),
   },
-  mobilePhone: {
+  mobilephone: {
     required,
     minLength: minLength(10),
   },
-  role: {
+  role_id: {
     required,
   },
 };
 
-const validate = useVuelidate(rulesUser, toRefs(formData));
+const validate = useVuelidate(rulesUser, formData);
 
-const roles = ref<Role[]>(roleStore.roles);
+const { roles } = storeToRefs(roleStore);
 
-const onUploadAttachment = async (fileUpload) => {
-  const { file, preview } = fileUpload;
-  formData.attachments = {
-    ...formData.attachments,
-    file: file,
-    preview: preview,
-  };
-};
-
-const onSubmit = () => {
+const onSubmit = async () => {
+  isSaving.value = true;
   validate.value.$touch();
-  if (validate.value.$invalid) {
-    console.log("invalid");
-  } else {
-    const lengthUser = userStore.users.length;
-    userStore.createUser({
-      id: String(lengthUser + 1),
-      username: formData.username,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      mobilePhone: formData.mobilePhone,
-      role: formData.role,
-    });
-    modalStore.setModalAlertSuccess(true);
-    router.push({ name: "master-users" });
+  if (!validate.value.$invalid) {
+    const { error } = await userStore.create(formData.value);
+    if (!error) {
+      modalStore.setModalAlertSuccess(
+        true,
+        "User Successfully Added!",
+        "You have added a new User."
+      );
+      router.push({ name: userNav.home.name });
+    }
   }
+  isSaving.value = false;
 };
+
+const getRoles = async () => {
+  await roleStore.get({
+    page: 1,
+    pageSize: 100,
+  });
+};
+
+onMounted(async () => {
+  await getRoles();
+});
 </script>

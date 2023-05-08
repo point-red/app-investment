@@ -2,14 +2,6 @@
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
     <h2 class="text-lg font-medium mr-auto">Archive Users</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <Tippy
-        @click="router.push({ name: 'settings-users' })"
-        tag="button"
-        class="tooltip btn btn-secondary mr-2"
-        content="Setting"
-      >
-        <SettingsIcon class="w-5 h-5"
-      /></Tippy>
       <button
         data-cy="btn-create"
         @click="handleBack"
@@ -56,71 +48,28 @@
       <table class="table table-striped mt-4">
         <thead>
           <tr>
-            <th class="whitespace-nowrap">#</th>
             <th class="whitespace-nowrap">NAME</th>
             <th class="whitespace-nowrap">EMAIL</th>
             <th class="whitespace-nowrap">ROLE</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(user, index) in tableData" :key="user.id">
-            <td>{{ index + 1 }}</td>
-            <td>{{ `${user.firstName} ${user.lastName}` }}</td>
+          <tr v-for="user in data" :key="user._id">
+            <td>
+              {{ user.name + (user.lastname ? " " + user.lastname : "") }}
+            </td>
             <td>{{ user.email }}</td>
-            <td>{{ user.role.roleName }}</td>
+            <td>{{ user.role?.name }}</td>
           </tr>
         </tbody>
       </table>
 
-      <div
-        class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-nowrap items-center mt-6"
-      >
-        <select class="w-20 form-select box mt-3 sm:mt-0 sm:mr-auto">
-          <option>10</option>
-          <option>25</option>
-          <option>35</option>
-          <option>50</option>
-        </select>
-        <nav class="w-full sm:w-auto">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronLeftIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item active">
-              <a class="page-link" href="#">2</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">3</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">...</a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="#">
-                <ChevronsRightIcon class="w-4 h-4" />
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      <Pagination
+        :current-page="userStore.pagination.page"
+        :last-page="userStore.pagination.pageCount"
+        @update-page="updatePage"
+        @update-page-size="updatePageSize"
+      />
     </div>
   </div>
   <!-- END: HTML Table Data -->
@@ -128,19 +77,72 @@
 </template>
 
 <script setup lang="ts">
+import { masterNav, userNav } from "@/router/master";
+import { useModalStore } from "@/stores/modal";
+import { useNavStore } from "@/stores/nav";
 import { useUsers } from "@/stores/users";
-import { User } from "@/types/Users";
-import { ref } from "vue";
+import { QueryParams } from "@/types/api/QueryParams";
+import { storeToRefs } from "pinia";
+import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const modalStore = useModalStore();
 const userStore = useUsers();
+const navStore = useNavStore();
+
+navStore.create([masterNav.master, userNav.home, userNav.archive]);
 
 const searchTerm = ref("");
+const { data, pagination } = storeToRefs(userStore);
+const query = ref<QueryParams>({
+  page: pagination.value.page,
+  pageSize: pagination.value.pageSize,
+  archived: true,
+  sort: {
+    createdAt: "desc",
+  },
+});
 
-const tableData = ref<User[]>(userStore.users);
+watch(searchTerm, async (searchTerm) => {
+  if (searchTerm.length) {
+    query.value.search = {
+      name: searchTerm,
+    };
+  } else {
+    delete query.value.search;
+  }
+
+  await getOwners();
+});
 
 const handleBack = () => {
-  router.push({ name: "master-users" });
+  router.push({ name: userNav.home.name });
 };
+
+const getOwners = async () => {
+  await userStore.get({ ...query.value });
+
+  if (userStore.data.length === 0) {
+    modalStore.setModalAlertNotFound(true);
+  }
+
+  // update ref value
+  query.value.page = pagination.value.page;
+  query.value.pageSize = pagination.value.pageSize;
+};
+
+const updatePage = async (value: number) => {
+  query.value.page = value;
+  await getOwners();
+};
+
+const updatePageSize = async (value: number) => {
+  query.value.pageSize = value;
+  await getOwners();
+};
+
+onMounted(async () => {
+  await getOwners();
+});
 </script>
