@@ -17,6 +17,8 @@ import {
   userRoute,
 } from "./master";
 
+import { investmentRoute, depositRoute } from "./investment";
+
 import Auth from "../views/auth/SignIn.vue";
 
 const routes = [
@@ -56,6 +58,11 @@ const routes = [
       ...bankRoute,
       ...ownerRoute,
     ],
+  },
+  {
+    path: "/investment",
+    component: SideMenu,
+    children: [...investmentRoute, ...depositRoute],
   },
   {
     path: "/simple-menu",
