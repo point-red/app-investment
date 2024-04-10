@@ -6,6 +6,7 @@
       <button
         v-if="authStore.permissions.includes('deposit.create')"
         data-test="btn-create"
+        @click="onClickCreate"
         class="btn btn-primary shadow-md mr-2"
         data-cy="btn-create"
       >
@@ -134,41 +135,122 @@
             <th class="whitespace-nowrap text-center">
               Amount of Interest (net)
             </th>
+            <th class="whitespace-nowrap text-center">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>BILYET001</td>
-            <td>DP/04/2024/001</td>
-            <td>09/04/2024</td>
-            <td>BCA</td>
-            <td>Jul Mapuce</td>
-            <td>Jul Mapuce</td>
-            <td>Rp. 400,000,000</td>
-            <td>Rp. 400,000,000</td>
-            <td>366 days</td>
-            <td>60 days</td>
-            <td>09/06/2024</td>
-            <td>7%</td>
-            <td>20%</td>
-            <td>Rp. 3,672,131</td>
+          <tr v-for="deposit in deposits" :key="deposit._id">
+            <td>{{ deposit.bilyetNumber }}</td>
+            <td>{{ deposit.number }}</td>
+            <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
+            <td>{{ deposit.bank.name }}</td>
+            <td>{{ deposit.bank.account.name }}</td>
+            <td>{{ deposit.owner.name }}</td>
+            <td>Rp. {{ numberFormat(deposit.amount) }}</td>
+            <td>Rp. {{ numberFormat(deposit.remaining) }}</td>
+            <td>{{ deposit.baseDate }} days</td>
+            <td>{{ deposit.tenor }} days</td>
+            <td>{{ format(deposit.dueDate, "dd/MM/yyyy") }}</td>
+            <td>{{ deposit.interestRate }}%</td>
+            <td>{{ deposit.taxRate }}%</td>
+            <td>Rp. {{ numberFormat(deposit.netInterest) }}</td>
+            <td class="flex justify-center">
+              <button
+                class="btn btn-primary mr-2"
+                @click="onClickDetail(deposit)"
+              >
+                Details
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
 
-      <Pagination :current-page="1" :last-page="1" />
+      <Pagination
+        :current-page="depositStore.pagination.page"
+        :last-page="depositStore.pagination.pageCount"
+        @update-page="updatePage"
+        @update-page-size="updatePageSize"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import Menu from "../Tab.vue";
 import { useAuthStore } from "@/stores/auth";
-import { roleNav } from "@/router/master";
+import { useRouter } from "vue-router";
+import { depositNav, investmentNav } from "@/router/investment";
+import numeral from "numeral";
+import { storeToRefs } from "pinia";
+import { useDepositsStore } from "@/stores/deposit";
+import { useNavStore } from "@/stores/nav";
+import { QueryParams } from "@/types/api/QueryParams";
+import { useModalStore } from "@/stores/modal";
+import { format } from "date-fns";
+import { Bank } from "@/types/Bank";
+import { bankNav } from "@/router/master";
+import { Deposit } from "@/types/deposit";
 
 const authStore = useAuthStore();
+const router = useRouter();
+const depositStore = useDepositsStore();
+const modalStore = useModalStore();
+const navStore = useNavStore();
+
+navStore.create([investmentNav.investment]);
+
+const { deposits } = storeToRefs(depositStore);
+const query = ref<QueryParams>({
+  page: depositStore.pagination.page,
+  pageSize: depositStore.pagination.pageSize,
+  sort: {
+    createdAt: "desc",
+  },
+});
 
 const date = ref("placement date");
 const dueDate = ref("due date");
+
+const onClickCreate = () => {
+  router.push({ name: depositNav.createPlacement.name });
+};
+
+const getDeposit = async () => {
+  await depositStore.get({ ...query.value });
+  if (depositStore.deposits.length === 0) {
+    modalStore.setModalAlertNotFound(true);
+  }
+
+  // update ref value
+  query.value.page = depositStore.pagination.page;
+  query.value.pageSize = depositStore.pagination.pageSize;
+};
+
+const updatePage = async (value: number) => {
+  query.value.page = value;
+  await getDeposit();
+};
+
+const updatePageSize = async (value: number) => {
+  query.value.pageSize = value;
+  await getDeposit();
+};
+
+const onClickDetail = (deposit: Deposit) => {
+  depositStore.setDeposit(deposit);
+  router.push({
+    name: depositNav.viewPlacement.name,
+    params: { id: deposit._id },
+  });
+};
+
+onMounted(async () => {
+  await getDeposit();
+});
+
+const numberFormat = (value: number) => {
+  return numeral(value).format("0,0.[00]");
+};
 </script>

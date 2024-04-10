@@ -10,3 +10,9 @@ export interface User {
   mobilephone: string;
   role?: Role;
 }
+
+export interface UserForm {
+  _id?: string;
+  username: string;
+  name: string;
+}
