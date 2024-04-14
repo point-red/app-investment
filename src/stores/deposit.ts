@@ -4,7 +4,14 @@ import { IPagination } from "@/types/api/Pagination";
 import { QueryParams } from "@/types/api/QueryParams";
 import { AxiosError } from "axios";
 import { defineStore } from "pinia";
-import { Deposit } from "@/types/deposit";
+import {
+  Deposit,
+  DepositCashback,
+  DepositCashbackPayment,
+  DepositInterestPayment,
+  DepositWithdrawalPayment,
+} from "@/types/deposit";
+import { depositNav } from "@/router/investment";
 
 const url = "/deposits";
 
@@ -16,7 +23,7 @@ export type RootState = {
 
 export const deposit = {
   _id: "",
-  date: "",
+  date: new Date().toISOString(),
   bilyetNumber: "",
   bank: {
     _id: "",
@@ -25,6 +32,10 @@ export const deposit = {
       number: 0,
       name: "",
     },
+  },
+  account: {
+    number: 0,
+    name: "",
   },
   owner: {
     _id: "",
@@ -37,40 +48,63 @@ export const deposit = {
   sourceBank: {
     _id: "",
     name: "",
-    account: {
-      number: 0,
-      name: "",
-    },
+  },
+  sourceBankAccount: {
+    number: 0,
+    name: "",
   },
   recipientBank: {
     _id: "",
     name: "",
-    account: {
-      number: 0,
-      name: "",
-    },
   },
-  paymentMethod: "",
+  recipientBankAccount: {
+    number: 0,
+    name: "",
+  },
+  paymentMethod: "advance",
   interestRate: 0,
   taxRate: 0,
   isCashback: false,
+  returns: [],
+  cashbacks: [],
 };
 
 export const depositForm = {
   _id: "",
   date: new Date().toISOString(),
   bilyetNumber: "",
-  bank_id: "",
-  accountNumber: 0,
-  owner_id: "",
+  bank: {
+    _id: "",
+    name: "",
+  },
+  account: {
+    number: 0,
+    name: "",
+  },
+  owner: {
+    _id: "",
+    name: "",
+  },
   baseDate: 0,
   tenor: 0,
   isRollOver: false,
   amount: 0,
-  sourceBank_id: "",
-  sourceAccountNumber: 0,
-  recipientBank_id: "",
-  recipientAccountNumber: 0,
+  sourceBank: {
+    _id: "",
+    name: "",
+  },
+  sourceBankAccount: {
+    number: 0,
+    name: "",
+  },
+  recipientBank: {
+    _id: "",
+    name: "",
+  },
+  recipientBankAccount: {
+    number: 0,
+    name: "",
+  },
   paymentMethod: "advance",
   interestRate: 0,
   taxRate: 0,
@@ -125,35 +159,122 @@ export const useDepositsStore = defineStore("deposits", {
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    // async update(id: string, payload: Bank): Promise<ApiResponse> {
-    //   try {
-    //     await api.patch(url + "/" + id, { ...payload });
-    //     return { error: null };
-    //   } catch (error) {
-    //     const err = error as AxiosError;
-    //     return { error: err.response?.data as ErrorResponse };
-    //   }
-    // },
-    // async delete(id: string, password: string): Promise<ApiResponse> {
-    //   try {
-    //     await api.delete(url + "/" + id, { data: { password } });
-    //     return { error: null };
-    //   } catch (error) {
-    //     const err = error as AxiosError;
-    //     return { error: err.response?.data as ErrorResponse };
-    //   }
-    // },
-    // async requestDelete(id: string, params: any): Promise<ApiResponse> {
-    //   try {
-    //     await api.post(url + "/" + id + "/request-delete", {
-    //       ...params,
-    //     });
-    //     return { error: null };
-    //   } catch (error) {
-    //     const err = error as AxiosError;
-    //     return { error: err.response?.data as ErrorResponse };
-    //   }
-    // },
+    async update(id: string, payload: Deposit): Promise<ApiResponse> {
+      try {
+        await api.patch(url + "/" + id, { ...payload });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async cashbackPayment(
+      id: string,
+      payload: DepositCashbackPayment
+    ): Promise<ApiResponse> {
+      try {
+        await api.patch(url + "/" + id + "/cashbacks", {
+          ...payload,
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async interestPayment(
+      id: string,
+      payload: DepositInterestPayment
+    ): Promise<ApiResponse> {
+      try {
+        await api.patch(url + "/" + id + "/interests", {
+          ...payload,
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async withdrawalPayment(
+      id: string,
+      payload: DepositWithdrawalPayment
+    ): Promise<ApiResponse> {
+      try {
+        await api.patch(url + "/" + id + "/withdrawals", {
+          ...payload,
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async renewal(id: string, payload: Deposit): Promise<ApiResponse> {
+      try {
+        await api.patch(url + "/" + id + "/renewals", {
+          ...payload,
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async delete(id: string, password: string): Promise<ApiResponse> {
+      try {
+        await api.delete(url + "/" + id, { data: { password } });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async deleteCashback(
+      id: string,
+      cashbackId: string,
+      password: string
+    ): Promise<ApiResponse> {
+      try {
+        await api.delete(url + "/" + id + "/cashbacks/" + cashbackId, {
+          data: { password },
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async deleteInterest(
+      id: string,
+      interestId: string,
+      password: string
+    ): Promise<ApiResponse> {
+      try {
+        await api.delete(url + "/" + id + "/interests/" + interestId, {
+          data: { password },
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async deleteWithdrawal(
+      id: string,
+      withdrawalId: string,
+      password: string
+    ): Promise<ApiResponse> {
+      try {
+        await api.delete(url + "/" + id + "/withdrawals/" + withdrawalId, {
+          data: { password },
+        });
+        return { error: null };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
     setDeposit(deposit: Deposit) {
       this.deposit = deposit;
     },

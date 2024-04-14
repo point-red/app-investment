@@ -5,7 +5,7 @@
     </h2>
   </div>
 
-  <div class="intro-y box lg:mt-5 flex" v-if="deposit._id">
+  <div class="intro-y box lg:mt-5 flex-col" v-if="deposit._id">
     <div class="w-full items-center">
       <div
         class="p-5 w-full border-b border-slate-200/60 dark:border-darkmode-400"
@@ -36,7 +36,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                     >
-                      {{ format(deposit.createdAt, "yyyy/MM/dd") }}
+                      {{ format(new Date(deposit.createdAt), "yyyy/MM/dd") }}
                     </td>
                   </tr>
                   <tr>
@@ -48,16 +48,27 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                     >
-                      {{ deposit.createdBy?.name || "-" }}
+                      {{ deposit.createdBy.name || "-" }}
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div class="flex flex-col justify-end items-end h-full">
-              <div class="flex flex-row gap-4 justify-end items-end">
+              <div class="flex flex-row gap-4 justify-start items-end mb-8">
+                <button
+                  class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded capitalize"
+                >
+                  {{ deposit.formStatus }}
+                </button>
+              </div>
+              <div
+                class="flex flex-row gap-4 justify-end items-end"
+                v-if="deposit.formStatus === 'draft'"
+              >
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  @click="onClickDelete"
                 >
                   Delete
                 </button>
@@ -71,6 +82,12 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="w-full items-center">
+      <div
+        class="p-5 w-full border-b border-slate-200/60 dark:border-darkmode-400"
+      >
         <div class="w-full mb-8">
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
@@ -126,7 +143,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ deposit.bank.account.name }}
+                      {{ deposit.account.name }}
                     </td>
                   </tr>
                   <tr>
@@ -222,7 +239,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ deposit.sourceBank.account.name }}
+                      {{ deposit.sourceBankAccount.name }}
                     </td>
                   </tr>
                   <tr>
@@ -246,7 +263,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ deposit.recipientBank.account.name }}
+                      {{ deposit.recipientBankAccount.name }}
                     </td>
                   </tr>
                   <tr>
@@ -524,7 +541,7 @@
 
 <script setup lang="ts">
 import { useDepositsStore } from "@/stores/deposit";
-import { onMounted } from "vue";
+import { onMounted, computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNavStore } from "@/stores/nav";
 import { depositNav, investmentNav } from "@/router/investment";
@@ -532,6 +549,7 @@ import { storeToRefs } from "pinia";
 import { format } from "date-fns";
 import { useModalStore } from "@/stores/modal";
 import numeral from "numeral";
+import { toast } from "vue3-toastify";
 
 const route = useRoute();
 const router = useRouter();
@@ -549,6 +567,9 @@ navStore.create([
 
 const { deposit } = storeToRefs(depositStore);
 
+const dialogDelete = ref(false);
+const modalDelete = ref(false);
+
 const onClickEdit = () => {
   router.push({
     name: depositNav.editPlacement.name,
@@ -565,6 +586,67 @@ const findDeposit = async () => {
 const numberFormat = (value: number) => {
   return numeral(value).format("0,0.[00]");
 };
+
+const onClickDelete = (id: string) => {
+  modalStore.setModalDelete(true);
+};
+
+const onClickConfirmDelete = () => {
+  // modalConfirmPassword.value = true;
+  modalStore.setModalPassword(true);
+};
+
+const onConfirmPassword = async (password: string) => {
+  const { error } = await depositStore.delete(
+    String(deposit.value._id),
+    password
+  );
+  if (!error) {
+    modalDelete.value = false;
+    dialogDelete.value = false;
+    modalStore.setModalPassword(false);
+    modalStore.setModalDelete(false);
+
+    modalStore.setModalAlertSuccess(
+      true,
+      "Changes Saved!",
+      "The selected data has been deleted."
+    );
+    // resetForm();
+  } else {
+    toast.error("Invalid password");
+  }
+};
+
+const modalSuccessState = computed(() => modalStore.modalAlertSuccess);
+const modalPasswordValueState = computed(() => modalStore.modalPasswordValue);
+const confirmDeleteState = computed(() => modalStore.confirmDelete);
+const confirmReqDeleteState = computed(() => modalStore.confirmRequestDelete);
+watch(
+  [
+    modalSuccessState,
+    modalPasswordValueState,
+    confirmDeleteState,
+    confirmReqDeleteState,
+  ],
+  async (
+    [modalSuccess, modalPassword, confirmDelete, confirmReqDelete],
+    [oldModalSuccess]
+  ) => {
+    if (!modalSuccess && modalSuccess !== oldModalSuccess) {
+      router.push({ name: depositNav.placement.name });
+    }
+
+    if (modalPassword) {
+      await onConfirmPassword(modalPassword);
+    }
+
+    if (confirmDelete) {
+      onClickConfirmDelete();
+      modalStore.setConfirmDelete(false);
+    }
+  }
+);
 
 onMounted(async () => {
   await findDeposit();

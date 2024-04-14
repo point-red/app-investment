@@ -5,6 +5,13 @@ import ViewPlacement from "@/views/investment/deposit/placement/View.vue";
 import { useAuthStore } from "@/stores/auth";
 import CreatePlacement from "@/views/investment/deposit/placement/Create.vue";
 import EditPlacement from "@/views/investment/deposit/placement/Edit.vue";
+import Cashback from "@/views/investment/deposit/cashback/Main.vue";
+import ViewCashback from "@/views/investment/deposit/cashback/View.vue";
+import Interest from "@/views/investment/deposit/interest/Main.vue";
+import ViewInterest from "@/views/investment/deposit/interest/View.vue";
+import Withdrawal from "@/views/investment/deposit/withdrawal/Main.vue";
+import ViewWithdrawal from "@/views/investment/deposit/withdrawal/View.vue";
+import Renewal from "@/views/investment/deposit/renewal/Main.vue";
 
 export namespace depositNav {
   export const home: NavItem = {
@@ -30,6 +37,46 @@ export namespace depositNav {
   export const editPlacement: NavItem = {
     label: "Edit Deposit Placement",
     name: "edit-deposit-placement",
+  };
+
+  export const cashback: NavItem = {
+    label: "Deposit Cashback",
+    name: "deposit-cashback",
+  };
+
+  export const cashbackDetail: NavItem = {
+    label: "Cashback Detail",
+    name: "deposit-cashback-detail",
+  };
+
+  export const interest: NavItem = {
+    label: "Realised Interest",
+    name: "deposit-realised-interest",
+  };
+
+  export const interestDetail: NavItem = {
+    label: "Realised Interest Detail",
+    name: "deposit-realised-interest-detail",
+  };
+
+  export const withdraw: NavItem = {
+    label: "Deposit Withdrawal",
+    name: "deposit-withdrawal",
+  };
+
+  export const withdrawDetail: NavItem = {
+    label: "Deposit Withdrawal Detail",
+    name: "deposit-withdrawal-detail",
+  };
+
+  export const renewal: NavItem = {
+    label: "Deposit Renewal",
+    name: "deposit-renewal",
+  };
+
+  export const renewalDetail: NavItem = {
+    label: "Deposit Renewal Detail",
+    name: "deposit-renewal-detail",
   };
 }
 
@@ -93,6 +140,97 @@ export const depositRoute = [
     beforeEnter: async (to, from, next) => {
       const authStore = useAuthStore();
       if (authStore.permissions.includes("deposit.update")) {
+        next();
+      } else {
+        next({ name: "404" });
+      }
+    },
+  },
+  {
+    path: "/deposit/cashback",
+    name: depositNav.cashback.name,
+    component: Cashback,
+    beforeEnter: async (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.permissions.includes("deposit.view")) {
+        next();
+      } else {
+        next({ name: "404" });
+      }
+    },
+  },
+  {
+    path: "/deposit/cashback/:id",
+    name: depositNav.cashbackDetail.name,
+    component: ViewCashback,
+    beforeEnter: async (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.permissions.includes("deposit.view")) {
+        next();
+      } else {
+        next({ name: "404" });
+      }
+    },
+  },
+  {
+    path: "/deposit/interest",
+    name: depositNav.interest.name,
+    component: Interest,
+    beforeEnter: async (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.permissions.includes("deposit.view")) {
+        next();
+      } else {
+        next({ name: "404" });
+      }
+    },
+  },
+  {
+    path: "/deposit/interest/:id",
+    name: depositNav.interestDetail.name,
+    component: ViewInterest,
+    beforeEnter: async (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.permissions.includes("deposit.view")) {
+        next();
+      } else {
+        next({ name: "404" });
+      }
+    },
+  },
+  {
+    path: "/deposit/withdrawal",
+    name: depositNav.withdraw.name,
+    component: Withdrawal,
+    beforeEnter: async (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.permissions.includes("deposit.view")) {
+        next();
+      } else {
+        next({ name: "404" });
+      }
+    },
+  },
+  {
+    path: "/deposit/withdrawal/:id",
+    name: depositNav.withdrawDetail.name,
+    component: ViewWithdrawal,
+    beforeEnter: async (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.permissions.includes("deposit.view")) {
+        next();
+      } else {
+        next({ name: "404" });
+      }
+    },
+  },
+  {
+    path: "/deposit/renewal",
+    name: depositNav.renewal.name,
+    component: Renewal,
+    beforeEnter: async (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.permissions.includes("deposit.view")) {
         next();
       } else {
         next({ name: "404" });

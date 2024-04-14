@@ -21,6 +21,7 @@
           <input
             id="tabulator-html-filter-value"
             type="search"
+            v-model="searchTerm"
             class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
             placeholder="Search..."
           />
@@ -33,10 +34,10 @@
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem data-cy="sort-desc">
+                <DropdownItem @click="onClickSort('desc')" data-cy="sort-desc">
                   <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
                 </DropdownItem>
-                <DropdownItem data-cy="sort-asc">
+                <DropdownItem @click="onClickSort('asc')" data-cy="sort-asc">
                   <ArrowDownIcon class="w-4 h-4 mr-2" /> Oldest
                 </DropdownItem>
               </DropdownContent>
@@ -51,68 +52,83 @@
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem data-cy="sort-desc">
-                  <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
+                <DropdownItem @click="onClickStatus('all')" data-cy="sort-desc">
+                  All
                 </DropdownItem>
-                <DropdownItem data-cy="sort-asc">
-                  <ArrowDownIcon class="w-4 h-4 mr-2" /> Oldest
+                <DropdownItem
+                  @click="onClickStatus('draft')"
+                  data-cy="sort-desc"
+                >
+                  Draft
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('pending')"
+                  data-cy="sort-asc"
+                >
+                  Pending
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('completed')"
+                  data-cy="sort-asc"
+                >
+                  Completed
                 </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>
         </div>
-        <div class="mt-2 xl:mt-0 sm:mr-8">
-          <div class="relative w-56 mx-auto">
-            <div
-              class="absolute flex items-center justify-center w-10 h-full border rounded-l bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:border-darkmode-800 dark:text-slate-400"
-            >
-              <CalendarIcon class="w-4 h-4" />
-            </div>
-            <Litepicker
-              v-model="date"
-              :options="{
-                autoApply: false,
-                singleMode: false,
-                numberOfColumns: 2,
-                numberOfMonths: 2,
-                showWeekNumbers: true,
-                dropdowns: {
-                  minYear: 1990,
-                  maxYear: null,
-                  months: true,
-                  years: true,
-                },
-              }"
-              class="pl-12"
-            />
-          </div>
-        </div>
-        <div class="mt-2 xl:mt-0 sm:ml-4">
-          <div class="relative w-56 mx-auto">
-            <div
-              class="absolute flex items-center justify-center w-10 h-full border rounded-l bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:border-darkmode-800 dark:text-slate-400"
-            >
-              <CalendarIcon class="w-4 h-4" />
-            </div>
-            <Litepicker
-              v-model="dueDate"
-              :options="{
-                autoApply: false,
-                singleMode: false,
-                numberOfColumns: 2,
-                numberOfMonths: 2,
-                showWeekNumbers: true,
-                dropdowns: {
-                  minYear: 1990,
-                  maxYear: null,
-                  months: true,
-                  years: true,
-                },
-              }"
-              class="pl-12"
-            />
-          </div>
-        </div>
+        <!--        <div class="mt-2 xl:mt-0 sm:mr-8">-->
+        <!--          <div class="relative w-56 mx-auto">-->
+        <!--            <div-->
+        <!--              class="absolute flex items-center justify-center w-10 h-full border rounded-l bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:border-darkmode-800 dark:text-slate-400"-->
+        <!--            >-->
+        <!--              <CalendarIcon class="w-4 h-4" />-->
+        <!--            </div>-->
+        <!--            <Litepicker-->
+        <!--              v-model="date"-->
+        <!--              :options="{-->
+        <!--                autoApply: false,-->
+        <!--                singleMode: false,-->
+        <!--                numberOfColumns: 2,-->
+        <!--                numberOfMonths: 2,-->
+        <!--                showWeekNumbers: true,-->
+        <!--                dropdowns: {-->
+        <!--                  minYear: 1990,-->
+        <!--                  maxYear: null,-->
+        <!--                  months: true,-->
+        <!--                  years: true,-->
+        <!--                },-->
+        <!--              }"-->
+        <!--              class="pl-12"-->
+        <!--            />-->
+        <!--          </div>-->
+        <!--        </div>-->
+        <!--        <div class="mt-2 xl:mt-0 sm:ml-4">-->
+        <!--          <div class="relative w-56 mx-auto">-->
+        <!--            <div-->
+        <!--              class="absolute flex items-center justify-center w-10 h-full border rounded-l bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:border-darkmode-800 dark:text-slate-400"-->
+        <!--            >-->
+        <!--              <CalendarIcon class="w-4 h-4" />-->
+        <!--            </div>-->
+        <!--            <Litepicker-->
+        <!--              v-model="dueDate"-->
+        <!--              :options="{-->
+        <!--                autoApply: false,-->
+        <!--                singleMode: false,-->
+        <!--                numberOfColumns: 2,-->
+        <!--                numberOfMonths: 2,-->
+        <!--                showWeekNumbers: true,-->
+        <!--                dropdowns: {-->
+        <!--                  minYear: 1990,-->
+        <!--                  maxYear: null,-->
+        <!--                  months: true,-->
+        <!--                  years: true,-->
+        <!--                },-->
+        <!--              }"-->
+        <!--              class="pl-12"-->
+        <!--            />-->
+        <!--          </div>-->
+        <!--        </div>-->
       </div>
     </div>
     <div class="overflow-x-auto scrollbar-hidden">
@@ -144,7 +160,7 @@
             <td>{{ deposit.number }}</td>
             <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
             <td>{{ deposit.bank.name }}</td>
-            <td>{{ deposit.bank.account.name }}</td>
+            <td>{{ deposit.account.name }}</td>
             <td>{{ deposit.owner.name }}</td>
             <td>Rp. {{ numberFormat(deposit.amount) }}</td>
             <td>Rp. {{ numberFormat(deposit.remaining) }}</td>
@@ -177,7 +193,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import Menu from "../Tab.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
@@ -212,6 +228,30 @@ const query = ref<QueryParams>({
 
 const date = ref("placement date");
 const dueDate = ref("due date");
+const searchTerm = ref("");
+
+watch(searchTerm, async (searchTerm) => {
+  if (searchTerm.length) {
+    query.value.search = {
+      number: searchTerm,
+    };
+  } else {
+    delete query.value.search;
+  }
+
+  await getDeposit();
+});
+
+const onClickStatus = async (status: string) => {
+  if (status == "all") delete query.value.filter;
+  else query.value.filter = { formStatus: status };
+  await getDeposit();
+};
+
+const onClickSort = async (sort: string) => {
+  query.value.sort = { createdAt: sort };
+  await getDeposit();
+};
 
 const onClickCreate = () => {
   router.push({ name: depositNav.createPlacement.name });

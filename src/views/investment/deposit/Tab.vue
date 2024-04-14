@@ -15,18 +15,42 @@
             <span class="py-4 cursor-pointer w-full">Deposit Placement</span>
           </router-link>
         </li>
-        <Tab :fullWidth="true" :class="'text-center'">
-          <span class="py-4 cursor-pointer w-full"> Deposit Cashback </span>
-        </Tab>
-        <Tab :fullWidth="true" :class="'text-center'">
-          <span class="py-4 cursor-pointer w-full"> Realised Interest </span>
-        </Tab>
-        <Tab :fullWidth="true" :class="'text-center'">
-          <span class="py-4 cursor-pointer w-full"> Deposit Withdrawal </span>
-        </Tab>
-        <Tab :fullWidth="true" :class="'text-center'">
-          <span class="py-4 cursor-pointer w-full"> Deposit Renewal </span>
-        </Tab>
+        <li class="nav-item flex-1" role="presentation">
+          <router-link
+            to="/deposit/cashback"
+            class="nav-link text-center w-full"
+            :class="{ 'text-blue-500': isMatch('/deposit/cashback') }"
+          >
+            <span class="py-4 cursor-pointer w-full">Deposit Cashback</span>
+          </router-link>
+        </li>
+        <li class="nav-item flex-1" role="presentation">
+          <router-link
+            to="/deposit/interest"
+            class="nav-link text-center w-full"
+            :class="{ 'text-blue-500': isMatch('/deposit/interest') }"
+          >
+            <span class="py-4 cursor-pointer w-full">Realised Interest</span>
+          </router-link>
+        </li>
+        <li class="nav-item flex-1" role="presentation">
+          <router-link
+            to="/deposit/withdrawal"
+            class="nav-link text-center w-full"
+            :class="{ 'text-blue-500': isMatch('/deposit/withdrawal') }"
+          >
+            <span class="py-4 cursor-pointer w-full">Deposit Withdrawal</span>
+          </router-link>
+        </li>
+        <li class="nav-item flex-1" role="presentation">
+          <router-link
+            to="/deposit/renewal"
+            class="nav-link text-center w-full"
+            :class="{ 'text-blue-500': isMatch('/deposit/renewal') }"
+          >
+            <span class="py-4 cursor-pointer w-full">Deposit Renewal</span>
+          </router-link>
+        </li>
       </ul>
     </div>
   </div>

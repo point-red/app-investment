@@ -36,6 +36,7 @@ export interface Deposit {
   bilyetNumber: string;
   number?: string;
   bank: DepositBank;
+  account: DepositBankAccount;
   owner: DepositOwner;
   baseDate: number;
   tenor: number;
@@ -44,7 +45,9 @@ export interface Deposit {
   amount: number;
   remaining?: number;
   sourceBank: DepositBank;
+  sourceBankAccount: DepositBankAccount;
   recipientBank: DepositBank;
+  recipientBankAccount: DepositBankAccount;
   paymentMethod: string;
   interestRate: number;
   baseInterest?: number;
@@ -57,6 +60,10 @@ export interface Deposit {
   formStatus?: string;
   returns?: DepositReturn[];
   cashbacks?: DepositCashback[];
+  cashbackPayments?: DepositCashbackPayment[];
+  interestPayments?: DepositInterestPayment[];
+  withdrawals?: DepositWithdrawalPayment[];
+  renewal_id?: string;
   createdBy?: UserForm;
   createdAt?: string;
   updatedBy?: UserForm;
@@ -67,7 +74,6 @@ export interface Deposit {
 export interface DepositBank {
   _id?: string;
   name: string;
-  account: DepositBankAccount;
 }
 
 export interface DepositBankAccount {
@@ -95,4 +101,87 @@ export interface DepositCashback {
   rate: number;
   amount?: number;
   remaining?: number;
+  payments?: Payment[];
+}
+
+export interface CashbacksPayment {
+  rate: number;
+  amount: number;
+  remaining: number;
+  payments: Payment[];
+}
+
+export interface InterestPayment {
+  baseDays: number;
+  dueDate: string;
+  gross: number;
+  taxAmount: number;
+  net: number;
+  remaining: number;
+  payments: InterestPaymentDetail[];
+}
+
+export interface WithdrawalPayment {
+  bank: DepositBank;
+  account: DepositBankAccount;
+  recipientName: string;
+  date: string;
+  amount: number;
+  remaining: number;
+}
+
+export interface InterestPaymentDetail {
+  bank: DepositBank;
+  account: DepositBankAccount;
+  date: string;
+  amount: number;
+  remaining: number;
+}
+
+export interface Payment {
+  date: string;
+  amount: number;
+  remaining: number;
+}
+
+export interface DepositCashbackPayment {
+  _id?: string;
+  cashbacks: CashbacksPayment[];
+  note?: string;
+  status?: string;
+  createdAt?: string;
+  createdBy?: UserForm;
+  updatedAt?: string;
+  updatedBy?: UserForm;
+  deletedBy?: UserForm;
+  deletedAt?: string;
+  deletedReason?: string;
+}
+
+export interface DepositInterestPayment {
+  _id?: string;
+  interests: InterestPayment[];
+  note?: string;
+  status?: string;
+  createdAt?: string;
+  createdBy?: UserForm;
+  updatedAt?: string;
+  updatedBy?: UserForm;
+  deletedBy?: UserForm;
+  deletedAt?: string;
+  deletedReason?: string;
+}
+
+export interface DepositWithdrawalPayment {
+  _id?: string;
+  payments: WithdrawalPayment[];
+  note?: string;
+  status?: string;
+  createdAt?: string;
+  createdBy?: UserForm;
+  updatedAt?: string;
+  updatedBy?: UserForm;
+  deletedBy?: UserForm;
+  deletedAt?: string;
+  deletedReason?: string;
 }

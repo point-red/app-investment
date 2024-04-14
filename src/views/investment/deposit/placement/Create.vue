@@ -91,26 +91,15 @@
                         Bank
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
-                        <TomSelect
-                          :options="{
-                            placeholder: 'Available Bank',
-                          }"
-                          name="bank"
-                          class="w-full border-0"
-                          v-model.trim="validate.bank_id.$model"
-                          @change="onBankChange"
-                        >
-                          <option
-                            :value="bank._id"
-                            v-for="bank in banks"
-                            :key="bank._id"
-                          >
-                            {{ bank.name }}
-                          </option>
-                        </TomSelect>
-                        <template v-if="validate.bank_id.$error">
+                        <v-select
+                          :options="banks"
+                          label="name"
+                          v-model.trim="validate.bank.$model"
+                          @option:selected="onBankChange"
+                        ></v-select>
+                        <template v-if="validate.bank.$error">
                           <div
-                            v-for="(error, index) in validate.bank_id.$errors"
+                            v-for="(error, index) in validate.bank.$errors"
                             :key="index"
                             class="text-danger mt-2"
                             data-cy="error-field"
@@ -127,26 +116,14 @@
                         Account
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
-                        <TomSelect
-                          :options="{
-                            placeholder: 'Available Account',
-                          }"
-                          name="bank"
-                          class="w-full border-0"
-                          v-model.trim="validate.accountNumber.$model"
-                        >
-                          <option
-                            :value="account.number"
-                            v-for="account in accounts"
-                            :key="account.number"
-                          >
-                            {{ account.number }} - {{ account.name }}
-                          </option>
-                        </TomSelect>
-                        <template v-if="validate.accountNumber.$error">
+                        <v-select
+                          :options="accounts"
+                          label="name"
+                          v-model.trim="validate.account.$model"
+                        ></v-select>
+                        <template v-if="validate.account.$error">
                           <div
-                            v-for="(error, index) in validate.accountNumber
-                              .$errors"
+                            v-for="(error, index) in validate.account.$errors"
                             :key="index"
                             class="text-danger mt-2"
                             data-cy="error-field"
@@ -163,25 +140,14 @@
                         Owner
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
-                        <TomSelect
-                          :options="{
-                            placeholder: 'Available Owner',
-                          }"
-                          name="bank"
-                          class="w-full border-0"
-                          v-model.trim="validate.owner_id.$model"
-                        >
-                          <option
-                            :value="owner._id"
-                            v-for="owner in owners"
-                            :key="owner._id"
-                          >
-                            {{ owner.name }}
-                          </option>
-                        </TomSelect>
-                        <template v-if="validate.owner_id.$error">
+                        <v-select
+                          :options="owners"
+                          label="name"
+                          v-model.trim="validate.owner.$model"
+                        ></v-select>
+                        <template v-if="validate.owner.$error">
                           <div
-                            v-for="(error, index) in validate.owner_id.$errors"
+                            v-for="(error, index) in validate.owner.$errors"
                             :key="index"
                             class="text-danger mt-2"
                             data-cy="error-field"
@@ -346,26 +312,15 @@
                         Bank Source of Fund
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
-                        <TomSelect
-                          :options="{
-                            placeholder: 'Available Bank',
-                          }"
-                          name="bank"
-                          class="w-full border-0"
-                          v-model.trim="validate.sourceBank_id.$model"
-                          @change="onSourceBankChange"
-                        >
-                          <option
-                            :value="bank._id"
-                            v-for="bank in banks"
-                            :key="bank._id"
-                          >
-                            {{ bank.name }}
-                          </option>
-                        </TomSelect>
-                        <template v-if="validate.sourceBank_id.$error">
+                        <v-select
+                          :options="banks"
+                          label="name"
+                          v-model.trim="validate.sourceBank.$model"
+                          @option:selected="onSourceBankChange"
+                        ></v-select>
+                        <template v-if="validate.sourceBank.$error">
                           <div
-                            v-for="(error, index) in validate.sourceBank_id
+                            v-for="(error, index) in validate.sourceBank
                               .$errors"
                             :key="index"
                             class="text-danger mt-2"
@@ -383,26 +338,15 @@
                         Bank Account
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
-                        <TomSelect
-                          :options="{
-                            placeholder: 'Available Account',
-                          }"
-                          name="bank"
-                          class="w-full border-0"
-                          v-model.trim="validate.sourceAccountNumber.$model"
-                        >
-                          <option
-                            :value="account.number"
-                            v-for="account in sourceAccounts"
-                            :key="account.number"
-                          >
-                            {{ account.number }} - {{ account.name }}
-                          </option>
-                        </TomSelect>
-                        <template v-if="validate.sourceAccountNumber.$error">
+                        <v-select
+                          :options="sourceAccounts"
+                          label="name"
+                          v-model.trim="validate.sourceBankAccount.$model"
+                        ></v-select>
+                        <template v-if="validate.sourceBankAccount.$error">
                           <div
-                            v-for="(error, index) in validate
-                              .sourceAccountNumber.$errors"
+                            v-for="(error, index) in validate.sourceBankAccount
+                              .$errors"
                             :key="index"
                             class="text-danger mt-2"
                             data-cy="error-field"
@@ -419,26 +363,15 @@
                         Interest Recipient Bank
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
-                        <TomSelect
-                          :options="{
-                            placeholder: 'Available Bank',
-                          }"
-                          name="bank"
-                          class="w-full border-0"
-                          v-model.trim="validate.recipientBank_id.$model"
-                          @change="onRecipientBankChange"
-                        >
-                          <option
-                            :value="bank._id"
-                            v-for="bank in banks"
-                            :key="bank._id"
-                          >
-                            {{ bank.name }}
-                          </option>
-                        </TomSelect>
-                        <template v-if="validate.recipientBank_id.$error">
+                        <v-select
+                          :options="banks"
+                          label="name"
+                          v-model.trim="validate.recipientBank.$model"
+                          @option:selected="onRecipientBankChange"
+                        ></v-select>
+                        <template v-if="validate.recipientBank.$error">
                           <div
-                            v-for="(error, index) in validate.recipientBank_id
+                            v-for="(error, index) in validate.recipientBank
                               .$errors"
                             :key="index"
                             class="text-danger mt-2"
@@ -456,26 +389,15 @@
                         Interest Recipient Bank Account
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
-                        <TomSelect
-                          :options="{
-                            placeholder: 'Available Account',
-                          }"
-                          name="bank"
-                          class="w-full border-0"
-                          v-model.trim="validate.recipientAccountNumber.$model"
-                        >
-                          <option
-                            :value="account.number"
-                            v-for="account in recipientAccounts"
-                            :key="account.number"
-                          >
-                            {{ account.number }} - {{ account.name }}
-                          </option>
-                        </TomSelect>
-                        <template v-if="validate.recipientAccountNumber.$error">
+                        <v-select
+                          :options="recipientAccounts"
+                          label="name"
+                          v-model.trim="validate.recipientBankAccount.$model"
+                        ></v-select>
+                        <template v-if="validate.recipientBankAccount.$error">
                           <div
                             v-for="(error, index) in validate
-                              .recipientAccountNumber.$errors"
+                              .recipientBankAccount.$errors"
                             :key="index"
                             class="text-danger mt-2"
                             data-cy="error-field"
@@ -984,18 +906,17 @@
 </template>
 
 <script setup lang="ts">
-import { deposit, depositForm, useDepositsStore } from "@/stores/deposit";
+import { deposit, useDepositsStore } from "@/stores/deposit";
 import {
   Deposit,
   DepositBankAccount,
   DepositCashback,
-  DepositForm,
   DepositReturn,
 } from "@/types/deposit";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useVuelidate } from "@vuelidate/core";
-import { required } from "@vuelidate/validators";
+import { helpers, required } from "@vuelidate/validators";
 import { useNavStore } from "@/stores/nav";
 import { depositNav, investmentNav } from "@/router/investment";
 import { useBanksStore } from "@/stores/bank";
@@ -1003,9 +924,6 @@ import { storeToRefs } from "pinia";
 import { useOwnersStore } from "@/stores/owner";
 import { format } from "date-fns";
 import Cleave from "vue-cleave-component";
-import { Bank } from "@/types/Bank";
-import { AccountBank } from "@/types/AccountBank";
-import { Owner } from "@/types/Owner";
 import { useModalStore } from "@/stores/modal";
 
 const router = useRouter();
@@ -1024,7 +942,7 @@ const recipientAccounts = ref<DepositBankAccount[]>([]);
 
 navStore.create([
   investmentNav.investment,
-  depositNav.home,
+  depositNav.placement,
   depositNav.createPlacement,
 ]);
 
@@ -1034,11 +952,14 @@ const query = ref({
   pageCount: 1,
 });
 
-const formData = ref<DepositForm>(depositForm);
+const formData = ref<Deposit>(deposit);
 const returns = ref<DepositReturn[]>([{ baseDays: 0 }]);
 const cashbacks = ref<DepositCashback[]>([{ rate: 0 }]);
 
 const moreThanZero = (value) => value > 0;
+const idValidate = (value) => !!value._id;
+const accountValidate = (value) => !!value.name;
+
 const $externalResults = ref({});
 const rules = {
   date: {
@@ -1047,41 +968,41 @@ const rules = {
   bilyetNumber: {
     required,
   },
-  bank_id: {
-    required,
+  bank: {
+    required: helpers.withMessage("Please select bank", idValidate),
   },
-  accountNumber: {
-    required,
+  account: {
+    required: helpers.withMessage("Please select account", accountValidate),
   },
-  owner_id: {
-    required,
+  owner: {
+    required: helpers.withMessage("Please select owner", idValidate),
   },
   baseDate: {
-    maxValue: moreThanZero,
+    maxValue: helpers.withMessage("Must be more than zero", moreThanZero),
   },
   tenor: {
-    maxValue: moreThanZero,
+    maxValue: helpers.withMessage("Must be more than zero", moreThanZero),
   },
   isRollOver: {
     required,
   },
   amount: {
-    maxValue: moreThanZero,
+    maxValue: helpers.withMessage("Must be more than zero", moreThanZero),
   },
   paymentMethod: {
     required,
   },
-  sourceBank_id: {
-    required,
+  sourceBank: {
+    required: helpers.withMessage("Please select bank", idValidate),
   },
-  sourceAccountNumber: {
-    required,
+  sourceBankAccount: {
+    required: helpers.withMessage("Please select account", accountValidate),
   },
-  recipientBank_id: {
-    required,
+  recipientBank: {
+    required: helpers.withMessage("Please select bank", idValidate),
   },
-  recipientAccountNumber: {
-    required,
+  recipientBankAccount: {
+    required: helpers.withMessage("Please select account", accountValidate),
   },
   isCashback: {
     required,
@@ -1093,41 +1014,9 @@ const validate = useVuelidate(rules, formData, { $externalResults });
 const onSubmit = async () => {
   validate.value.$touch();
   if (!validate.value.$invalid) {
-    const bank = getBank(formData.value.bank_id) as Bank;
-    const account = getAccount(
-      bank,
-      formData.value.accountNumber
-    ) as AccountBank;
-    const sourceBank = getBank(formData.value.sourceBank_id) as Bank;
-    const owner = getOwner(formData.value.owner_id) as Owner;
-    const sourceAccount = getAccount(
-      sourceBank,
-      formData.value.sourceAccountNumber
-    ) as AccountBank;
-    const recipientBank = getBank(formData.value.recipientBank_id) as Bank;
-    const recipientAccount = getAccount(
-      recipientBank,
-      formData.value.recipientAccountNumber
-    ) as AccountBank;
-    const deposit: Deposit = {
-      ...formData.value,
-      bank: { _id: bank._id, name: bank.name, account: account },
-      sourceBank: {
-        _id: sourceBank._id,
-        name: sourceBank.name,
-        account: sourceAccount,
-      },
-      recipientBank: {
-        _id: sourceBank._id,
-        name: recipientBank.name,
-        account: recipientAccount,
-      },
-      owner,
-    };
-
-    deposit.returns = returns.value;
-    deposit.cashbacks = cashbacks.value;
-    const { error } = await depositStore.create(deposit);
+    formData.value.returns = returns.value;
+    formData.value.cashbacks = cashbacks.value;
+    const { error } = await depositStore.create(formData.value);
     if (!error) {
       modalStore.setModalAlertSuccess(
         true,
@@ -1137,39 +1026,6 @@ const onSubmit = async () => {
       await router.push({ name: depositNav.placement.name });
     }
   }
-};
-
-const onClickSaveBankAccount = () => {
-  // const checkIndex = formData.value.accounts?.findIndex(
-  //   (e) => e.number === formDataAccountBank.value.number
-  // );
-  // if (formDataAccountBank.value.id > -1) {
-  //   if (checkIndex === formDataAccountBank.value.id || checkIndex === -1) {
-  //     if (formData.value.accounts) {
-  //       const accountBank =
-  //         formData.value.accounts[formDataAccountBank.value.id];
-  //       accountBank.name = formDataAccountBank.value.name;
-  //       accountBank.number = formDataAccountBank.value.number;
-  //       accountBank.notes = formDataAccountBank.value.notes;
-  //     }
-  //     resetForm();
-  //     refreshAccount();
-  //   } else {
-  //     $externalResults.value = { number: ["account number already exist."] };
-  //   }
-  // } else {
-  //   if (checkIndex === -1) {
-  //     formData.value.accounts?.push({
-  //       name: formDataAccountBank.value.name,
-  //       number: formDataAccountBank.value.number,
-  //       notes: formDataAccountBank.value.notes,
-  //     });
-  //     refreshAccount();
-  //     resetForm();
-  //   } else {
-  //     $externalResults.value = { number: ["account number already exist."] };
-  //   }
-  // }
 };
 
 const calculate = () => {
@@ -1241,58 +1097,16 @@ const addDay = (date: Date | string, days: number) => {
   return format(result, "dd/MM/yyyy");
 };
 
-const getBank = (_id: string) => {
-  const index = banks.value.findIndex((e) => e._id === _id);
-  if (index > -1) {
-    return banks.value[index];
-  }
+const onBankChange = (value) => {
+  accounts.value = value.accounts;
 };
 
-const getAccount = (bank: Bank, number: number) => {
-  const index = bank.accounts.findIndex(
-    (e) => String(e.number) === String(number)
-  );
-  if (index > -1) {
-    return bank.accounts[index];
-  }
+const onSourceBankChange = (value) => {
+  sourceAccounts.value = value.accounts;
 };
 
-const getOwner = (_id: string) => {
-  const index = owners.value.findIndex((e) => e._id === _id);
-  if (index > -1) {
-    return owners.value[index];
-  }
-};
-
-const onBankChange = () => {
-  const index = banks.value.findIndex((e) => e._id === formData.value.bank_id);
-  if (index > -1) {
-    const bank = banks.value[index];
-    accounts.value = bank.accounts;
-    formData.value.accountNumber = bank.accounts[0]?.number;
-  }
-};
-
-const onSourceBankChange = () => {
-  const index = banks.value.findIndex(
-    (e) => e._id === formData.value.sourceBank_id
-  );
-  if (index > -1) {
-    const bank = banks.value[index];
-    sourceAccounts.value = bank.accounts;
-    formData.value.sourceAccountNumber = bank.accounts[0]?.number;
-  }
-};
-
-const onRecipientBankChange = () => {
-  const index = banks.value.findIndex(
-    (e) => e._id === formData.value.recipientBank_id
-  );
-  if (index > -1) {
-    const bank = banks.value[index];
-    recipientAccounts.value = bank.accounts;
-    formData.value.recipientAccountNumber = bank.accounts[0]?.number;
-  }
+const onRecipientBankChange = (value) => {
+  recipientAccounts.value = value.accounts;
 };
 
 const getBanks = async () => {
