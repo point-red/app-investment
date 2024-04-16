@@ -69,10 +69,7 @@
                   {{ deposit.cashbackPayments?.[0].status }}
                 </button>
               </div>
-              <div
-                class="flex flex-row gap-4 justify-end items-end"
-                v-if="deposit.cashbackPayments?.[0].status == 'incomplete'"
-              >
+              <div class="flex flex-row gap-4 justify-end items-end">
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   @click="onClickDelete"
@@ -198,11 +195,7 @@
             v-for="(cashback, index) in deposit.cashbackPayments?.[0].cashbacks"
             :key="'cashback-' + index"
           >
-            <div
-              class="overflow-x-auto mb-8"
-              v-for="(payment, index) in cashback.payments"
-              :key="index"
-            >
+            <div class="overflow-x-auto mb-8">
               <table class="border-collapse border border-slate-400 w-full">
                 <tbody>
                   <tr>
@@ -214,7 +207,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ payment.date }}
+                      {{ cashback.date }}
                     </td>
                   </tr>
                   <tr>
@@ -253,7 +246,7 @@
                       Rp. {{ numberFormat(cashback.amount) }}
                     </td>
                   </tr>
-                  <tr v-if="index > 0">
+                  <tr>
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
@@ -262,22 +255,8 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      Rp. {{ numberFormat(payment.amount) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
-                    >
-                      {{
-                        index > 0 ? "Correction Received" : "Amount Received"
-                      }}
-                    </td>
-                    <td
-                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
-                    >
                       Rp.
-                      {{ numberFormat(payment.amount) }}
+                      {{ numberFormat(cashback.received) }}
                     </td>
                   </tr>
                   <tr>
@@ -290,7 +269,7 @@
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
                       Rp.
-                      {{ numberFormat(payment.remaining) }}
+                      {{ numberFormat(cashback.amount - cashback.received) }}
                     </td>
                   </tr>
                 </tbody>
@@ -423,11 +402,7 @@
           v-for="(cashback, index) in cashbackPayments.cashbacks"
           :key="'cashback-' + index"
         >
-          <div
-            class="overflow-x-auto mb-8"
-            v-for="(payment, index) in cashback.payments"
-            :key="index"
-          >
+          <div class="overflow-x-auto mb-8">
             <table class="border-collapse border border-slate-400 w-full">
               <tbody>
                 <tr>
@@ -436,7 +411,7 @@
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     <Litepicker
-                      v-model="payment.date"
+                      v-model="cashback.date"
                       :options="{
                         autoApply: true,
                         showWeekNumbers: true,
@@ -476,21 +451,13 @@
                     Rp. {{ numberFormat(cashback.amount) }}
                   </td>
                 </tr>
-                <tr v-if="index > 0">
+                <tr>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Received
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(payment.remaining) }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ index > 0 ? "Correction Received" : "Amount Received" }}
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     <cleave
-                      v-model="payment.amount"
+                      v-model="cashback.received"
                       :options="{
                         numeral: true,
                         numeralDecimalScale: 15,
@@ -498,7 +465,7 @@
                         noImmediatePrefix: true,
                         rawValueTrimPrefix: true,
                       }"
-                      @keyup="calculateRemaining(index, cashback)"
+                      @keyup="handleMaxAmount(cashback)"
                       class="form-control border-0"
                       name="amount"
                     />
@@ -510,31 +477,11 @@
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Rp.
-                    {{ numberFormat(payment.remaining) }}
-                  </td>
-                </tr>
-                <tr v-if="index > 0">
-                  <td
-                    colspan="2"
-                    class="border w-1/2 border-slate-300 py-2 px-4 text-right"
-                  >
-                    <TrashIcon
-                      class="w-4 h-4 mr-2 cursor-pointer"
-                      @click="deletePayment(index, cashback)"
-                    />
+                    {{ numberFormat(cashback.amount - cashback.received) }}
                   </td>
                 </tr>
               </tbody>
             </table>
-          </div>
-          <div class="mt-2 mb-8">
-            <button
-              type="button"
-              class="btn btn-primary mr-1"
-              @click="addNewPayment(index)"
-            >
-              Add New Cashback
-            </button>
           </div>
         </div>
         <div class="w-full mb-8">
@@ -577,7 +524,11 @@ import { storeToRefs } from "pinia";
 import { format } from "date-fns";
 import { useModalStore } from "@/stores/modal";
 import numeral from "numeral";
-import { DepositCashback, DepositCashbackPayment } from "@/types/deposit";
+import {
+  CashbacksPayment,
+  DepositCashback,
+  DepositCashbackPayment,
+} from "@/types/deposit";
 import Cleave from "vue-cleave-component";
 import { toast } from "vue3-toastify";
 
@@ -619,13 +570,6 @@ const numberFormat = (value: number) => {
   return numeral(value).format("0,0.[00]");
 };
 
-const deletePayment = (index: number, cashback: DepositCashback) => {
-  if (cashback.payments) {
-    cashback.payments.splice(index, 1);
-    calculateRemaining(index - 1, cashback);
-  }
-};
-
 const onSubmit = async () => {
   if (deposit.value && cashbackPayments.value) {
     const { error } = await depositStore.cashbackPayment(
@@ -644,48 +588,9 @@ const onSubmit = async () => {
   }
 };
 
-const addNewPayment = (index: number) => {
-  if (cashbackPayments.value) {
-    const cashback = cashbackPayments.value.cashbacks[index];
-    const remaining = getPaymentRemaining(cashback);
-    if (cashback.payments) {
-      cashback.payments.push({
-        date: format(new Date(), "dd/MM/yyyy"),
-        amount: 0,
-        remaining: remaining,
-      });
-    }
-  }
-};
-
-const getPaymentRemaining = (cashback: DepositCashback) => {
-  let remaining = cashback.amount || 0;
-  if (cashback.payments) {
-    for (let i = 0; i < cashback.payments.length; i++) {
-      const payment = cashback.payments[i];
-      remaining -= payment.amount || 0;
-    }
-  }
-  return remaining;
-};
-
-const calculateRemaining = (index: number, cashback: DepositCashback) => {
-  let remaining = 0;
-  if (cashback.payments) {
-    const payment = cashback.payments[index];
-    if (payment.amount > payment.remaining) {
-      payment.amount = payment.remaining;
-    }
-    remaining = payment.remaining - payment.amount;
-
-    for (let i = index + 1; i < cashback.payments.length; i++) {
-      const payment = cashback.payments[i];
-      payment.remaining = remaining;
-      if (payment.amount > payment.remaining) {
-        payment.amount = payment.remaining;
-      }
-      remaining = payment.remaining - payment.amount;
-    }
+const handleMaxAmount = (cashback: CashbacksPayment) => {
+  if (cashback.received > cashback.amount) {
+    cashback.received = cashback.amount;
   }
 };
 

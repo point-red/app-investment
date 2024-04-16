@@ -70,10 +70,7 @@
                   {{ deposit.withdrawals?.[0].status }}
                 </button>
               </div>
-              <div
-                class="flex flex-row gap-4 justify-end items-end"
-                v-if="deposit.withdrawals?.[0].status == 'incomplete'"
-              >
+              <div class="flex flex-row gap-4 justify-end items-end">
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   @click="onClickDelete"
@@ -162,7 +159,7 @@
                     Account
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.account.name }}
+                    {{ deposit.account.number }}
                   </td>
                 </tr>
                 <tr>
@@ -226,7 +223,7 @@
                     Bank Account
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.sourceBankAccount.name }}
+                    {{ deposit.sourceBankAccount.number }}
                   </td>
                 </tr>
                 <tr>
@@ -242,7 +239,7 @@
                     Interest Recipient Bank Account
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.recipientBankAccount.name }}
+                    {{ deposit.recipientBankAccount.number }}
                   </td>
                 </tr>
                 <tr>
@@ -411,7 +408,7 @@
                     Recipient Account
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ payment.account.name }}
+                    {{ payment.account.number }}
                   </td>
                 </tr>
                 <tr>
@@ -422,17 +419,9 @@
                     {{ payment.recipientName }}
                   </td>
                 </tr>
-                <tr v-if="index > 0">
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Amount Received
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(payment.remaining) }}
-                  </td>
-                </tr>
                 <tr>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ index > 0 ? "Correction Received" : "Amount Received" }}
+                    Amount Received
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Rp {{ numberFormat(payment.amount) }}
@@ -444,15 +433,6 @@
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     {{ payment.date }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Remaining
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp.
-                    {{ numberFormat(payment.remaining - payment.amount) }}
                   </td>
                 </tr>
               </tbody>
@@ -546,7 +526,7 @@
                   Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.account.name }}
+                  {{ deposit.account.number }}
                 </td>
               </tr>
               <tr>
@@ -610,7 +590,7 @@
                   Bank Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.sourceBankAccount.name }}
+                  {{ deposit.sourceBankAccount.number }}
                 </td>
               </tr>
               <tr>
@@ -626,7 +606,7 @@
                   Interest Recipient Bank Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.recipientBankAccount.name }}
+                  {{ deposit.recipientBankAccount.number }}
                 </td>
               </tr>
               <tr>
@@ -802,7 +782,7 @@
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
                   <v-select
                     :options="accounts"
-                    label="name"
+                    label="number"
                     v-model="payment.account"
                   ></v-select>
                 </td>
@@ -822,17 +802,9 @@
                   />
                 </td>
               </tr>
-              <tr v-if="index > 0">
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Amount Received
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(payment.remaining) }}
-                </td>
-              </tr>
               <tr>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ index > 0 ? "Correction Received" : "Amount Received" }}
+                  Amount Received
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   <cleave
@@ -844,7 +816,6 @@
                       noImmediatePrefix: true,
                       rawValueTrimPrefix: true,
                     }"
-                    @keyup="calculateRemaining(index)"
                     class="form-control border-0"
                     name="amount"
                   />
@@ -870,15 +841,6 @@
                     }"
                     class="border-0 w-full text-sm"
                   />
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Remaining
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp.
-                  {{ numberFormat(payment.remaining - payment.amount) }}
                 </td>
               </tr>
               <tr v-if="index > 0">
@@ -1031,18 +993,27 @@ onMounted(async () => {
 
 const onSubmit = async () => {
   if (deposit.value && withdrawals.value) {
-    const { error } = await depositStore.withdrawalPayment(
-      deposit.value._id as string,
-      withdrawals.value
-    );
-    if (!error) {
-      modalStore.setModalAlertSuccess(
-        true,
-        "Withdrawal Payment Successfully Updated",
-        "You have updated Withdrawal Payment."
+    let total = 0;
+    for (const payment of withdrawals.value.payments) {
+      total += Number(payment.amount);
+    }
+
+    if (total > (deposit.value.amount || 0)) {
+      toast.error("Total more than remaining!");
+    } else {
+      const { error } = await depositStore.withdrawalPayment(
+        deposit.value._id as string,
+        withdrawals.value
       );
-      modalForm.value = false;
-      await getDeposit();
+      if (!error) {
+        modalStore.setModalAlertSuccess(
+          true,
+          "Withdrawal Payment Successfully Updated",
+          "You have updated Withdrawal Payment."
+        );
+        modalForm.value = false;
+        await getDeposit();
+      }
     }
   }
 };
@@ -1071,17 +1042,6 @@ const getTotalCashback = (cashbacks: DepositCashback[]) => {
   return total;
 };
 
-const getRemaining = (deposit: Deposit) => {
-  let total = 0;
-  if (deposit.cashbacks) {
-    total = getTotalCashback(deposit.cashbacks);
-    const received = getReceived(deposit);
-    total -= received;
-  }
-
-  return total;
-};
-
 const getReceived = (deposit: Deposit) => {
   let total = 0;
   if (
@@ -1096,24 +1056,6 @@ const getReceived = (deposit: Deposit) => {
       }
   }
   return total;
-};
-
-const lastPaymentDate = (deposit: Deposit) => {
-  let res = "-";
-  if (
-    deposit.cashbackPayments &&
-    deposit.cashbackPayments.length > 0 &&
-    deposit.cashbackPayments[0]._id
-  ) {
-    const cashbackPayments = deposit.cashbackPayments[0];
-    const cashback =
-      cashbackPayments.cashbacks[cashbackPayments.cashbacks.length - 1];
-    const payment = cashback.payments[cashback.payments.length - 1];
-    if (payment) {
-      res = payment.date;
-    }
-  }
-  return res;
 };
 
 const getPaymentRemaining = () => {
@@ -1134,35 +1076,7 @@ const getPaymentRemaining = () => {
 const deletePayment = (index: number) => {
   if (withdrawals.value.payments) {
     withdrawals.value.payments.splice(index, 1);
-    calculateRemaining(index - 1);
   }
-};
-
-const calculateRemaining = (index: number) => {
-  let remaining = 0;
-  if (deposit.value) {
-    const payment = withdrawals.value.payments[index];
-    if (payment.amount > payment.remaining) {
-      payment.amount = payment.remaining;
-    }
-    remaining = payment.remaining - payment.amount;
-    for (let i = index + 1; i < withdrawals.value.payments.length; i++) {
-      const payment = withdrawals.value.payments[i];
-      payment.remaining = remaining;
-      if (payment.amount > payment.remaining) {
-        payment.amount = payment.remaining;
-      }
-      remaining = payment.remaining - payment.amount;
-    }
-  }
-};
-
-const getTotalAmount = (deposit: Deposit) => {
-  return (
-    Number(deposit.amount) +
-    (Number(deposit.netInterest) || 0) +
-    getTotalCashback(deposit.cashbacks || [])
-  );
 };
 
 const onClickEdit = () => {

@@ -249,11 +249,7 @@
           v-for="(cashback, index) in cashbackPayments.cashbacks"
           :key="'cashback-' + index"
         >
-          <div
-            class="overflow-x-auto mb-8"
-            v-for="(payment, index) in cashback.payments"
-            :key="index"
-          >
+          <div class="overflow-x-auto mb-8">
             <table class="border-collapse border border-slate-400 w-full">
               <tbody>
                 <tr>
@@ -262,7 +258,7 @@
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     <Litepicker
-                      v-model="payment.date"
+                      v-model="cashback.date"
                       :options="{
                         autoApply: true,
                         showWeekNumbers: true,
@@ -302,21 +298,13 @@
                     Rp. {{ numberFormat(cashback.amount) }}
                   </td>
                 </tr>
-                <tr v-if="index > 0">
+                <tr>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Received
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(payment.remaining) }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ index > 0 ? "Correction Received" : "Amount Received" }}
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     <cleave
-                      v-model="payment.amount"
+                      v-model="cashback.received"
                       :options="{
                         numeral: true,
                         numeralDecimalScale: 15,
@@ -324,7 +312,7 @@
                         noImmediatePrefix: true,
                         rawValueTrimPrefix: true,
                       }"
-                      @keyup="calculateRemaining(index, cashback)"
+                      @keyup="handleMaxAmount(cashback)"
                       class="form-control border-0"
                       name="amount"
                     />
@@ -336,31 +324,11 @@
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Rp.
-                    {{ numberFormat(payment.remaining - payment.amount) }}
-                  </td>
-                </tr>
-                <tr v-if="index > 0">
-                  <td
-                    colspan="2"
-                    class="border w-1/2 border-slate-300 py-2 px-4 text-right"
-                  >
-                    <TrashIcon
-                      class="w-4 h-4 mr-2 cursor-pointer"
-                      @click="deletePayment(index, cashback)"
-                    />
+                    {{ numberFormat(cashback.amount - cashback.received) }}
                   </td>
                 </tr>
               </tbody>
             </table>
-          </div>
-          <div class="mt-2 mb-8">
-            <button
-              type="button"
-              class="btn btn-primary mr-1"
-              @click="addNewPayment(index)"
-            >
-              Add New Cashback
-            </button>
           </div>
         </div>
         <div class="w-full mb-8">
@@ -427,6 +395,9 @@ const cashbackPayments = ref<DepositCashbackPayment>({ cashbacks: [] });
 const query = ref<QueryParams>({
   page: depositStore.pagination.page,
   pageSize: depositStore.pagination.pageSize,
+  filter: {
+    isCashback: true,
+  },
   sort: {
     createdAt: "desc",
   },
@@ -469,21 +440,9 @@ const onClickReceive = (data: Deposit) => {
     if (data.cashbacks) {
       cashbackPayments.value.cashbacks = data.cashbacks as CashbacksPayment[];
       for (const cashback of cashbackPayments.value.cashbacks) {
-        if (cashback.remaining && cashback.remaining > 0) {
-          if (cashback.payments)
-            cashback.payments.push({
-              date: format(new Date(), "dd/MM/yyyy"),
-              amount: 0,
-              remaining: cashback.amount,
-            });
-          else
-            cashback.payments = [
-              {
-                date: format(new Date(), "dd/MM/yyyy"),
-                amount: 0,
-                remaining: cashback.amount,
-              },
-            ];
+        if (!cashback.received) {
+          cashback.date = format(new Date().toISOString(), "dd/MM/yyyy");
+          cashback.received = 0;
         }
       }
     }
@@ -533,6 +492,7 @@ const onSubmit = async () => {
       cashbackPayments.value
     );
     if (!error) {
+      cashbackPayments.value = { cashbacks: [] };
       modalStore.setModalAlertSuccess(
         true,
         "Cashback Payment Successfully Updated",
@@ -540,20 +500,6 @@ const onSubmit = async () => {
       );
       modalForm.value = false;
       await getDeposit();
-    }
-  }
-};
-
-const addNewPayment = (index: number) => {
-  if (cashbackPayments.value) {
-    const cashback = cashbackPayments.value.cashbacks[index];
-    const remaining = getPaymentRemaining(cashback);
-    if (cashback.payments) {
-      cashback.payments.push({
-        date: format(new Date(), "dd/MM/yyyy"),
-        amount: 0,
-        remaining: remaining,
-      });
     }
   }
 };
@@ -579,80 +525,34 @@ const getRemaining = (deposit: Deposit) => {
 
 const getReceived = (deposit: Deposit) => {
   let total = 0;
-  if (
-    deposit.cashbackPayments &&
-    deposit.cashbackPayments.length > 0 &&
-    deposit.cashbackPayments[0]._id
-  ) {
+  if (deposit.cashbackPayments && deposit.cashbackPayments.length > 0) {
     const cashbackPayments = deposit.cashbackPayments[0];
     for (const cashback of cashbackPayments.cashbacks) {
-      for (const payment of cashback.payments)
-        if (cashback.payments) {
-          total += Number(payment.amount);
-        }
+      if (cashback.received) {
+        total += Number(cashback.received);
+      }
     }
   }
   return total;
 };
 
+const handleMaxAmount = (cashback: CashbacksPayment) => {
+  if (cashback.received > cashback.amount) {
+    cashback.received = cashback.amount;
+  }
+};
+
 const lastPaymentDate = (deposit: Deposit) => {
   let res = "-";
-  if (
-    deposit.cashbackPayments &&
-    deposit.cashbackPayments.length > 0 &&
-    deposit.cashbackPayments[0]._id
-  ) {
+  if (deposit.cashbackPayments && deposit.cashbackPayments.length > 0) {
     const cashbackPayments = deposit.cashbackPayments[0];
-    console.log(cashbackPayments);
     const cashback =
       cashbackPayments.cashbacks[cashbackPayments.cashbacks.length - 1];
-    const payment = cashback.payments[cashback.payments.length - 1];
-    if (payment) {
-      res = payment.date;
+    if (cashback) {
+      res = cashback.date;
     }
   }
   return res;
-};
-
-const getPaymentRemaining = (cashback: DepositCashback) => {
-  let remaining = 0;
-  if (cashback.remaining) {
-    remaining = cashback.remaining;
-  }
-  if (cashback.payments) {
-    for (let i = 0; i < cashback.payments.length; i++) {
-      const payment = cashback.payments[i];
-      remaining -= payment.amount || 0;
-    }
-  }
-  return remaining;
-};
-
-const deletePayment = (index: number, cashback: DepositCashback) => {
-  if (cashback.payments) {
-    cashback.payments.splice(index, 1);
-    calculateRemaining(index - 1, cashback);
-  }
-};
-
-const calculateRemaining = (index: number, cashback: DepositCashback) => {
-  let remaining = 0;
-  if (cashback.payments) {
-    const payment = cashback.payments[index];
-    if (payment.amount > payment.remaining) {
-      payment.amount = payment.remaining;
-    }
-    remaining = payment.remaining - payment.amount;
-
-    for (let i = index + 1; i < cashback.payments.length; i++) {
-      const payment = cashback.payments[i];
-      payment.remaining = remaining;
-      if (payment.amount > payment.remaining) {
-        payment.amount = payment.remaining;
-      }
-      remaining = payment.remaining - payment.amount;
-    }
-  }
 };
 
 const numberFormat = (value: number) => {

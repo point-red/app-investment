@@ -69,10 +69,7 @@
                   {{ deposit.interestPayments?.[0].status }}
                 </button>
               </div>
-              <div
-                class="flex flex-row gap-4 justify-end items-end"
-                v-if="deposit.interestPayments?.[0].status == 'incomplete'"
-              >
+              <div class="flex flex-row gap-4 justify-end items-end">
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   @click="onClickDelete"
@@ -292,11 +289,7 @@
             v-for="(interest, index) in interestPayments.interests"
             :key="'cashback-' + index"
           >
-            <div
-              class="overflow-x-auto mb-8"
-              v-for="(payment, index) in interest.payments"
-              :key="index"
-            >
+            <div class="overflow-x-auto mb-8">
               <table class="border-collapse border border-slate-400 w-full">
                 <tbody>
                   <tr>
@@ -308,7 +301,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ payment.bank.name }}
+                      {{ interest.bank.name }}
                     </td>
                   </tr>
                   <tr>
@@ -320,7 +313,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ payment.account.name }}
+                      {{ interest.account.name }}
                     </td>
                   </tr>
                   <tr>
@@ -371,7 +364,7 @@
                       Rp. {{ numberFormat(interest.net) }}
                     </td>
                   </tr>
-                  <tr v-if="index > 0">
+                  <tr>
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
@@ -380,21 +373,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      Rp. {{ numberFormat(payment.remaining) }}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
-                    >
-                      {{
-                        index > 0 ? "Correction Received" : "Amount Received"
-                      }}
-                    </td>
-                    <td
-                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
-                    >
-                      Rp. {{ numberFormat(payment.amount) }}
+                      Rp. {{ numberFormat(interest.received) }}
                     </td>
                   </tr>
                   <tr>
@@ -406,7 +385,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ payment.date }}
+                      {{ interest.date }}
                     </td>
                   </tr>
                   <tr>
@@ -419,7 +398,7 @@
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
                       Rp.
-                      {{ numberFormat(payment.remaining - payment.amount) }}
+                      {{ numberFormat(interest.net - interest.received) }}
                     </td>
                   </tr>
                 </tbody>
@@ -647,11 +626,7 @@
           v-for="(interest, index) in interestPayments.interests"
           :key="'cashback-' + index"
         >
-          <div
-            class="overflow-x-auto mb-8"
-            v-for="(payment, index) in interest.payments"
-            :key="index"
-          >
+          <div class="overflow-x-auto mb-8">
             <table class="border-collapse border border-slate-400 w-full">
               <tbody>
                 <tr>
@@ -662,8 +637,8 @@
                     <v-select
                       :options="banks"
                       label="name"
-                      v-model="payment.bank"
-                      @option:selected="onBankChange($event, payment)"
+                      v-model="interest.bank"
+                      @option:selected="onBankChange($event, interest)"
                     ></v-select>
                   </td>
                 </tr>
@@ -675,7 +650,7 @@
                     <v-select
                       :options="accounts"
                       label="name"
-                      v-model="payment.account"
+                      v-model="interest.account"
                     ></v-select>
                   </td>
                 </tr>
@@ -711,21 +686,13 @@
                     Rp. {{ numberFormat(interest.net) }}
                   </td>
                 </tr>
-                <tr v-if="index > 0">
+                <tr>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Received
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(payment.remaining) }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ index > 0 ? "Correction Received" : "Amount Received" }}
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     <cleave
-                      v-model="payment.amount"
+                      v-model="interest.received"
                       :options="{
                         numeral: true,
                         numeralDecimalScale: 15,
@@ -733,7 +700,7 @@
                         noImmediatePrefix: true,
                         rawValueTrimPrefix: true,
                       }"
-                      @keyup="calculateRemaining(index, interest)"
+                      @keyup="handleMaxAmount(interest)"
                       class="form-control border-0"
                       name="amount"
                     />
@@ -745,7 +712,7 @@
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     <Litepicker
-                      v-model="payment.date"
+                      v-model="interest.date"
                       :options="{
                         autoApply: true,
                         showWeekNumbers: true,
@@ -767,31 +734,11 @@
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Rp.
-                    {{ numberFormat(payment.remaining - payment.amount) }}
-                  </td>
-                </tr>
-                <tr v-if="index > 0">
-                  <td
-                    colspan="2"
-                    class="border w-1/2 border-slate-300 py-2 px-4 text-right"
-                  >
-                    <TrashIcon
-                      class="w-4 h-4 mr-2 cursor-pointer"
-                      @click="deletePayment(index, interest)"
-                    />
+                    {{ numberFormat(interest.net - interest.received) }}
                   </td>
                 </tr>
               </tbody>
             </table>
-          </div>
-          <div class="mt-2 mb-8">
-            <button
-              type="button"
-              class="btn btn-primary mr-1"
-              @click="addNewPayment(index)"
-            >
-              Add New Interest
-            </button>
           </div>
         </div>
         <div class="w-full mb-8">
@@ -891,13 +838,6 @@ const numberFormat = (value: number) => {
   return numeral(value).format("0,0.[00]");
 };
 
-const deletePayment = (index: number, interest: InterestPayment) => {
-  if (interest.payments) {
-    interest.payments.splice(index, 1);
-    calculateRemaining(index - 1, interest);
-  }
-};
-
 const onSubmit = async () => {
   if (deposit.value && interestPayments.value) {
     const { error } = await depositStore.interestPayment(
@@ -916,54 +856,13 @@ const onSubmit = async () => {
   }
 };
 
-const addNewPayment = (index: number) => {
-  if (interestPayments.value) {
-    const interest = interestPayments.value.interests[index];
-    const remaining = getPaymentRemaining(interest);
-    if (interest.payments) {
-      interest.payments.push({
-        bank: deposit.value.bank,
-        account: deposit.value.account,
-        date: format(new Date(), "dd/MM/yyyy"),
-        amount: 0,
-        remaining: remaining,
-      });
-    }
+const handleMaxAmount = (interest: InterestPayment) => {
+  if (interest.received > interest.net) {
+    interest.received = interest.net;
   }
 };
 
-const getPaymentRemaining = (interest: InterestPayment) => {
-  let remaining = interest.net || 0;
-  if (interest.payments) {
-    for (let i = 0; i < interest.payments.length; i++) {
-      const payment = interest.payments[i];
-      remaining -= payment.amount || 0;
-    }
-  }
-  return remaining;
-};
-
-const calculateRemaining = (index: number, interest: InterestPayment) => {
-  let remaining = 0;
-  if (interest.payments) {
-    const payment = interest.payments[index];
-    if (payment.amount > payment.remaining) {
-      payment.amount = payment.remaining;
-    }
-    remaining = payment.remaining - payment.amount;
-
-    for (let i = index + 1; i < interest.payments.length; i++) {
-      const payment = interest.payments[i];
-      payment.remaining = remaining;
-      if (payment.amount > payment.remaining) {
-        payment.amount = payment.remaining;
-      }
-      remaining = payment.remaining - payment.amount;
-    }
-  }
-};
-
-const onBankChange = (value, payment: InterestPaymentDetail) => {
+const onBankChange = (value, payment: InterestPayment) => {
   accounts.value = value.accounts;
   payment.account = { number: 0, name: "" };
 };

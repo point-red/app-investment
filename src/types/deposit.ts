@@ -49,10 +49,10 @@ export interface Deposit {
   recipientBank: DepositBank;
   recipientBankAccount: DepositBankAccount;
   paymentMethod: string;
-  interestRate: number;
+  interestRate?: number;
   baseInterest?: number;
   grossInterest?: number;
-  taxRate: number;
+  taxRate?: number;
   taxAmount?: number;
   netInterest?: number;
   isCashback: boolean;
@@ -105,10 +105,10 @@ export interface DepositCashback {
 }
 
 export interface CashbacksPayment {
+  date: string;
   rate: number;
   amount: number;
-  remaining: number;
-  payments: Payment[];
+  received: number;
 }
 
 export interface InterestPayment {
@@ -117,8 +117,10 @@ export interface InterestPayment {
   gross: number;
   taxAmount: number;
   net: number;
-  remaining: number;
-  payments: InterestPaymentDetail[];
+  bank: DepositBank;
+  account: DepositBankAccount;
+  date: string;
+  received: number;
 }
 
 export interface WithdrawalPayment {

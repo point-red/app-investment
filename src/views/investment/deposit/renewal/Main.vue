@@ -225,7 +225,7 @@
                   Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.account.name }}
+                  {{ selectedDeposit.account.number }}
                 </td>
               </tr>
               <tr>
@@ -289,7 +289,7 @@
                   Bank Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.sourceBankAccount.name }}
+                  {{ selectedDeposit.sourceBankAccount.number }}
                 </td>
               </tr>
               <tr>
@@ -305,7 +305,7 @@
                   Interest Recipient Bank Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.recipientBankAccount.name }}
+                  {{ selectedDeposit.recipientBankAccount.number }}
                 </td>
               </tr>
               <tr>
@@ -373,7 +373,10 @@
                   Cashback
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ getTotalCashback(selectedDeposit.cashbacks) }}
+                  Rp.
+                  {{
+                    numberFormat(getTotalCashback(selectedDeposit.cashbacks))
+                  }}
                 </td>
               </tr>
             </tbody>
@@ -486,12 +489,12 @@
                   Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.account.name }}
+                  {{ selectedDeposit.account.number }}
                 </td>
               </tr>
               <tr>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Account
+                  Owner
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   {{ selectedDeposit.owner.name }}
@@ -544,7 +547,11 @@
                   Interest
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 px-4 text-left">
-                  Include
+                  {{
+                    deposit.isRollOver == "true" || deposit.isRollOver
+                      ? "Include"
+                      : "Exclude"
+                  }}
                 </td>
               </tr>
               <tr>
@@ -573,7 +580,7 @@
                         years: true,
                       },
                     }"
-                    @change="calculate"
+                    @update:modelValue="calculate"
                     class="border-0 w-full text-sm"
                   />
                 </td>
@@ -840,7 +847,7 @@
           </table>
         </div>
 
-        <div class="w-full mb-8">
+        <div class="w-full mb-8" v-if="renewal.isRollOver">
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
           >
@@ -1015,7 +1022,7 @@
           </div>
         </div>
 
-        <div class="w-full mb-8">
+        <div class="w-full mb-8" v-if="renewal.isCashback">
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
           >
@@ -1277,10 +1284,7 @@ const getInterests = (deposit: Deposit) => {
   ) {
     const interestPayments = deposit.interestPayments[0];
     for (const interest of interestPayments.interests) {
-      for (const payment of interest.payments)
-        if (interest.payments) {
-          total += Number(payment.amount);
-        }
+      total += Number(interest.received);
     }
   }
   return total;
@@ -1313,13 +1317,21 @@ const numberFormat = (value: number) => {
 
 const calculate = () => {
   const data = renewal.value;
+  if (data.interestRate && data.interestRate > 100) {
+    data.interestRate = 100;
+  }
+  if (data.taxRate && data.taxRate > 100) {
+    data.taxRate = 100;
+  }
   if (data.baseDate > 0 && data.tenor > 0) {
     data.baseInterest = Math.floor(
-      (data.amount * (data.interestRate / 100)) / data.baseDate
+      (data.amount * ((data.interestRate || 0) / 100)) / data.baseDate
     );
     data.dueDate = addDay(data.date, data.tenor);
     data.grossInterest = data.baseInterest * data.tenor;
-    data.taxAmount = Math.floor(data.grossInterest * (data.taxRate / 100));
+    data.taxAmount = Math.floor(
+      data.grossInterest * ((data.taxRate || 0) / 100)
+    );
     data.netInterest = data.grossInterest - data.taxAmount;
     for (let i = 0; i < returns.value.length; i++) {
       calculateReturn(i);
@@ -1340,7 +1352,7 @@ const calculateReturn = (index: number) => {
       ret.baseDays = data.tenor - (curBaseDays - ret.baseDays);
     }
     ret.gross = (data.baseInterest || 0) * ret.baseDays;
-    ret.taxAmount = Math.floor(ret.gross * (data.taxRate / 100));
+    ret.taxAmount = Math.floor(ret.gross * ((data.taxRate || 0) / 100));
     ret.net = ret.gross - ret.taxAmount;
   }
 };
@@ -1374,7 +1386,7 @@ const getFilledBaseDay = () => {
   return baseDay;
 };
 
-const addDay = (date: Date | string, days: number) => {
+const addDay = (date: string, days: number) => {
   const result = new Date(date.replace(/(\d+[/])(\d+[/])/, "$2$1"));
   result.setDate(result.getDate() + days);
   return format(result, "dd/MM/yyyy");

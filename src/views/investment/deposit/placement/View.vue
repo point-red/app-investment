@@ -62,10 +62,7 @@
                   {{ deposit.formStatus }}
                 </button>
               </div>
-              <div
-                class="flex flex-row gap-4 justify-end items-end"
-                v-if="deposit.formStatus === 'draft'"
-              >
+              <div class="flex flex-row gap-4 justify-end items-end">
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   @click="onClickDelete"
@@ -143,7 +140,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ deposit.account.name }}
+                      {{ deposit.account.number }}
                     </td>
                   </tr>
                   <tr>
@@ -239,7 +236,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ deposit.sourceBankAccount.name }}
+                      {{ deposit.sourceBankAccount.number }}
                     </td>
                   </tr>
                   <tr>
@@ -263,7 +260,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ deposit.recipientBankAccount.name }}
+                      {{ deposit.recipientBankAccount.number }}
                     </td>
                   </tr>
                   <tr>

@@ -164,7 +164,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="accounts"
-                          label="name"
+                          label="number"
                           v-model.trim="validate.account.$model"
                         ></v-select>
                         <template v-if="validate.account.$error">
@@ -386,7 +386,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="sourceAccounts"
-                          label="name"
+                          label="number"
                           v-model.trim="validate.sourceBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.sourceBankAccount.$error">
@@ -437,7 +437,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="recipientAccounts"
-                          label="name"
+                          label="number"
                           v-model.trim="validate.recipientBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.recipientBankAccount.$error">

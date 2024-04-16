@@ -160,7 +160,7 @@
             <td>{{ deposit.number }}</td>
             <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
             <td>{{ deposit.bank.name }}</td>
-            <td>{{ deposit.account.name }}</td>
+            <td>{{ deposit.account.number }}</td>
             <td>{{ deposit.owner.name }}</td>
             <td>Rp. {{ numberFormat(deposit.amount) }}</td>
             <td>Rp. {{ numberFormat(deposit.remaining) }}</td>

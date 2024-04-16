@@ -226,7 +226,7 @@
                   Bank
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.account.name }}
+                  {{ deposit.account.number }}
                 </td>
               </tr>
               <tr>
@@ -360,11 +360,7 @@
           v-for="(interest, index) in interestPayments.interests"
           :key="'cashback-' + index"
         >
-          <div
-            class="overflow-x-auto mb-8"
-            v-for="(payment, index) in interest.payments"
-            :key="index"
-          >
+          <div class="overflow-x-auto mb-8">
             <table class="border-collapse border border-slate-400 w-full">
               <tbody>
                 <tr>
@@ -375,8 +371,8 @@
                     <v-select
                       :options="banks"
                       label="name"
-                      v-model="payment.bank"
-                      @option:selected="onBankChange($event, payment)"
+                      v-model="interest.bank"
+                      @option:selected="onBankChange($event, interest)"
                     ></v-select>
                   </td>
                 </tr>
@@ -387,8 +383,8 @@
                   <td class="border w-1/2 border-slate-300 p-1 text-left">
                     <v-select
                       :options="accounts"
-                      label="name"
-                      v-model="payment.account"
+                      label="number"
+                      v-model="interest.account"
                     ></v-select>
                   </td>
                 </tr>
@@ -424,21 +420,13 @@
                     Rp. {{ numberFormat(interest.net) }}
                   </td>
                 </tr>
-                <tr v-if="index > 0">
+                <tr>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Received
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(payment.remaining) }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ index > 0 ? "Correction Received" : "Amount Received" }}
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     <cleave
-                      v-model="payment.amount"
+                      v-model="interest.received"
                       :options="{
                         numeral: true,
                         numeralDecimalScale: 15,
@@ -446,7 +434,7 @@
                         noImmediatePrefix: true,
                         rawValueTrimPrefix: true,
                       }"
-                      @keyup="calculateRemaining(index, interest)"
+                      @keyup="handleMaxAmount(interest)"
                       class="form-control border-0"
                       name="amount"
                     />
@@ -458,7 +446,7 @@
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     <Litepicker
-                      v-model="payment.date"
+                      v-model="interest.date"
                       :options="{
                         autoApply: true,
                         showWeekNumbers: true,
@@ -480,31 +468,11 @@
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Rp.
-                    {{ numberFormat(payment.remaining - payment.amount) }}
-                  </td>
-                </tr>
-                <tr v-if="index > 0">
-                  <td
-                    colspan="2"
-                    class="border w-1/2 border-slate-300 py-2 px-4 text-right"
-                  >
-                    <TrashIcon
-                      class="w-4 h-4 mr-2 cursor-pointer"
-                      @click="deletePayment(index, interest)"
-                    />
+                    {{ numberFormat(interest.net - interest.received) }}
                   </td>
                 </tr>
               </tbody>
             </table>
-          </div>
-          <div class="mt-2 mb-8">
-            <button
-              type="button"
-              class="btn btn-primary mr-1"
-              @click="addNewPayment(index)"
-            >
-              Add New Interest
-            </button>
           </div>
         </div>
         <div class="w-full mb-8">
@@ -551,15 +519,10 @@ import { QueryParams } from "@/types/api/QueryParams";
 import { useModalStore } from "@/stores/modal";
 import { format } from "date-fns";
 import {
-  CashbacksPayment,
   Deposit,
   DepositBankAccount,
-  DepositCashback,
-  DepositCashbackPayment,
   DepositInterestPayment,
-  DepositReturn,
   InterestPayment,
-  InterestPaymentDetail,
 } from "@/types/deposit";
 import Cleave from "vue-cleave-component";
 import { useBanksStore } from "@/stores/bank";
@@ -579,6 +542,9 @@ const interestPayments = ref<DepositInterestPayment>({ interests: [] });
 const query = ref<QueryParams>({
   page: depositStore.pagination.page,
   pageSize: depositStore.pagination.pageSize,
+  filter: {
+    isRollOver: true,
+  },
   sort: {
     createdAt: "desc",
   },
@@ -622,24 +588,12 @@ const onClickReceive = (data: Deposit) => {
     if (data.returns) {
       interestPayments.value.interests = data.returns as InterestPayment[];
       for (const interest of interestPayments.value.interests) {
-        if (interest.payments)
-          interest.payments.push({
-            bank: data.bank,
-            account: data.account,
-            date: format(new Date(), "dd/MM/yyyy"),
-            amount: 0,
-            remaining: interest.net,
-          });
-        else
-          interest.payments = [
-            {
-              bank: data.bank,
-              account: data.account,
-              date: format(new Date(), "dd/MM/yyyy"),
-              amount: 0,
-              remaining: interest.net,
-            },
-          ];
+        if (!interest.received) {
+          interest.bank = data.bank;
+          interest.account = data.account;
+          interest.date = format(new Date().toISOString(), "dd/MM/yyyy");
+          interest.received = 0;
+        }
       }
     }
   } else {
@@ -656,7 +610,7 @@ const onClickDetail = (deposit: Deposit) => {
   });
 };
 
-const onBankChange = (value, payment: InterestPaymentDetail) => {
+const onBankChange = (value, payment: InterestPayment) => {
   accounts.value = value.accounts;
   payment.account = { number: 0, name: "" };
 };
@@ -677,6 +631,7 @@ const onSubmit = async () => {
       interestPayments.value
     );
     if (!error) {
+      interestPayments.value = { interests: [] };
       modalStore.setModalAlertSuccess(
         true,
         "Interest Payment Successfully Updated",
@@ -688,115 +643,22 @@ const onSubmit = async () => {
   }
 };
 
-const addNewPayment = (index: number) => {
-  if (interestPayments.value) {
-    const interest = interestPayments.value.interests[index];
-    const remaining = getPaymentRemaining(interest);
-    if (interest.payments && deposit.value) {
-      interest.payments.push({
-        bank: deposit.value.bank,
-        account: deposit.value.account,
-        date: format(new Date(), "dd/MM/yyyy"),
-        amount: 0,
-        remaining: remaining,
-      });
-    }
-  }
-};
-
-const getTotalCashback = (cashbacks: DepositCashback[]) => {
-  let total = 0;
-  for (const cashback of cashbacks) {
-    total += cashback.amount || 0;
-  }
-  return total;
-};
-
-const getRemaining = (deposit: Deposit) => {
-  let total = 0;
-  if (deposit.cashbacks) {
-    total = getTotalCashback(deposit.cashbacks);
-    const received = getReceived(deposit);
-    total -= received;
-  }
-
-  return total;
-};
-
 const getReceived = (deposit: Deposit) => {
   let total = 0;
-  if (
-    deposit.interestPayments &&
-    deposit.interestPayments.length > 0 &&
-    deposit.interestPayments[0]._id
-  ) {
+  if (deposit.interestPayments && deposit.interestPayments.length > 0) {
     const interestPayments = deposit.interestPayments[0];
     for (const interest of interestPayments.interests) {
-      for (const payment of interest.payments)
-        if (interest.payments) {
-          total += Number(payment.amount);
-        }
+      if (interest.received) {
+        total += Number(interest.received);
+      }
     }
   }
   return total;
 };
 
-const lastPaymentDate = (deposit: Deposit) => {
-  let res = "-";
-  if (
-    deposit.cashbackPayments &&
-    deposit.cashbackPayments.length > 0 &&
-    deposit.cashbackPayments[0]._id
-  ) {
-    const cashbackPayments = deposit.cashbackPayments[0];
-    const cashback =
-      cashbackPayments.cashbacks[cashbackPayments.cashbacks.length - 1];
-    const payment = cashback.payments[cashback.payments.length - 1];
-    if (payment) {
-      res = payment.date;
-    }
-  }
-  return res;
-};
-
-const getPaymentRemaining = (interest: InterestPayment) => {
-  let remaining = 0;
-  if (interest.net) {
-    remaining = interest.net;
-  }
-  if (interest.payments) {
-    for (let i = 0; i < interest.payments.length; i++) {
-      const payment = interest.payments[i];
-      remaining -= Number(payment.amount) || 0;
-    }
-  }
-  return remaining;
-};
-
-const deletePayment = (index: number, interest: InterestPayment) => {
-  if (interest.payments) {
-    interest.payments.splice(index, 1);
-    calculateRemaining(index - 1, interest);
-  }
-};
-
-const calculateRemaining = (index: number, interest: InterestPayment) => {
-  let remaining = 0;
-  if (interest.payments) {
-    const payment = interest.payments[index];
-    if (payment.amount > payment.remaining) {
-      payment.amount = payment.remaining;
-    }
-    remaining = payment.remaining - payment.amount;
-
-    for (let i = index + 1; i < interest.payments.length; i++) {
-      const payment = interest.payments[i];
-      payment.remaining = remaining;
-      if (payment.amount > payment.remaining) {
-        payment.amount = payment.remaining;
-      }
-      remaining = payment.remaining - payment.amount;
-    }
+const handleMaxAmount = (interest: InterestPayment) => {
+  if (interest.received > interest.net) {
+    interest.received = interest.net;
   }
 };
 

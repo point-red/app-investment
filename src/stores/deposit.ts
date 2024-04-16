@@ -62,8 +62,6 @@ export const deposit = {
     name: "",
   },
   paymentMethod: "advance",
-  interestRate: 0,
-  taxRate: 0,
   isCashback: false,
   returns: [],
   cashbacks: [],

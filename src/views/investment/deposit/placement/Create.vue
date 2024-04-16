@@ -41,7 +41,7 @@
                               years: true,
                             },
                           }"
-                          @change="calculate"
+                          @update:modelValue="calculate"
                           class="border-0 w-full text-sm"
                         />
                         <template v-if="validate.date.$error">
@@ -118,7 +118,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="accounts"
-                          label="name"
+                          label="number"
                           v-model.trim="validate.account.$model"
                         ></v-select>
                         <template v-if="validate.account.$error">
@@ -340,7 +340,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="sourceAccounts"
-                          label="name"
+                          label="number"
                           v-model.trim="validate.sourceBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.sourceBankAccount.$error">
@@ -391,7 +391,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="recipientAccounts"
-                          label="name"
+                          label="number"
                           v-model.trim="validate.recipientBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.recipientBankAccount.$error">
@@ -603,7 +603,7 @@
             </div>
           </div>
 
-          <div class="w-full mb-8">
+          <div class="w-full mb-8" v-if="formData.isRollOver">
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -778,7 +778,7 @@
             </div>
           </div>
 
-          <div class="w-full mb-8">
+          <div class="w-full mb-8" v-if="formData.isCashback">
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -1030,13 +1030,21 @@ const onSubmit = async () => {
 
 const calculate = () => {
   const data = formData.value;
+  if (data.interestRate && data.interestRate > 100) {
+    data.interestRate = 100;
+  }
+  if (data.taxRate && data.taxRate > 100) {
+    data.taxRate = 100;
+  }
   if (data.baseDate > 0 && data.tenor > 0) {
     data.baseInterest = Math.floor(
-      (data.amount * (data.interestRate / 100)) / data.baseDate
+      (data.amount * ((data.interestRate || 0) / 100)) / data.baseDate
     );
     data.dueDate = addDay(data.date, data.tenor);
     data.grossInterest = data.baseInterest * data.tenor;
-    data.taxAmount = Math.floor(data.grossInterest * (data.taxRate / 100));
+    data.taxAmount = Math.floor(
+      data.grossInterest * ((data.taxRate || 0) / 100)
+    );
     data.netInterest = data.grossInterest - data.taxAmount;
     for (let i = 0; i < returns.value.length; i++) {
       calculateReturn(i);
@@ -1057,7 +1065,7 @@ const calculateReturn = (index: number) => {
       ret.baseDays = data.tenor - (curBaseDays - ret.baseDays);
     }
     ret.gross = (data.baseInterest || 0) * ret.baseDays;
-    ret.taxAmount = Math.floor(ret.gross * (data.taxRate / 100));
+    ret.taxAmount = Math.floor(ret.gross * ((data.taxRate || 0) / 100));
     ret.net = ret.gross - ret.taxAmount;
   }
 };
@@ -1091,8 +1099,8 @@ const getFilledBaseDay = () => {
   return baseDay;
 };
 
-const addDay = (date: Date | string, days: number) => {
-  const result = new Date(date);
+const addDay = (date: string, days: number) => {
+  const result = new Date(date.replace(/(\d+[/])(\d+[/])/, "$2$1"));
   result.setDate(result.getDate() + days);
   return format(result, "dd/MM/yyyy");
 };
