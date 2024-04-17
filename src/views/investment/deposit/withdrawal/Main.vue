@@ -7,6 +7,7 @@
           <input
             id="tabulator-html-filter-value"
             type="search"
+            v-model="searchTerm"
             class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
             placeholder="Search..."
           />
@@ -37,9 +38,21 @@
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem data-cy="sort-desc"> All </DropdownItem>
-                <DropdownItem data-cy="sort-asc"> Complete </DropdownItem>
-                <DropdownItem data-cy="sort-asc"> Incomplete </DropdownItem>
+                <DropdownItem @click="onClickStatus('all')" data-cy="sort-desc">
+                  All
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('complete')"
+                  data-cy="sort-asc"
+                >
+                  Complete
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('incomplete')"
+                  data-cy="sort-asc"
+                >
+                  Incomplete
+                </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>
@@ -495,22 +508,17 @@
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   Recipient Name
                 </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  <input
-                    id="recipient-name"
-                    type="text"
-                    class="form-control"
-                    placeholder="recipient name"
-                    name="bankName"
-                    v-model="payment.recipientName"
-                  />
+                <td
+                  class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                >
+                  {{ payment.account.name }}
                 </td>
               </tr>
               <tr>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   Amount Received
                 </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                   <cleave
                     v-model="payment.amount"
                     :options="{
@@ -529,7 +537,7 @@
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   Date Received
                 </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                   <Litepicker
                     v-model="payment.date"
                     :options="{
@@ -601,7 +609,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import Menu from "../Tab.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
@@ -644,6 +652,30 @@ const query = ref<QueryParams>({
   },
 });
 
+const searchTerm = ref("");
+
+watch(searchTerm, async (searchTerm) => {
+  if (searchTerm.length) {
+    query.value.search = {
+      number: searchTerm,
+      bilyetNumber: searchTerm,
+    };
+  } else {
+    delete query.value.search;
+  }
+
+  await getDeposit();
+});
+
+const onClickStatus = async (status: string) => {
+  if (status == "all") delete query.value.filter;
+  else
+    query.value.filter = {
+      withdrawals: status,
+    };
+  await getDeposit();
+};
+
 const onClickSort = async (sort: string) => {
   query.value.sort = { createdAt: sort };
   await getDeposit();
@@ -679,18 +711,17 @@ const updatePageSize = async (value: number) => {
 const onClickReceive = (data: Deposit) => {
   deposit.value = data;
   if (!data.withdrawals || data.withdrawals.length == 0) {
-    withdrawals.value.payments.push({
+    withdrawals.value.payments[0] = {
       bank: data.bank,
       account: data.account,
       recipientName: "",
       date: format(new Date(), "dd/MM/yyyy"),
       amount: 0,
       remaining: data.remaining || data.amount,
-    });
+    };
   } else {
     withdrawals.value = data.withdrawals[0];
   }
-  console.log(withdrawals.value);
   modalForm.value = true;
 };
 

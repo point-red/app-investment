@@ -603,7 +603,7 @@
             </div>
           </div>
 
-          <div class="w-full mb-8" v-if="formData.isRollOver">
+          <div class="w-full mb-8" v-if="!formData.isRollOver">
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -810,7 +810,7 @@
                           }"
                           :disabled="true"
                           class="form-control border-0"
-                          name="interest-rate"
+                          name="cashback-amount-placement"
                         />
                       </td>
                     </tr>
@@ -821,13 +821,18 @@
                         Cashback
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
-                        <input
-                          :id="'cashback-rate-' + index"
-                          type="number"
-                          class="form-control border-0"
-                          placeholder="Cashback Rate"
+                        <cleave
                           v-model="item.rate"
+                          :options="{
+                            numeral: true,
+                            numeralDecimalScale: 15,
+                            numeralPositiveOnly: true,
+                            noImmediatePrefix: true,
+                            rawValueTrimPrefix: true,
+                          }"
                           @keyup="calculateCashback(index)"
+                          class="form-control border-0"
+                          name="cashback-rate"
                         />
                       </td>
                     </tr>
@@ -1074,6 +1079,9 @@ const calculateCashback = (index: number) => {
   const data = formData.value;
   if (data) {
     const cb = cashbacks.value[index];
+    if (cb.rate > 100) {
+      cb.rate = 100;
+    }
     cb.amount = Math.floor((data.amount || 0) * (cb.rate / 100));
   }
 };

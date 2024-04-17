@@ -649,7 +649,7 @@
             </div>
           </div>
 
-          <div class="w-full mb-8">
+          <div class="w-full mb-8" v-if="!deposit.isRollOver">
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -824,7 +824,7 @@
             </div>
           </div>
 
-          <div class="w-full mb-8">
+          <div class="w-full mb-8" v-if="deposit.isCashback">
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -867,13 +867,18 @@
                         Cashback
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
-                        <input
-                          :id="'cashback-rate-' + index"
-                          type="number"
-                          class="form-control border-0"
-                          placeholder="Cashback Rate"
+                        <cleave
                           v-model="item.rate"
+                          :options="{
+                            numeral: true,
+                            numeralDecimalScale: 15,
+                            numeralPositiveOnly: true,
+                            noImmediatePrefix: true,
+                            rawValueTrimPrefix: true,
+                          }"
                           @keyup="calculateCashback(index)"
+                          class="form-control border-0"
+                          name="cashback-rate"
                         />
                       </td>
                     </tr>
@@ -1086,11 +1091,13 @@ const calculate = () => {
   const data = deposit.value;
   if (data.baseDate > 0 && data.tenor > 0) {
     data.baseInterest = Math.floor(
-      (data.amount * (data.interestRate / 100)) / data.baseDate
+      (data.amount * ((data.interestRate || 0) / 100)) / data.baseDate
     );
     data.dueDate = addDay(data.date, data.tenor);
     data.grossInterest = data.baseInterest * data.tenor;
-    data.taxAmount = Math.floor(data.grossInterest * (data.taxRate / 100));
+    data.taxAmount = Math.floor(
+      data.grossInterest * ((data.taxRate || 0) / 100)
+    );
     data.netInterest = data.grossInterest - data.taxAmount;
     for (let i = 0; i < returns.value.length; i++) {
       calculateReturn(i);
@@ -1111,7 +1118,7 @@ const calculateReturn = (index: number) => {
       ret.baseDays = data.tenor - (curBaseDays - ret.baseDays);
     }
     ret.gross = (data.baseInterest || 0) * ret.baseDays;
-    ret.taxAmount = Math.floor(ret.gross * (data.taxRate / 100));
+    ret.taxAmount = Math.floor(ret.gross * ((data.taxRate || 0) / 100));
     ret.net = ret.gross - ret.taxAmount;
   }
 };
@@ -1120,6 +1127,9 @@ const calculateCashback = (index: number) => {
   const data = deposit.value;
   if (data && data.cashbacks) {
     const cb = data.cashbacks[index];
+    if (cb.rate > 100) {
+      cb.rate = 100;
+    }
     cb.amount = Math.floor((data.amount || 0) * (cb.rate / 100));
   }
 };

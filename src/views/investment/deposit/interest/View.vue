@@ -658,7 +658,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Base Days
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ interest.baseDays || 0 }} Days
                   </td>
                 </tr>
@@ -666,7 +668,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Due Date
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ format(interest.dueDate, "dd/MM/yyyy") }}
                   </td>
                 </tr>
@@ -674,7 +678,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Interest Rate
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ deposit.interestRate }}%
                   </td>
                 </tr>
@@ -682,7 +688,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount of Interest (net)
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp. {{ numberFormat(interest.net) }}
                   </td>
                 </tr>
@@ -690,7 +698,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Received
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                     <cleave
                       v-model="interest.received"
                       :options="{
@@ -710,7 +718,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Date Received
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                     <Litepicker
                       v-model="interest.date"
                       :options="{
@@ -732,7 +740,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Remaining Interest
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp.
                     {{ numberFormat(interest.net - interest.received) }}
                   </td>

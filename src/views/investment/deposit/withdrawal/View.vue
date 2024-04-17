@@ -416,7 +416,7 @@
                     Recipient Name
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ payment.recipientName }}
+                    {{ payment.account.name }}
                   </td>
                 </tr>
                 <tr>
@@ -791,22 +791,17 @@
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   Recipient Name
                 </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  <input
-                    id="recipient-name"
-                    type="text"
-                    class="form-control"
-                    placeholder="recipient name"
-                    name="bankName"
-                    v-model="payment.recipientName"
-                  />
+                <td
+                  class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                >
+                  {{ payment.account.name }}
                 </td>
               </tr>
               <tr>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   Amount Received
                 </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                   <cleave
                     v-model="payment.amount"
                     :options="{
@@ -825,7 +820,7 @@
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   Date Received
                 </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                   <Litepicker
                     v-model="payment.date"
                     :options="{

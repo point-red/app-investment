@@ -7,6 +7,7 @@
           <input
             id="tabulator-html-filter-value"
             type="search"
+            v-model="searchTerm"
             class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
             placeholder="Search..."
           />
@@ -37,9 +38,21 @@
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem data-cy="sort-desc"> All </DropdownItem>
-                <DropdownItem data-cy="sort-asc"> Complete </DropdownItem>
-                <DropdownItem data-cy="sort-asc"> Incomplete </DropdownItem>
+                <DropdownItem @click="onClickStatus('all')" data-cy="sort-desc">
+                  All
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('draft')"
+                  data-cy="sort-desc"
+                >
+                  Draft
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('completed')"
+                  data-cy="sort-asc"
+                >
+                  Completed
+                </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>
@@ -847,7 +860,10 @@
           </table>
         </div>
 
-        <div class="w-full mb-8" v-if="renewal.isRollOver">
+        <div
+          class="w-full mb-8"
+          v-if="!renewal.isRollOver || renewal.isRollOver === 'false'"
+        >
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
           >
@@ -1022,7 +1038,10 @@
           </div>
         </div>
 
-        <div class="w-full mb-8" v-if="renewal.isCashback">
+        <div
+          class="w-full mb-8"
+          v-if="renewal.isCashback && renewal.isCashback === 'true'"
+        >
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
           >
@@ -1143,7 +1162,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import Menu from "../Tab.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
@@ -1179,6 +1198,21 @@ const query = ref<QueryParams>({
   },
 });
 
+const searchTerm = ref("");
+
+watch(searchTerm, async (searchTerm) => {
+  if (searchTerm.length) {
+    query.value.search = {
+      number: searchTerm,
+      bilyetNumber: searchTerm,
+    };
+  } else {
+    delete query.value.search;
+  }
+
+  await getDeposit();
+});
+
 const returns = ref<DepositReturn[]>([{ baseDays: 0 }]);
 const cashbacks = ref<DepositCashback[]>([{ rate: 0 }]);
 const date = ref("placement date");
@@ -1195,6 +1229,12 @@ const getDeposit = async () => {
   // update ref value
   query.value.page = depositStore.pagination.page;
   query.value.pageSize = depositStore.pagination.pageSize;
+};
+
+const onClickStatus = async (status: string) => {
+  if (status == "all") delete query.value.filter;
+  else query.value.filter = { formStatus: status };
+  await getDeposit();
 };
 
 const onClickSort = async (sort: string) => {

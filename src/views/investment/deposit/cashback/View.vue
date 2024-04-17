@@ -409,7 +409,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Date Received
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                     <Litepicker
                       v-model="cashback.date"
                       :options="{
@@ -431,7 +431,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Placement
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp. {{ numberFormat(deposit.amount) }}
                   </td>
                 </tr>
@@ -439,7 +441,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Cashback Rate
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ cashback.rate }}%
                   </td>
                 </tr>
@@ -447,7 +451,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount of Cashback
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp. {{ numberFormat(cashback.amount) }}
                   </td>
                 </tr>
@@ -455,7 +461,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Received
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                     <cleave
                       v-model="cashback.received"
                       :options="{
@@ -475,7 +481,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Remaining Cashback
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp.
                     {{ numberFormat(cashback.amount - cashback.received) }}
                   </td>

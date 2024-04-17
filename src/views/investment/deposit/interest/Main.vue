@@ -7,6 +7,7 @@
           <input
             id="tabulator-html-filter-value"
             type="search"
+            v-model="searchTerm"
             class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
             placeholder="Search..."
           />
@@ -37,9 +38,21 @@
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem data-cy="sort-desc"> All </DropdownItem>
-                <DropdownItem data-cy="sort-asc"> Complete </DropdownItem>
-                <DropdownItem data-cy="sort-asc"> Incomplete </DropdownItem>
+                <DropdownItem @click="onClickStatus('all')" data-cy="sort-desc">
+                  All
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('complete')"
+                  data-cy="sort-asc"
+                >
+                  Complete
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('incomplete')"
+                  data-cy="sort-asc"
+                >
+                  Incomplete
+                </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>
@@ -392,7 +405,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Base Days
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ interest.baseDays || 0 }} Days
                   </td>
                 </tr>
@@ -400,7 +415,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Due Date
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ format(interest.dueDate, "dd/MM/yyyy") }}
                   </td>
                 </tr>
@@ -408,7 +425,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Interest Rate
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ deposit.interestRate }}%
                   </td>
                 </tr>
@@ -416,7 +435,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount of Interest (net)
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp. {{ numberFormat(interest.net) }}
                   </td>
                 </tr>
@@ -424,7 +445,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Received
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                     <cleave
                       v-model="interest.received"
                       :options="{
@@ -444,7 +465,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Date Received
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                     <Litepicker
                       v-model="interest.date"
                       :options="{
@@ -466,7 +487,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Remaining Interest
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp.
                     {{ numberFormat(interest.net - interest.received) }}
                   </td>
@@ -506,7 +529,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import Menu from "../Tab.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
@@ -543,12 +566,37 @@ const query = ref<QueryParams>({
   page: depositStore.pagination.page,
   pageSize: depositStore.pagination.pageSize,
   filter: {
-    isRollOver: true,
+    isRollOver: false,
   },
   sort: {
     createdAt: "desc",
   },
 });
+
+const searchTerm = ref("");
+
+watch(searchTerm, async (searchTerm) => {
+  if (searchTerm.length) {
+    query.value.search = {
+      number: searchTerm,
+      bilyetNumber: searchTerm,
+    };
+  } else {
+    delete query.value.search;
+  }
+
+  await getDeposit();
+});
+
+const onClickStatus = async (status: string) => {
+  if (status == "all") query.value.filter = { isRollOver: false };
+  else
+    query.value.filter = {
+      isRollOver: false,
+      interestPayments: status,
+    };
+  await getDeposit();
+};
 
 const accounts = ref<DepositBankAccount[]>([]);
 const date = ref("placement date");

@@ -62,12 +62,6 @@
                   Draft
                 </DropdownItem>
                 <DropdownItem
-                  @click="onClickStatus('pending')"
-                  data-cy="sort-asc"
-                >
-                  Pending
-                </DropdownItem>
-                <DropdownItem
                   @click="onClickStatus('completed')"
                   data-cy="sort-asc"
                 >
@@ -77,8 +71,8 @@
             </DropdownMenu>
           </Dropdown>
         </div>
-        <!--        <div class="mt-2 xl:mt-0 sm:mr-8">-->
-        <!--          <div class="relative w-56 mx-auto">-->
+        <!--        <div class="mt-2 xl:mt-0 sm:mr-4">-->
+        <!--          <div class="relative w-56">-->
         <!--            <div-->
         <!--              class="absolute flex items-center justify-center w-10 h-full border rounded-l bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:border-darkmode-800 dark:text-slate-400"-->
         <!--            >-->
@@ -99,7 +93,6 @@
         <!--                  years: true,-->
         <!--                },-->
         <!--              }"-->
-        <!--              class="pl-12"-->
         <!--            />-->
         <!--          </div>-->
         <!--        </div>-->
@@ -218,6 +211,10 @@ const navStore = useNavStore();
 navStore.create([investmentNav.investment]);
 
 const { deposits } = storeToRefs(depositStore);
+const date = ref("");
+const dueDate = ref("due date");
+const searchTerm = ref("");
+
 const query = ref<QueryParams>({
   page: depositStore.pagination.page,
   pageSize: depositStore.pagination.pageSize,
@@ -226,14 +223,22 @@ const query = ref<QueryParams>({
   },
 });
 
-const date = ref("placement date");
-const dueDate = ref("due date");
-const searchTerm = ref("");
-
 watch(searchTerm, async (searchTerm) => {
   if (searchTerm.length) {
     query.value.search = {
       number: searchTerm,
+      bilyetNumber: searchTerm,
+      date: searchTerm,
+      "bank.name": searchTerm,
+      "account.number": searchTerm,
+      "owner.name": searchTerm,
+      amount: searchTerm,
+      remaining: searchTerm,
+      baseDays: searchTerm,
+      tenor: searchTerm,
+      dueDate: searchTerm,
+      interestRate: searchTerm,
+      taxRate: searchTerm,
     };
   } else {
     delete query.value.search;

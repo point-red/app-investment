@@ -7,6 +7,7 @@
           <input
             id="tabulator-html-filter-value"
             type="search"
+            v-model="searchTerm"
             class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
             placeholder="Search..."
           />
@@ -37,9 +38,21 @@
             </DropdownToggle>
             <DropdownMenu class="w-48">
               <DropdownContent>
-                <DropdownItem data-cy="sort-desc"> All </DropdownItem>
-                <DropdownItem data-cy="sort-asc"> Complete </DropdownItem>
-                <DropdownItem data-cy="sort-asc"> Incomplete </DropdownItem>
+                <DropdownItem @click="onClickStatus('all')" data-cy="sort-desc">
+                  All
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('complete')"
+                  data-cy="sort-asc"
+                >
+                  Complete
+                </DropdownItem>
+                <DropdownItem
+                  @click="onClickStatus('incomplete')"
+                  data-cy="sort-asc"
+                >
+                  Incomplete
+                </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>
@@ -256,7 +269,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Date Received
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                     <Litepicker
                       v-model="cashback.date"
                       :options="{
@@ -278,7 +291,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Placement
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp. {{ numberFormat(deposit.amount) }}
                   </td>
                 </tr>
@@ -286,7 +301,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Cashback Rate
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ cashback.rate }}%
                   </td>
                 </tr>
@@ -294,7 +311,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount of Cashback
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp. {{ numberFormat(cashback.amount) }}
                   </td>
                 </tr>
@@ -302,7 +321,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount Received
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
                     <cleave
                       v-model="cashback.received"
                       :options="{
@@ -313,7 +332,7 @@
                         rawValueTrimPrefix: true,
                       }"
                       @keyup="handleMaxAmount(cashback)"
-                      class="form-control border-0"
+                      class="form-control border-0 mx-0"
                       name="amount"
                     />
                   </td>
@@ -322,7 +341,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Remaining Cashback
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp.
                     {{ numberFormat(cashback.amount - cashback.received) }}
                   </td>
@@ -362,7 +383,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import Menu from "../Tab.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
@@ -402,6 +423,31 @@ const query = ref<QueryParams>({
     createdAt: "desc",
   },
 });
+
+const searchTerm = ref("");
+
+watch(searchTerm, async (searchTerm) => {
+  if (searchTerm.length) {
+    query.value.search = {
+      number: searchTerm,
+      bilyetNumber: searchTerm,
+    };
+  } else {
+    delete query.value.search;
+  }
+
+  await getDeposit();
+});
+
+const onClickStatus = async (status: string) => {
+  if (status == "all") query.value.filter = { isCashback: true };
+  else
+    query.value.filter = {
+      isCashback: true,
+      cashbackPayments: status,
+    };
+  await getDeposit();
+};
 
 const date = ref("placement date");
 const modalForm = ref(false);
