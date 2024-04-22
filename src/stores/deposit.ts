@@ -276,5 +276,8 @@ export const useDepositsStore = defineStore("deposits", {
     setDeposit(deposit: Deposit) {
       this.deposit = deposit;
     },
+    resetDeposit() {
+      this.deposit = deposit;
+    },
   },
 });

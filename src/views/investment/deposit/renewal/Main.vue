@@ -137,7 +137,7 @@
               {{ numberFormat(getPlacementRemaining(deposit)) }}
             </td>
             <td class="whitespace-nowrap text-center">
-              {{ numberFormat(getPlacementRemaining(deposit)) }}
+              {{ numberFormat(getRenewalAmount(deposit)) }}
             </td>
             <td class="capitalize">{{ deposit.formStatus }}</td>
             <td class="flex justify-center">
@@ -535,14 +535,14 @@
                   }}
                 </td>
               </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Placement Remaining
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp {{ numberFormat(getPlacementRemaining(selectedDeposit)) }}
-                </td>
-              </tr>
+              <!--              <tr>-->
+              <!--                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">-->
+              <!--                  Placement Remaining-->
+              <!--                </td>-->
+              <!--                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">-->
+              <!--                  Rp {{ numberFormat(getPlacementRemaining(selectedDeposit)) }}-->
+              <!--                </td>-->
+              <!--              </tr>-->
             </tbody>
           </table>
         </div>
@@ -572,7 +572,7 @@
                   New Placement Total Amount
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 px-4 text-left">
-                  Rp {{ numberFormat(getPlacementRemaining(selectedDeposit)) }}
+                  Rp {{ numberFormat(getRenewalAmount(selectedDeposit)) }}
                 </td>
               </tr>
               <tr>
@@ -1254,7 +1254,7 @@ const updatePageSize = async (value: number) => {
 
 const onClickReceive = (data: Deposit) => {
   renewal.value.date = format(new Date().toISOString(), "dd/MM/yyyy");
-  renewal.value.amount = getPlacementRemaining(data);
+  renewal.value.amount = getRenewalAmount(data);
   renewal.value.taxRate = 0;
   renewal.value.interestRate = 0;
   selectedDeposit.value = data;
@@ -1308,6 +1308,16 @@ const getTotalCashback = (cashbacks: DepositCashback[]) => {
 };
 
 const getPlacementRemaining = (deposit: Deposit) => {
+  // return (
+  //   Number(deposit.remaining) +
+  //   Number(deposit.netInterest) -
+  //   getInterests(deposit)
+  // );
+
+  return Number(deposit.remaining);
+};
+
+const getRenewalAmount = (deposit: Deposit) => {
   return (
     Number(deposit.remaining) +
     Number(deposit.netInterest) -
@@ -1347,7 +1357,8 @@ const getWithdrawals = (deposit: Deposit) => {
 };
 
 const getTotalReceival = (deposit: Deposit) => {
-  return getInterests(deposit) + getWithdrawals(deposit);
+  // return getInterests(deposit) + getWithdrawals(deposit);
+  return getWithdrawals(deposit);
 };
 
 const numberFormat = (value: number) => {

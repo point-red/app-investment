@@ -293,6 +293,7 @@
                               name="rollover"
                               v-model="deposit.isRollOver"
                               class="form-check-input border mr-2"
+                              @change="handleRollOverChange(deposit.isRollOver)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -308,6 +309,7 @@
                               name="rollover"
                               v-model="deposit.isRollOver"
                               class="form-check-input border mr-2"
+                              @change="handleRollOverChange(deposit.isRollOver)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -617,6 +619,7 @@
                               name="is-cashback"
                               v-model="deposit.isCashback"
                               class="form-check-input border mr-2"
+                              @change="handleCashbackChange(deposit.isCashback)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -632,6 +635,7 @@
                               name="is-cashback"
                               v-model="deposit.isCashback"
                               class="form-check-input border mr-2"
+                              @change="handleCashbackChange(deposit.isCashback)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -649,7 +653,10 @@
             </div>
           </div>
 
-          <div class="w-full mb-8" v-if="!deposit.isRollOver">
+          <div
+            class="w-full mb-8"
+            v-if="!deposit.isRollOver || deposit.isRollOver === 'false'"
+          >
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -824,7 +831,10 @@
             </div>
           </div>
 
-          <div class="w-full mb-8" v-if="deposit.isCashback">
+          <div
+            class="w-full mb-8"
+            v-if="deposit.isCashback && deposit.isCashback === 'true'"
+          >
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -977,6 +987,7 @@ import { useOwnersStore } from "@/stores/owner";
 import { format } from "date-fns";
 import Cleave from "vue-cleave-component";
 import { useModalStore } from "@/stores/modal";
+import { toast } from "vue3-toastify";
 
 const route = useRoute();
 const router = useRouter();
@@ -1082,7 +1093,12 @@ const onSubmit = async () => {
         "Deposit Placement Successfully Updated",
         "You have updated Deposit Placement."
       );
-      await router.push({ name: depositNav.placement.name });
+      const id = deposit.value._id;
+      depositStore.resetDeposit();
+      await router.push({
+        name: depositNav.viewPlacement.name,
+        params: { id },
+      });
     }
   }
 };
@@ -1117,8 +1133,8 @@ const calculateReturn = (index: number) => {
     if (curBaseDays >= data.tenor) {
       ret.baseDays = data.tenor - (curBaseDays - ret.baseDays);
     }
-    ret.gross = (data.baseInterest || 0) * ret.baseDays;
-    ret.taxAmount = Math.floor(ret.gross * ((data.taxRate || 0) / 100));
+    ret.gross = (Number(data.baseInterest) || 0) * Number(ret.baseDays);
+    ret.taxAmount = Math.floor(ret.gross * ((Number(data.taxRate) || 0) / 100));
     ret.net = ret.gross - ret.taxAmount;
   }
 };
@@ -1205,6 +1221,20 @@ const findDeposit = async () => {
   }
 };
 
+const handleRollOverChange = (value: boolean | string) => {
+  if (!value || value === "false") {
+    returns.value = [{ baseDays: 0 }];
+    deposit.value.returns = returns.value;
+  }
+};
+
+const handleCashbackChange = (value: boolean | string) => {
+  if (!value || value === "false") {
+    cashbacks.value = [{ rate: 0 }];
+    deposit.value.cashbacks = cashbacks.value;
+  }
+};
+
 const getBanks = async () => {
   await bankStore.get({ ...query.value });
 };
@@ -1218,29 +1248,4 @@ onMounted(async () => {
   await getOwners();
   await findDeposit();
 });
-//
-// watch(formElement, (newValue, oldValue) => {
-//   if (newValue != null) {
-//     const data = deposit.value;
-//     console.log("masuk");
-//     formData.value = {
-//       ...deposit.value,
-//       date: format(data.date, "dd/MM/yyyy"),
-//       bank_id: data.bank._id as string,
-//       accountNumber: data.bank.account.number,
-//       owner_id: data.owner._id as string,
-//       sourceBank_id: data.sourceBank._id as string,
-//       sourceAccountNumber: data.sourceBank.account.number,
-//       recipientBank_id: data.sourceBank._id as string,
-//       recipientAccountNumber: data.sourceBank.account.number,
-//     };
-//     if (data.returns) {
-//       returns.value = data.returns;
-//     }
-//     if (data.cashbacks) {
-//       cashbacks.value = data.cashbacks;
-//     }
-//     calculate();
-//   }
-// });
 </script>

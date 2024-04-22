@@ -5,7 +5,10 @@
     </h2>
   </div>
 
-  <div class="intro-y box lg:mt-5 flex-col" v-if="deposit._id">
+  <div
+    class="intro-y box lg:mt-5 flex-col"
+    v-if="deposit._id && deposit.dueDate"
+  >
     <div class="w-full items-center">
       <div
         class="p-5 w-full border-b border-slate-200/60 dark:border-darkmode-400"
@@ -564,6 +567,7 @@ navStore.create([
 
 const { deposit } = storeToRefs(depositStore);
 
+const isDelete = ref(false);
 const dialogDelete = ref(false);
 const modalDelete = ref(false);
 
@@ -590,6 +594,7 @@ const onClickDelete = (id: string) => {
 
 const onClickConfirmDelete = () => {
   // modalConfirmPassword.value = true;
+  isDelete.value = true;
   modalStore.setModalPassword(true);
 };
 
@@ -630,7 +635,11 @@ watch(
     [modalSuccess, modalPassword, confirmDelete, confirmReqDelete],
     [oldModalSuccess]
   ) => {
-    if (!modalSuccess && modalSuccess !== oldModalSuccess) {
+    if (
+      !modalSuccess &&
+      modalSuccess !== oldModalSuccess &&
+      isDelete.value == true
+    ) {
       router.push({ name: depositNav.placement.name });
     }
 
