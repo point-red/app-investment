@@ -3,6 +3,15 @@
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
     <h2 class="text-lg font-medium mr-auto" data-cy="title-page"></h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
+    <Tippy
+        @click="router.push({ name: depositNav.placementArchive.name })"
+        tag="button"
+        class="tooltip btn btn-secondary mr-2"
+        content="Archive"
+        data-cy="btn-archive"
+      >
+        <ArchiveIcon class="w-5 h-5"
+      /></Tippy>
       <button
         v-if="authStore.permissions.includes('deposit.create')"
         data-test="btn-create"
@@ -156,13 +165,13 @@
             <td>{{ deposit.account.number }}</td>
             <td>{{ deposit.owner.name }}</td>
             <td>Rp. {{ numberFormat(deposit.amount) }}</td>
-            <td>Rp. {{ numberFormat(deposit.remaining) }}</td>
+            <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
             <td>{{ deposit.baseDate }} days</td>
             <td>{{ deposit.tenor }} days</td>
             <td>{{ format(deposit.dueDate, "dd/MM/yyyy") }}</td>
             <td>{{ deposit.interestRate }}%</td>
             <td>{{ deposit.taxRate }}%</td>
-            <td>Rp. {{ numberFormat(deposit.netInterest) }}</td>
+            <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
             <td class="flex justify-center">
               <button
                 class="btn btn-primary mr-2"

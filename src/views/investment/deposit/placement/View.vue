@@ -14,7 +14,7 @@
         class="p-5 w-full border-b border-slate-200/60 dark:border-darkmode-400"
       >
         <div class="w-full mb-8">
-          <div class="pt-4 grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div class="pt-4 grid grid-cols-2 md:grid-cols-4 gap-5" v-if="deposit.createdAt && deposit.createdBy">
             <div>
               <table class="border-collapse border border-slate-400 w-full">
                 <tbody>
@@ -54,6 +54,30 @@
                       {{ deposit.createdBy.name || "-" }}
                     </td>
                   </tr>
+                  <tr v-if="deposit.deletedBy">
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Deleted At
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-center"
+                    >
+                      {{ deposit.deletedAt ? format(new Date(deposit.deletedAt), "yyyy/MM/dd") : '-' }}
+                    </td>
+                  </tr>
+                  <tr v-if="deposit.deletedBy">
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                    Deleted By
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-center"
+                    >
+                      {{ deposit.deletedBy.name || "-" }}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -65,16 +89,16 @@
                   {{ deposit.formStatus }}
                 </button>
               </div>
-              <div class="flex flex-row gap-4 justify-end items-end">
+              <div class="flex flex-row gap-4 justify-end items-end" v-if="!deposit.deletedBy">
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  @click="onClickDelete"
+                  @click="onClickDelete()"
                 >
                   Delete
                 </button>
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  @click="onClickEdit"
+                  @click="onClickEdit()"
                 >
                   Edit
                 </button>
@@ -303,7 +327,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      Rp. {{ numberFormat(deposit.grossInterest) }}
+                      Rp. {{ numberFormat(deposit.grossInterest || 0) }}
                     </td>
                   </tr>
                   <tr>
@@ -327,7 +351,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      Rp. {{ numberFormat(deposit.taxAmount) }}
+                      Rp. {{ numberFormat(deposit.taxAmount || 0) }}
                     </td>
                   </tr>
                   <tr>
@@ -339,7 +363,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      Rp. {{ numberFormat(deposit.netInterest) }}
+                      Rp. {{ numberFormat(deposit.netInterest || 0) }}
                     </td>
                   </tr>
                   <tr>
@@ -395,7 +419,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ format(item.dueDate, "dd/MM/yyyy") }}
+                      {{ item.dueDate ? format(item.dueDate, "dd/MM/yyyy") : '-' }}
                     </td>
                   </tr>
                   <tr>
@@ -419,7 +443,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      Rp. {{ numberFormat(item.gross) }}
+                      Rp. {{ numberFormat(item.gross || 0) }}
                     </td>
                   </tr>
                   <tr>
@@ -443,7 +467,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      Rp. {{ numberFormat(item.taxAmount) }}
+                      Rp. {{ numberFormat(item.taxAmount || 0) }}
                     </td>
                   </tr>
                   <tr>
@@ -455,7 +479,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      Rp. {{ numberFormat(item.net) }}
+                      Rp. {{ numberFormat(item.net || 0) }}
                     </td>
                   </tr>
                 </tbody>
@@ -511,7 +535,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      Rp. {{ numberFormat(item.amount) }}
+                      Rp. {{ numberFormat(item.amount || 0) }}
                     </td>
                   </tr>
                 </tbody>
@@ -588,7 +612,7 @@ const numberFormat = (value: number) => {
   return numeral(value).format("0,0.[00]");
 };
 
-const onClickDelete = (id: string) => {
+const onClickDelete = () => {
   modalStore.setModalDelete(true);
 };
 

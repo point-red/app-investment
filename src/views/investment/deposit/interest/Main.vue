@@ -4,13 +4,8 @@
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
       <div id="tabulator-html-filter-form" class="md:flex xl:flex sm:mr-auto">
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
-          <input
-            id="tabulator-html-filter-value"
-            type="search"
-            v-model="searchTerm"
-            class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
-            placeholder="Search..."
-          />
+          <input id="tabulator-html-filter-value" type="search" v-model="searchTerm"
+            class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0" placeholder="Search..." />
         </div>
         <div class="mt-2 xl:mt-0 sm:mr-4">
           <Dropdown data-cy="btn-sort">
@@ -41,16 +36,10 @@
                 <DropdownItem @click="onClickStatus('all')" data-cy="sort-desc">
                   All
                 </DropdownItem>
-                <DropdownItem
-                  @click="onClickStatus('complete')"
-                  data-cy="sort-asc"
-                >
+                <DropdownItem @click="onClickStatus('complete')" data-cy="sort-asc">
                   Complete
                 </DropdownItem>
-                <DropdownItem
-                  @click="onClickStatus('incomplete')"
-                  data-cy="sort-asc"
-                >
+                <DropdownItem @click="onClickStatus('incomplete')" data-cy="sort-asc">
                   Incomplete
                 </DropdownItem>
               </DropdownContent>
@@ -102,6 +91,7 @@
             <th class="whitespace-nowrap text-center">Amount Remaining</th>
             <th class="whitespace-nowrap text-center">Status</th>
             <th class="whitespace-nowrap text-center">Action</th>
+            <th class="whitespace-nowrap text-center"></th>
           </tr>
         </thead>
         <tbody>
@@ -123,50 +113,43 @@
               {{ deposit.taxRate }}%
             </td>
             <td class="whitespace-nowrap text-center">
-              {{ numberFormat(deposit.netInterest) }}
+              {{ numberFormat(deposit.netInterest || 0) }}
             </td>
             <td class="whitespace-nowrap text-center">
               {{ numberFormat(getReceived(deposit)) }}
             </td>
             <td class="whitespace-nowrap text-center">
-              {{ numberFormat(deposit.netInterest - getReceived(deposit)) }}
+              {{ numberFormat((deposit.netInterest || 0) - getReceived(deposit)) }}
             </td>
             <td class="capitalize">
-              {{ deposit.interestPayments?.[0]?.status || "incomplete" }}
+              {{ deposit.interestPayment?.status || "incomplete" }}
             </td>
             <td class="flex justify-center">
-              <button
-                v-if="
-                  deposit.interestPayments &&
-                  deposit.interestPayments.length > 0
-                "
-                class="btn btn-primary mr-2"
-                @click="onClickDetail(deposit)"
-              >
+              <button v-if="deposit.interestPayment
+                " class="btn btn-primary mr-2" @click="onClickDetail(deposit)">
                 Details
               </button>
-              <button
-                class="btn btn-primary mr-2"
-                @click="onClickReceive(deposit)"
-              >
+              <button class="btn btn-primary mr-2" @click="onClickReceive(deposit)">
                 {{
-                  deposit.interestPayments &&
-                  deposit.interestPayments.length > 0
-                    ? "Edit"
-                    : "Receive Interest"
+                  deposit.interestPayment
+                  ? "Edit"
+                  : "Receive Interest"
                 }}
               </button>
+            </td>
+            <td>
+              <Tippy @click="showArchive(deposit)" tag="button" class="tooltip btn btn-secondary mr-2" content="Archive"
+                data-cy="btn-archive"
+                v-if="deposit.interestPaymentArchives && deposit.interestPaymentArchives.length > 0">
+                <ArchiveIcon class="w-5 h-5" />
+              </Tippy>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <Pagination
-        :current-page="depositStore.pagination.page"
-        :last-page="depositStore.pagination.pageCount"
-        @update-page="updatePage"
-        @update-page-size="updatePageSize"
-      />
+      <Pagination :current-page="depositStore.pagination.page" :last-page="depositStore.pagination.pageCount"
+        @update-page="updatePage" @update-page-size="updatePageSize" />
     </div>
   </div>
 
@@ -176,36 +159,20 @@
     </ModalHeader>
     <ModalBody class="flex flex-col gap-3">
       <ul class="nav">
-        <li
-          class="nav-item flex-1"
-          role="presentation"
-          @click="activeTab = 'info'"
-        >
-          <div
-            class="nav-link text-center w-full"
-            :class="{ 'text-blue-500': activeTab === 'info' }"
-          >
+        <li class="nav-item flex-1" role="presentation" @click="activeTab = 'info'">
+          <div class="nav-link text-center w-full" :class="{ 'text-blue-500': activeTab === 'info' }">
             <span class="py-4 cursor-pointer w-full">Information</span>
           </div>
         </li>
-        <li
-          class="nav-item flex-1"
-          role="presentation"
-          @click="activeTab = 'receival'"
-        >
-          <div
-            class="nav-link text-center w-full"
-            :class="{ 'text-blue-500': activeTab === 'receival' }"
-          >
+        <li class="nav-item flex-1" role="presentation" @click="activeTab = 'receival'">
+          <div class="nav-link text-center w-full" :class="{ 'text-blue-500': activeTab === 'receival' }">
             <span class="py-4 cursor-pointer w-full">Interest Receival</span>
           </div>
         </li>
       </ul>
       <div class="w-full mb-8" v-if="deposit && activeTab === 'info'">
         <div class="overflow-x-auto mb-8">
-          <h2
-            class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-          >
+          <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
             Deposit Information
           </h2>
           <table class="border-collapse border border-slate-400 w-full">
@@ -279,7 +246,7 @@
                   Created At
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(deposit.createdAt, "yyyy/MM/dd") }}
+                  {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
                 </td>
               </tr>
               <tr>
@@ -294,16 +261,10 @@
           </table>
         </div>
 
-        <h2
-          class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-        >
+        <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
           Interest Information
         </h2>
-        <div
-          class="overflow-x-auto mb-8"
-          v-for="(item, index) in deposit.returns || []"
-          :key="index"
-        >
+        <div class="overflow-x-auto mb-8" v-for="(item, index) in deposit.returns || []" :key="index">
           <table class="border-collapse border border-slate-400 w-full">
             <tbody>
               <tr>
@@ -319,7 +280,7 @@
                   Interest Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(item.dueDate, "yyyy/MM/dd") }}
+                  {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
                 </td>
               </tr>
               <tr>
@@ -335,7 +296,7 @@
                   Amount of Interest (gross)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.gross) }}
+                  Rp. {{ numberFormat(item.gross || 0) }}
                 </td>
               </tr>
               <tr>
@@ -351,7 +312,7 @@
                   Amount of Tax
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.taxAmount) }}
+                  Rp. {{ numberFormat(item.taxAmount || 0) }}
                 </td>
               </tr>
               <tr>
@@ -359,7 +320,7 @@
                   Amount of Interest (net)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.net) }}
+                  Rp. {{ numberFormat(item.net || 0) }}
                 </td>
               </tr>
             </tbody>
@@ -368,11 +329,7 @@
       </div>
 
       <div class="w-full mb-8" v-if="deposit && activeTab === 'receival'">
-        <div
-          class="overflow-x-auto"
-          v-for="(interest, index) in interestPayments.interests"
-          :key="'cashback-' + index"
-        >
+        <div class="overflow-x-auto" v-for="(interest, index) in interestPayments.interests" :key="'cashback-' + index">
           <div class="overflow-x-auto mb-8">
             <table class="border-collapse border border-slate-400 w-full">
               <tbody>
@@ -381,12 +338,8 @@
                     Interest Recipient Bank
                   </td>
                   <td class="border w-1/2 border-slate-300 p-1 text-left">
-                    <v-select
-                      :options="banks"
-                      label="name"
-                      v-model="interest.bank"
-                      @option:selected="onBankChange($event, interest)"
-                    ></v-select>
+                    <v-select :options="banks" label="name" v-model="interest.bank"
+                      @option:selected="onBankChange($event, interest)"></v-select>
                   </td>
                 </tr>
                 <tr>
@@ -394,20 +347,14 @@
                     Interest Recipient Account
                   </td>
                   <td class="border w-1/2 border-slate-300 p-1 text-left">
-                    <v-select
-                      :options="accounts"
-                      label="number"
-                      v-model="interest.account"
-                    ></v-select>
+                    <v-select :options="accounts" label="number" v-model="interest.account"></v-select>
                   </td>
                 </tr>
                 <tr>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Base Days
                   </td>
-                  <td
-                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
-                  >
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
                     {{ interest.baseDays || 0 }} Days
                   </td>
                 </tr>
@@ -415,9 +362,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Due Date
                   </td>
-                  <td
-                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
-                  >
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
                     {{ format(interest.dueDate, "dd/MM/yyyy") }}
                   </td>
                 </tr>
@@ -425,9 +370,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Interest Rate
                   </td>
-                  <td
-                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
-                  >
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
                     {{ deposit.interestRate }}%
                   </td>
                 </tr>
@@ -435,9 +378,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount of Interest (net)
                   </td>
-                  <td
-                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
-                  >
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
                     Rp. {{ numberFormat(interest.net) }}
                   </td>
                 </tr>
@@ -446,19 +387,13 @@
                     Amount Received
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
-                    <cleave
-                      v-model="interest.received"
-                      :options="{
-                        numeral: true,
-                        numeralDecimalScale: 15,
-                        numeralPositiveOnly: true,
-                        noImmediatePrefix: true,
-                        rawValueTrimPrefix: true,
-                      }"
-                      @keyup="handleMaxAmount(interest)"
-                      class="form-control border-0"
-                      name="amount"
-                    />
+                    <cleave v-model="interest.received" :options="{
+                      numeral: true,
+                      numeralDecimalScale: 15,
+                      numeralPositiveOnly: true,
+                      noImmediatePrefix: true,
+                      rawValueTrimPrefix: true,
+                    }" @keyup="handleMaxAmount(interest)" class="form-control border-0" name="amount" />
                   </td>
                 </tr>
                 <tr>
@@ -466,30 +401,24 @@
                     Date Received
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
-                    <Litepicker
-                      v-model="interest.date"
-                      :options="{
-                        autoApply: true,
-                        showWeekNumbers: true,
-                        format: 'DD/MM/YYYY',
-                        dropdowns: {
-                          minYear: 1990,
-                          maxYear: null,
-                          months: true,
-                          years: true,
-                        },
-                      }"
-                      class="border-0 w-full text-sm"
-                    />
+                    <Litepicker v-model="interest.date" :options="{
+                      autoApply: true,
+                      showWeekNumbers: true,
+                      format: 'DD/MM/YYYY',
+                      dropdowns: {
+                        minYear: 1990,
+                        maxYear: null,
+                        months: true,
+                        years: true,
+                      },
+                    }" class="border-0 w-full text-sm" />
                   </td>
                 </tr>
                 <tr>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Remaining Interest
                   </td>
-                  <td
-                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
-                  >
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
                     Rp.
                     {{ numberFormat(interest.net - interest.received) }}
                   </td>
@@ -501,28 +430,157 @@
         <div class="w-full mb-8">
           <h2 class="font-medium text-lg pb-2">Note</h2>
           <div class="pt-4 w-full">
-            <textarea
-              id="note"
-              cols="30"
-              rows="5"
-              class="form-control resize-none"
-              v-model.trim="interestPayments.note"
-              name="note"
-            ></textarea>
+            <textarea id="note" cols="30" rows="5" class="form-control resize-none" v-model.trim="interestPayments.note"
+              name="note"></textarea>
           </div>
         </div>
       </div>
     </ModalBody>
     <ModalFooter>
-      <button
-        type="button"
-        @click="modalForm = false"
-        class="btn btn-outline-secondary w-20 mr-1"
-      >
+      <button type="button" @click="modalForm = false" class="btn btn-outline-secondary w-20 mr-1">
         Cancel
       </button>
       <button @click="onSubmit" class="btn btn-primary" data-cy="btn-save">
         Save
+      </button>
+    </ModalFooter>
+  </Modal>
+
+  <Modal :show="modalArchive" @hidden="modalArchive = false" :size="'modal-xl'">
+    <ModalHeader>
+      <h2 class="font-medium text-base mr-auto">Archive</h2>
+    </ModalHeader>
+    <ModalBody class="flex flex-col gap-3">
+      <div class="w-full mb-4" v-if="depositArchive">
+        <div class="overflow-x-auto mb-8">
+          <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
+            Deposit Information
+          </h2>
+          <table class="border-collapse border border-slate-400 w-full">
+            <tbody>
+              <tr>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Deposit Form Number
+                </td>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  {{ depositArchive.number }}
+                </td>
+              </tr>
+              <tr>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Bilyet Number
+                </td>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  {{ depositArchive.bilyetNumber }}
+                </td>
+              </tr>
+              <tr>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Amount Placement
+                </td>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Rp. {{ numberFormat(depositArchive.amount) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
+          Interest Information
+        </h2>
+        <div class="overflow-x-auto mb-8" v-for="(item, index) in depositArchive.returns || []" :key="index">
+          <table class="border-collapse border border-slate-400 w-full">
+            <tbody>
+              <tr>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Base Days
+                </td>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  {{ item.baseDays }}
+                </td>
+              </tr>
+              <tr>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Interest Rate
+                </td>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  {{ depositArchive.interestRate }}%
+                </td>
+              </tr>
+              <tr>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Amount of Interest (gross)
+                </td>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Rp. {{ numberFormat(item.gross || 0) }}
+                </td>
+              </tr>
+              <tr>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Tax Rate
+                </td>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  {{ depositArchive.taxRate }}%
+                </td>
+              </tr>
+              <tr>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Amount of Tax
+                </td>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Rp. {{ numberFormat(item.taxAmount || 0) }}
+                </td>
+              </tr>
+              <tr>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Amount of Interest (net)
+                </td>
+                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                  Rp. {{ numberFormat(item.net || 0) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto scrollbar-hidden" v-if="depositArchive">
+        <table class="table table-striped mt-4">
+          <thead>
+            <tr>
+              <th class="whitespace-nowrap text-center">Amount Received</th>
+              <th class="whitespace-nowrap text-center">Amount Remaining</th>
+              <th class="whitespace-nowrap text-center">Deleted By</th>
+              <th class="whitespace-nowrap text-center">Deleted At</th>
+              <th class="whitespace-nowrap text-center">Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(archive, index) in depositArchive.interestPaymentArchives" :key="index">
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(getReceivedArchive(archive)) }}
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat((depositArchive.netInterest || 0) - getReceivedArchive(archive)) }}
+              </td>              
+              <td class="whitespace-nowrap text-center">
+                {{ archive.deletedBy?.name || "-" }}
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ archive.deletedAt ? format(archive.deletedAt, "yyyy/MM/dd") : '-' }}
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ archive.deleteReason }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ModalBody>
+    <ModalFooter>
+      <button type="button" @click="modalArchive = false" class="btn btn-outline-secondary w-20 mr-1">
+        Close
       </button>
     </ModalFooter>
   </Modal>
@@ -561,6 +619,7 @@ navStore.create([investmentNav.investment]);
 
 const { banks } = storeToRefs(bankStore);
 const { deposits } = storeToRefs(depositStore);
+const depositArchive = ref<Deposit | null>(null)
 const interestPayments = ref<DepositInterestPayment>({ interests: [] });
 const query = ref<QueryParams>({
   page: depositStore.pagination.page,
@@ -593,13 +652,18 @@ const onClickStatus = async (status: string) => {
   else
     query.value.filter = {
       isRollOver: false,
-      interestPayments: status,
+      interestPayment: status,
     };
   await getDeposit();
 };
 
+const showArchive = (deposit: Deposit) => {
+  modalArchive.value = true
+  depositArchive.value = deposit
+}
+
 const accounts = ref<DepositBankAccount[]>([]);
-const date = ref("placement date");
+const modalArchive = ref(false);
 const modalForm = ref(false);
 const activeTab = ref("info");
 const deposit = ref<Deposit | null>(null);
@@ -632,7 +696,7 @@ const updatePageSize = async (value: number) => {
 
 const onClickReceive = (data: Deposit) => {
   deposit.value = data;
-  if (!data.interestPayments || data.interestPayments.length == 0) {
+  if (!data.interestPayment) {
     if (data.returns) {
       interestPayments.value.interests = data.returns as InterestPayment[];
       for (const interest of interestPayments.value.interests) {
@@ -645,7 +709,7 @@ const onClickReceive = (data: Deposit) => {
       }
     }
   } else {
-    interestPayments.value = data.interestPayments[0];
+    interestPayments.value = data.interestPayment;
   }
   modalForm.value = true;
 };
@@ -693,14 +757,25 @@ const onSubmit = async () => {
 
 const getReceived = (deposit: Deposit) => {
   let total = 0;
-  if (deposit.interestPayments && deposit.interestPayments.length > 0) {
-    const interestPayments = deposit.interestPayments[0];
+  if (deposit.interestPayment) {
+    const interestPayments = deposit.interestPayment;
     for (const interest of interestPayments.interests) {
       if (interest.received) {
         total += Number(interest.received);
       }
     }
   }
+  return total;
+};
+
+const getReceivedArchive = (interestPayment: DepositInterestPayment) => {
+  let total = 0;
+  const interestPayments = interestPayment;
+    for (const interest of interestPayments.interests) {
+      if (interest.received) {
+        total += Number(interest.received);
+      }
+    }
   return total;
 };
 

@@ -37,9 +37,9 @@
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                     >
                       {{
-                        deposit.interestPayments?.[0].createdAt
+                        deposit.interestPayment?.createdAt
                           ? format(
-                              new Date(deposit.interestPayments?.[0].createdAt),
+                              new Date(deposit.interestPayment?.createdAt),
                               "yyyy/MM/dd"
                             )
                           : "-"
@@ -55,7 +55,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                     >
-                      {{ deposit.interestPayments?.[0].createdBy?.name || "-" }}
+                      {{ deposit.interestPayment?.createdBy?.name || "-" }}
                     </td>
                   </tr>
                 </tbody>
@@ -66,7 +66,7 @@
                 <button
                   class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded capitalize"
                 >
-                  {{ deposit.interestPayments?.[0].status }}
+                  {{ deposit.interestPayment?.status }}
                 </button>
               </div>
               <div class="flex flex-row gap-4 justify-end items-end">
@@ -196,7 +196,7 @@
                     Created At
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ format(deposit.createdAt, "yyyy/MM/dd") }}
+                    {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
                   </td>
                 </tr>
                 <tr>
@@ -235,7 +235,7 @@
                     Interest Due Date
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ format(item.dueDate, "yyyy/MM/dd") }}
+                    {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
                   </td>
                 </tr>
                 <tr>
@@ -251,7 +251,7 @@
                     Amount of Interest (gross)
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.gross) }}
+                    Rp. {{ numberFormat(item.gross || 0) }}
                   </td>
                 </tr>
                 <tr>
@@ -267,7 +267,7 @@
                     Amount of Tax
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.taxAmount) }}
+                    Rp. {{ numberFormat(item.taxAmount || 0) }}
                   </td>
                 </tr>
                 <tr>
@@ -275,7 +275,7 @@
                     Amount of Interest (net)
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.net) }}
+                    Rp. {{ numberFormat(item.net || 0) }}
                   </td>
                 </tr>
               </tbody>
@@ -532,7 +532,7 @@
                   Created At
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(deposit.createdAt, "yyyy/MM/dd") }}
+                  {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
                 </td>
               </tr>
               <tr>
@@ -572,7 +572,7 @@
                   Interest Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(item.dueDate, "yyyy/MM/dd") }}
+                  {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
                 </td>
               </tr>
               <tr>
@@ -588,7 +588,7 @@
                   Amount of Interest (gross)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.gross) }}
+                  Rp. {{ numberFormat(item.gross || 0) }}
                 </td>
               </tr>
               <tr>
@@ -604,7 +604,7 @@
                   Amount of Tax
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.taxAmount) }}
+                  Rp. {{ numberFormat(item.taxAmount || 0) }}
                 </td>
               </tr>
               <tr>
@@ -612,7 +612,7 @@
                   Amount of Interest (net)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.net) }}
+                  Rp. {{ numberFormat(item.net || 0) }}
                 </td>
               </tr>
             </tbody>
@@ -838,8 +838,8 @@ const onClickEdit = () => {
 const findDeposit = async () => {
   if (id) {
     await depositStore.find(id as string);
-    if (deposit.value.interestPayments) {
-      interestPayments.value = deposit.value.interestPayments[0];
+    if (deposit.value.interestPayment) {
+      interestPayments.value = deposit.value.interestPayment;
     }
   }
 };
@@ -881,25 +881,26 @@ const getBanks = async () => {
   await bankStore.get({ ...query.value });
 };
 
-const onClickDelete = (id: string) => {
+const onClickDelete = () => {
   modalStore.setModalDelete(true);
 };
 
 const onClickConfirmDelete = () => {
   // modalConfirmPassword.value = true;
-  modalStore.setModalPassword(true);
+  modalStore.setModalDeleteReason(true);
 };
 
-const onConfirmPassword = async (password: string) => {
+const onConfirmPassword = async () => {
   const { error } = await depositStore.deleteInterest(
     String(deposit.value._id),
     String(interestPayments.value._id),
-    password
+    modalStore.modalPasswordValue as string,
+    modalStore.deleteReason
   );
   if (!error) {
     modalDelete.value = false;
     dialogDelete.value = false;
-    modalStore.setModalPassword(false);
+    modalStore.setModalDeleteReason(false);
     modalStore.setModalDelete(false);
 
     modalStore.setModalAlertSuccess(
@@ -933,7 +934,7 @@ watch(
     }
 
     if (modalPassword) {
-      await onConfirmPassword(modalPassword);
+      await onConfirmPassword();
     }
 
     if (confirmDelete) {

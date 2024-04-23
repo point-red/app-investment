@@ -5,7 +5,7 @@
     </h2>
   </div>
 
-  <div class="intro-y box lg:mt-5 flex flex-col" v-if="deposit._id">
+  <div class="intro-y box lg:mt-5 flex flex-col" v-if="deposit.cashbackPayment">
     <div class="w-full items-center">
       <div
         class="p-5 w-full border-b border-slate-200/60 dark:border-darkmode-400"
@@ -37,9 +37,9 @@
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                     >
                       {{
-                        deposit.cashbackPayments?.[0].createdAt
+                        deposit.cashbackPayment.createdAt
                           ? format(
-                              new Date(deposit.cashbackPayments?.[0].createdAt),
+                              new Date(deposit.cashbackPayment.createdAt),
                               "yyyy/MM/dd"
                             )
                           : "-"
@@ -55,7 +55,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                     >
-                      {{ deposit.cashbackPayments?.[0].createdBy?.name || "-" }}
+                      {{ deposit.cashbackPayment.createdBy?.name || "-" }}
                     </td>
                   </tr>
                 </tbody>
@@ -66,7 +66,7 @@
                 <button
                   class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded capitalize"
                 >
-                  {{ deposit.cashbackPayments?.[0].status }}
+                  {{ deposit.cashbackPayment.status }}
                 </button>
               </div>
               <div class="flex flex-row gap-4 justify-end items-end">
@@ -165,7 +165,7 @@
                     Amount of Cashback
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.amount) }}
+                    Rp. {{ numberFormat(item.amount || 0) }}
                   </td>
                 </tr>
                 <tr>
@@ -173,7 +173,7 @@
                     Created At
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ format(deposit.createdAt, "yyyy/MM/dd") }}
+                    {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
                   </td>
                 </tr>
                 <tr>
@@ -183,7 +183,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     {{ deposit.createdBy?.name || "-" }}
                   </td>
-                </tr>
+                </tr>                
               </tbody>
             </table>
           </div>
@@ -192,7 +192,7 @@
         <div class="w-full mb-8" v-if="deposit && activeTab === 'receival'">
           <div
             class="overflow-x-auto"
-            v-for="(cashback, index) in deposit.cashbackPayments?.[0].cashbacks"
+            v-for="(cashback, index) in deposit.cashbackPayment.cashbacks"
             :key="'cashback-' + index"
           >
             <div class="overflow-x-auto mb-8">
@@ -286,7 +286,7 @@
                 rows="5"
                 class="form-control resize-none"
                 name="note"
-                :value="deposit.cashbackPayments?.[0].note"
+                :value="deposit.cashbackPayment.note"
                 :disabled="true"
               ></textarea>
             </div>
@@ -372,7 +372,7 @@
                   Amount of Cashback
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.amount) }}
+                  Rp. {{ numberFormat(item.amount || 0) }}
                 </td>
               </tr>
               <tr>
@@ -380,7 +380,7 @@
                   Created At
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(deposit.createdAt, "yyyy/MM/dd") }}
+                  {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '' }}
                 </td>
               </tr>
               <tr>
@@ -534,7 +534,6 @@ import { useModalStore } from "@/stores/modal";
 import numeral from "numeral";
 import {
   CashbacksPayment,
-  DepositCashback,
   DepositCashbackPayment,
 } from "@/types/deposit";
 import Cleave from "vue-cleave-component";
@@ -568,8 +567,8 @@ const onClickEdit = () => {
 const findDeposit = async () => {
   if (id) {
     await depositStore.find(id as string);
-    if (deposit.value.cashbackPayments) {
-      cashbackPayments.value = deposit.value.cashbackPayments[0];
+    if (deposit.value.cashbackPayment) {
+      cashbackPayments.value = deposit.value.cashbackPayment;
     }
   }
 };
@@ -602,25 +601,26 @@ const handleMaxAmount = (cashback: CashbacksPayment) => {
   }
 };
 
-const onClickDelete = (id: string) => {
+const onClickDelete = () => {
   modalStore.setModalDelete(true);
 };
 
 const onClickConfirmDelete = () => {
   // modalConfirmPassword.value = true;
-  modalStore.setModalPassword(true);
+  modalStore.setModalDeleteReason(true);
 };
 
-const onConfirmPassword = async (password: string) => {
+const onConfirmPassword = async () => {
   const { error } = await depositStore.deleteCashback(
     String(deposit.value._id),
     String(cashbackPayments.value._id),
-    password
+    modalStore.modalPasswordValue as string,
+    modalStore.deleteReason
   );
   if (!error) {
     modalDelete.value = false;
     dialogDelete.value = false;
-    modalStore.setModalPassword(false);
+    modalStore.setModalDeleteReason(false);
     modalStore.setModalDelete(false);
 
     modalStore.setModalAlertSuccess(
@@ -646,15 +646,15 @@ watch(
     confirmReqDeleteState,
   ],
   async (
-    [modalSuccess, modalPassword, confirmDelete, confirmReqDelete],
+    [modalSuccess, modalPasswordValue, confirmDelete, confirmReqDelete],
     [oldModalSuccess]
   ) => {
     if (!modalSuccess && modalSuccess !== oldModalSuccess) {
       router.push({ name: depositNav.cashback.name });
     }
 
-    if (modalPassword) {
-      await onConfirmPassword(modalPassword);
+    if (modalPasswordValue) {
+      await onConfirmPassword();
     }
 
     if (confirmDelete) {

@@ -1,6 +1,7 @@
 import { NavItem } from "@/stores/nav";
 import Deposit from "@/views/investment/deposit/Main.vue";
 import Placement from "@/views/investment/deposit/placement/Main.vue";
+import PlacementArchive from "@/views/investment/deposit/placement/Archive.vue";
 import ViewPlacement from "@/views/investment/deposit/placement/View.vue";
 import { useAuthStore } from "@/stores/auth";
 import CreatePlacement from "@/views/investment/deposit/placement/Create.vue";
@@ -22,6 +23,11 @@ export namespace depositNav {
   export const placement: NavItem = {
     label: "Deposit Placement",
     name: "deposit-placement",
+  };
+
+  export const placementArchive: NavItem = {
+    label: "Deposit Placement Archive",
+    name: "deposit-placement-archive",
   };
 
   export const createPlacement: NavItem = {
@@ -98,6 +104,19 @@ export const depositRoute = [
     path: "/deposit/placement",
     name: depositNav.placement.name,
     component: Placement,
+    beforeEnter: async (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.permissions.includes("deposit.view")) {
+        next();
+      } else {
+        next({ name: "404" });
+      }
+    },
+  },
+  {
+    path: "/deposit/placement/archive",
+    name: depositNav.placementArchive.name,
+    component: PlacementArchive,
     beforeEnter: async (to, from, next) => {
       const authStore = useAuthStore();
       if (authStore.permissions.includes("deposit.view")) {

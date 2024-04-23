@@ -120,7 +120,7 @@ export const useDepositsStore = defineStore("deposits", {
         pageCount: 0,
         totalDocument: 0,
       },
-    } as RootState),
+    } as unknown as RootState),
   getters: {
     dataBank(state) {
       return state.deposits;
@@ -231,11 +231,12 @@ export const useDepositsStore = defineStore("deposits", {
     async deleteCashback(
       id: string,
       cashbackId: string,
-      password: string
+      password: string,
+      reason: string
     ): Promise<ApiResponse> {
       try {
         await api.delete(url + "/" + id + "/cashbacks/" + cashbackId, {
-          data: { password },
+          data: { password, deleteReason: reason },
         });
         return { error: null };
       } catch (error) {
@@ -246,11 +247,12 @@ export const useDepositsStore = defineStore("deposits", {
     async deleteInterest(
       id: string,
       interestId: string,
-      password: string
+      password: string,
+      reason: string
     ): Promise<ApiResponse> {
       try {
         await api.delete(url + "/" + id + "/interests/" + interestId, {
-          data: { password },
+          data: { password, deleteReason: reason },
         });
         return { error: null };
       } catch (error) {
@@ -277,7 +279,7 @@ export const useDepositsStore = defineStore("deposits", {
       this.deposit = deposit;
     },
     resetDeposit() {
-      this.deposit = deposit;
+      this.deposit = deposit as unknown as Deposit;
     },
   },
 });

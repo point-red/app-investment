@@ -125,7 +125,7 @@
               {{ deposit.taxRate }}%
             </td>
             <td class="whitespace-nowrap text-center">
-              {{ numberFormat(deposit.netInterest) }}
+              {{ numberFormat(deposit.netInterest || 0) }}
             </td>
             <td class="whitespace-nowrap text-center">
               {{ deposit.isRollOver ? "Yes" : "No" }}
