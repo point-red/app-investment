@@ -111,16 +111,16 @@ export const depositForm = {
 
 export const useDepositsStore = defineStore("deposits", {
   state: () =>
-    ({
-      deposits: [],
-      deposit: deposit,
-      pagination: {
-        page: 1,
-        pageSize: 10,
-        pageCount: 0,
-        totalDocument: 0,
-      },
-    } as unknown as RootState),
+  ({
+    deposits: [],
+    deposit: deposit,
+    pagination: {
+      page: 1,
+      pageSize: 10,
+      pageCount: 0,
+      totalDocument: 0,
+    },
+  } as unknown as RootState),
   getters: {
     dataBank(state) {
       return state.deposits;
@@ -219,9 +219,9 @@ export const useDepositsStore = defineStore("deposits", {
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    async delete(id: string, password: string): Promise<ApiResponse> {
+    async delete(id: string, password: string, reason: string): Promise<ApiResponse> {
       try {
-        await api.delete(url + "/" + id, { data: { password } });
+        await api.delete(url + "/" + id, { data: { password, deleteReason: reason } });
         return { error: null };
       } catch (error) {
         const err = error as AxiosError;
@@ -263,11 +263,12 @@ export const useDepositsStore = defineStore("deposits", {
     async deleteWithdrawal(
       id: string,
       withdrawalId: string,
-      password: string
+      password: string,
+      reason: string
     ): Promise<ApiResponse> {
       try {
         await api.delete(url + "/" + id + "/withdrawals/" + withdrawalId, {
-          data: { password },
+          data: { password, deleteReason: reason },
         });
         return { error: null };
       } catch (error) {

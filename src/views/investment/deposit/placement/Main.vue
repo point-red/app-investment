@@ -71,7 +71,7 @@
                   Draft
                 </DropdownItem>
                 <DropdownItem
-                  @click="onClickStatus('completed')"
+                  @click="onClickStatus('complete')"
                   data-cy="sort-asc"
                 >
                   Completed
@@ -168,7 +168,7 @@
             <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
             <td>{{ deposit.baseDate }} days</td>
             <td>{{ deposit.tenor }} days</td>
-            <td>{{ format(deposit.dueDate, "dd/MM/yyyy") }}</td>
+            <td>{{ deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : '-' }}</td>
             <td>{{ deposit.interestRate }}%</td>
             <td>{{ deposit.taxRate }}%</td>
             <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
@@ -217,7 +217,10 @@ const depositStore = useDepositsStore();
 const modalStore = useModalStore();
 const navStore = useNavStore();
 
-navStore.create([investmentNav.investment]);
+navStore.create([
+  investmentNav.investment,
+  depositNav.home,
+]);
 
 const { deposits } = storeToRefs(depositStore);
 const date = ref("");

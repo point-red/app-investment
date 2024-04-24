@@ -78,6 +78,18 @@
                       {{ deposit.deletedBy.name || "-" }}
                     </td>
                   </tr>
+                  <tr v-if="deposit.deletedBy">
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                    Deleted Reason
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-center"
+                    >
+                      {{ deposit.deleteReason || "-" }}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -384,7 +396,7 @@
           </div>
         </div>
 
-        <div class="w-full mb-8">
+        <div class="w-full mb-8" v-if="deposit.returns && deposit.returns.length > 0">
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
           >
@@ -488,7 +500,7 @@
           </div>
         </div>
 
-        <div class="w-full mb-8">
+        <div class="w-full mb-8" v-if="deposit.cashbacks && deposit.cashbacks.length > 0">
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
           >
@@ -619,18 +631,19 @@ const onClickDelete = () => {
 const onClickConfirmDelete = () => {
   // modalConfirmPassword.value = true;
   isDelete.value = true;
-  modalStore.setModalPassword(true);
+  modalStore.setModalDeleteReason(true);
 };
 
-const onConfirmPassword = async (password: string) => {
+const onConfirmPassword = async () => {
   const { error } = await depositStore.delete(
     String(deposit.value._id),
-    password
+    modalStore.modalPasswordValue as string,
+    modalStore.deleteReason
   );
   if (!error) {
     modalDelete.value = false;
     dialogDelete.value = false;
-    modalStore.setModalPassword(false);
+    modalStore.setModalDeleteReason(false);
     modalStore.setModalDelete(false);
 
     modalStore.setModalAlertSuccess(
@@ -668,7 +681,7 @@ watch(
     }
 
     if (modalPassword) {
-      await onConfirmPassword(modalPassword);
+      await onConfirmPassword();
     }
 
     if (confirmDelete) {

@@ -40,8 +40,8 @@ export interface Deposit {
   owner: DepositOwner;
   baseDate: number;
   tenor: number;
-  dueDate: string;
-  isRollOver: boolean;
+  dueDate?: string;
+  isRollOver: boolean | string;
   amount: number;
   remaining?: number;
   sourceBank: DepositBank;
@@ -55,7 +55,7 @@ export interface Deposit {
   taxRate?: number;
   taxAmount?: number;
   netInterest?: number;
-  isCashback: boolean;
+  isCashback: boolean | string;
   note?: string;
   formStatus?: string;
   returns?: DepositReturn[];
@@ -64,14 +64,15 @@ export interface Deposit {
   cashbackPaymentArchives?: DepositCashbackPayment[];
   interestPayment?: DepositInterestPayment;
   interestPaymentArchives?: DepositInterestPayment[];
-  withdrawals?: DepositWithdrawalPayment[];
+  withdrawal?: DepositWithdrawalPayment;
+  withdrawalArchives?: DepositWithdrawalPayment[];
   renewal_id?: string;
   createdBy?: UserForm;
   createdAt?: string;
   updatedBy?: UserForm;
   deletedAt?: string;
   deletedBy?: UserForm;
-  deletedReason?: string;
+  deleteReason?: string;
 }
 
 export interface DepositBank {
@@ -188,5 +189,5 @@ export interface DepositWithdrawalPayment {
   updatedBy?: UserForm;
   deletedBy?: UserForm;
   deletedAt?: string;
-  deletedReason?: string;
+  deleteReason?: string;
 }

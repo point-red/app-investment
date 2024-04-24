@@ -549,7 +549,7 @@ const id = route.params.id;
 
 navStore.create([
   investmentNav.investment,
-  depositNav.home,
+  depositNav.cashback,
   depositNav.cashbackDetail,
 ]);
 

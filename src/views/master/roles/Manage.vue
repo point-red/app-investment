@@ -193,6 +193,6 @@ onMounted(async () => {
   await getRole();
 });
 
-const dataFeature = ref(["User", "Role", "Owner", "Bank"]);
+const dataFeature = ref(["User", "Role", "Owner", "Bank", "Deposit"]);
 const dataCrud = ref(["Create", "View", "Update", "Delete"]);
 </script>

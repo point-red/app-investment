@@ -440,7 +440,10 @@ const depositStore = useDepositsStore();
 const modalStore = useModalStore();
 const navStore = useNavStore();
 
-navStore.create([investmentNav.investment]);
+navStore.create([
+  investmentNav.investment,
+  depositNav.cashback,
+]);
 
 const { deposits } = storeToRefs(depositStore);
 const depositArchive = ref<Deposit | null>(null)

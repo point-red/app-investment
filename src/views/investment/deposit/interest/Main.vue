@@ -101,7 +101,7 @@
             </td>
             <td>{{ deposit.number }}</td>
             <td class="whitespace-nowrap text-center">
-              {{ format(deposit.dueDate, "dd/MM/yyyy") }}
+              {{ deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : '-' }}
             </td>
             <td class="whitespace-nowrap text-center">
               {{ numberFormat(deposit.amount) }}
@@ -238,7 +238,7 @@
                   Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(deposit.dueDate, "yyyy/MM/dd") }}
+                  {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '-' }}
                 </td>
               </tr>
               <tr>
@@ -615,7 +615,10 @@ const modalStore = useModalStore();
 const navStore = useNavStore();
 const bankStore = useBanksStore();
 
-navStore.create([investmentNav.investment]);
+navStore.create([
+  investmentNav.investment,
+  depositNav.interest,
+]);
 
 const { banks } = storeToRefs(bankStore);
 const { deposits } = storeToRefs(depositStore);

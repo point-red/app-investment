@@ -37,7 +37,7 @@
                       <td
                         class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                       >
-                        {{ format(deposit.createdAt, "yyyy/MM/dd") }}
+                        {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
                       </td>
                     </tr>
                     <tr>
@@ -987,7 +987,6 @@ import { useOwnersStore } from "@/stores/owner";
 import { format } from "date-fns";
 import Cleave from "vue-cleave-component";
 import { useModalStore } from "@/stores/modal";
-import { toast } from "vue3-toastify";
 
 const route = useRoute();
 const router = useRouter();
@@ -1008,7 +1007,7 @@ const recipientAccounts = ref<DepositBankAccount[]>([]);
 navStore.create([
   investmentNav.investment,
   depositNav.home,
-  depositNav.createPlacement,
+  depositNav.editPlacement,
 ]);
 
 const query = ref({
@@ -1225,11 +1224,15 @@ const handleRollOverChange = (value: boolean | string) => {
   if (!value || value === "false") {
     returns.value = [{ baseDays: 0 }];
     deposit.value.returns = returns.value;
+  } else {
+    deposit.value.returns = [];
   }
 };
 
 const handleCashbackChange = (value: boolean | string) => {
   if (!value || value === "false") {
+    deposit.value.cashbacks = [];
+  } else {
     cashbacks.value = [{ rate: 0 }];
     deposit.value.cashbacks = cashbacks.value;
   }

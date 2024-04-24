@@ -38,9 +38,9 @@
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                     >
                       {{
-                        deposit.withdrawals?.[0].createdAt
+                        deposit.withdrawal?.createdAt
                           ? format(
-                              new Date(deposit.withdrawals?.[0].createdAt),
+                              new Date(deposit.withdrawal?.createdAt),
                               "yyyy/MM/dd"
                             )
                           : "-"
@@ -56,7 +56,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                     >
-                      {{ deposit.withdrawals?.[0].createdBy?.name || "-" }}
+                      {{ deposit.withdrawal?.createdBy?.name || "-" }}
                     </td>
                   </tr>
                 </tbody>
@@ -67,7 +67,7 @@
                 <button
                   class="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded capitalize"
                 >
-                  {{ deposit.withdrawals?.[0].status }}
+                  {{ deposit.withdrawal?.status }}
                 </button>
               </div>
               <div class="flex flex-row gap-4 justify-end items-end">
@@ -191,7 +191,7 @@
                     Due Date
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ format(deposit.dueDate, "yyyy/MM/dd") }}
+                    {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '' }}
                   </td>
                 </tr>
                 <tr>
@@ -267,7 +267,7 @@
                     Amount of Interest (gross)
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(deposit.grossInterest) }}
+                    Rp. {{ numberFormat(deposit.grossInterest || 0) }}
                   </td>
                 </tr>
                 <tr>
@@ -283,7 +283,7 @@
                     Amount of Tax
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(deposit.taxAmount) }}
+                    Rp. {{ numberFormat(deposit.taxAmount || 0) }}
                   </td>
                 </tr>
                 <tr>
@@ -291,7 +291,7 @@
                     Amount of Interest (net)
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(deposit.netInterest) }}
+                    Rp. {{ numberFormat(deposit.netInterest || 0) }}
                   </td>
                 </tr>
                 <tr>
@@ -302,19 +302,20 @@
                     {{ deposit.isCashback ? "Yes" : "No" }}
                   </td>
                 </tr>
-                <tr>
+                <tr v-if="deposit.isCashback">
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Cashback
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(getTotalCashback(deposit.cashbacks)) }}
+                    Rp. {{ numberFormat(getTotalCashback(deposit.cashbacks || [])) }}
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <h2
+          <div v-if="deposit.returns && deposit.returns.length > 0">
+            <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
           >
             Interest Information
@@ -339,7 +340,7 @@
                     Interest Due Date
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ format(item.dueDate, "yyyy/MM/dd") }}
+                    {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
                   </td>
                 </tr>
                 <tr>
@@ -355,7 +356,7 @@
                     Amount of Interest (gross)
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.gross) }}
+                    Rp. {{ numberFormat(item.gross || 0) }}
                   </td>
                 </tr>
                 <tr>
@@ -371,7 +372,7 @@
                     Amount of Tax
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.taxAmount) }}
+                    Rp. {{ numberFormat(item.taxAmount || 0) }}
                   </td>
                 </tr>
                 <tr>
@@ -379,11 +380,12 @@
                     Amount of Interest (net)
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.net) }}
+                    Rp. {{ numberFormat(item.net || 0) }}
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
           </div>
         </div>
 
@@ -558,7 +560,7 @@
                   Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(deposit.dueDate, "yyyy/MM/dd") }}
+                  {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '' }}
                 </td>
               </tr>
               <tr>
@@ -634,7 +636,7 @@
                   Amount of Interest (gross)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(deposit.grossInterest) }}
+                  Rp. {{ numberFormat(deposit.grossInterest || 0) }}
                 </td>
               </tr>
               <tr>
@@ -650,7 +652,7 @@
                   Amount of Tax
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(deposit.taxAmount) }}
+                  Rp. {{ numberFormat(deposit.taxAmount || 0) }}
                 </td>
               </tr>
               <tr>
@@ -658,7 +660,7 @@
                   Amount of Interest (net)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(deposit.netInterest) }}
+                  Rp. {{ numberFormat(deposit.netInterest || 0) }}
                 </td>
               </tr>
               <tr>
@@ -669,19 +671,20 @@
                   {{ deposit.isCashback ? "Yes" : "No" }}
                 </td>
               </tr>
-              <tr>
+              <tr v-if="deposit.isCashback">
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   Cashback
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ getTotalCashback(deposit.cashbacks) }}
+                  Rp. {{ getTotalCashback(deposit.cashbacks || []) }}
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <h2
+        <div v-if="deposit.returns && deposit.returns.length > 0">
+          <h2
           class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
         >
           Interest Information
@@ -706,7 +709,7 @@
                   Interest Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(item.dueDate, "yyyy/MM/dd") }}
+                  {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
                 </td>
               </tr>
               <tr>
@@ -722,7 +725,7 @@
                   Amount of Interest (gross)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.gross) }}
+                  Rp. {{ numberFormat(item.gross || 0) }}
                 </td>
               </tr>
               <tr>
@@ -738,7 +741,7 @@
                   Amount of Tax
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.taxAmount) }}
+                  Rp. {{ numberFormat(item.taxAmount || 0) }}
                 </td>
               </tr>
               <tr>
@@ -746,11 +749,12 @@
                   Amount of Interest (net)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.net) }}
+                  Rp. {{ numberFormat(item.net || 0) }}
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
         </div>
       </div>
 
@@ -922,7 +926,11 @@ const modalStore = useModalStore();
 const navStore = useNavStore();
 const bankStore = useBanksStore();
 
-navStore.create([investmentNav.investment]);
+navStore.create([
+  investmentNav.investment,
+  depositNav.withdraw,
+  depositNav.withdrawDetail
+]);
 const id = route.params.id;
 
 const { banks } = storeToRefs(bankStore);
@@ -956,20 +964,10 @@ const getDeposit = async () => {
 const findDeposit = async () => {
   if (id) {
     await depositStore.find(id as string);
-    if (deposit.value.withdrawals) {
-      withdrawals.value = deposit.value.withdrawals[0];
+    if (deposit.value.withdrawal) {
+      withdrawals.value = deposit.value.withdrawal;
     }
   }
-};
-
-const updatePage = async (value: number) => {
-  query.value.page = value;
-  await getDeposit();
-};
-
-const updatePageSize = async (value: number) => {
-  query.value.pageSize = value;
-  await getDeposit();
 };
 
 const onBankChange = (value, payment: InterestPaymentDetail) => {
@@ -1040,12 +1038,9 @@ const getTotalCashback = (cashbacks: DepositCashback[]) => {
 const getReceived = (deposit: Deposit) => {
   let total = 0;
   if (
-    deposit.withdrawals &&
-    deposit.withdrawals.length > 0 &&
-    deposit.withdrawals[0]._id
+    deposit.withdrawal
   ) {
-    const withdrawal = deposit.withdrawals[0];
-    for (const payment of withdrawal.payments)
+    for (const payment of deposit.withdrawal.payments)
       if (payment) {
         total += Number(payment.amount);
       }
@@ -1083,25 +1078,26 @@ const numberFormat = (value: number) => {
   else return numeral(value).format("0,0.[00]");
 };
 
-const onClickDelete = (id: string) => {
+const onClickDelete = () => {
   modalStore.setModalDelete(true);
 };
 
 const onClickConfirmDelete = () => {
   // modalConfirmPassword.value = true;
-  modalStore.setModalPassword(true);
+  modalStore.setModalDeleteReason(true);
 };
 
-const onConfirmPassword = async (password: string) => {
+const onConfirmPassword = async () => {
   const { error } = await depositStore.deleteWithdrawal(
     String(deposit.value._id),
     String(withdrawals.value._id),
-    password
+    modalStore.modalPasswordValue as string,
+    modalStore.deleteReason
   );
   if (!error) {
     modalDelete.value = false;
     dialogDelete.value = false;
-    modalStore.setModalPassword(false);
+    modalStore.setModalDeleteReason(false);
     modalStore.setModalDelete(false);
 
     modalStore.setModalAlertSuccess(
@@ -1135,7 +1131,7 @@ watch(
     }
 
     if (modalPassword) {
-      await onConfirmPassword(modalPassword);
+      await onConfirmPassword();
     }
 
     if (confirmDelete) {

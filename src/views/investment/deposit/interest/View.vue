@@ -188,7 +188,7 @@
                     Due Date
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ format(deposit.dueDate, "yyyy/MM/dd") }}
+                    {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '-' }}
                   </td>
                 </tr>
                 <tr>
@@ -524,7 +524,7 @@
                   Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(deposit.dueDate, "yyyy/MM/dd") }}
+                  {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '-' }}
                 </td>
               </tr>
               <tr>
@@ -812,7 +812,7 @@ const id = route.params.id;
 
 navStore.create([
   investmentNav.investment,
-  depositNav.home,
+  depositNav.interest,
   depositNav.interestDetail,
 ]);
 

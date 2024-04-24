@@ -4,13 +4,8 @@
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
       <div id="tabulator-html-filter-form" class="md:flex xl:flex sm:mr-auto">
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
-          <input
-            id="tabulator-html-filter-value"
-            type="search"
-            v-model="searchTerm"
-            class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
-            placeholder="Search..."
-          />
+          <input id="tabulator-html-filter-value" type="search" v-model="searchTerm"
+            class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0" placeholder="Search..." />
         </div>
         <div class="mt-2 xl:mt-0 sm:mr-4">
           <Dropdown data-cy="btn-sort">
@@ -41,16 +36,10 @@
                 <DropdownItem @click="onClickStatus('all')" data-cy="sort-desc">
                   All
                 </DropdownItem>
-                <DropdownItem
-                  @click="onClickStatus('draft')"
-                  data-cy="sort-desc"
-                >
+                <DropdownItem @click="onClickStatus('draft')" data-cy="sort-desc">
                   Draft
                 </DropdownItem>
-                <DropdownItem
-                  @click="onClickStatus('completed')"
-                  data-cy="sort-asc"
-                >
+                <DropdownItem @click="onClickStatus('complete')" data-cy="sort-asc">
                   Completed
                 </DropdownItem>
               </DropdownContent>
@@ -113,7 +102,7 @@
             </td>
             <td>{{ deposit.number }}</td>
             <td class="whitespace-nowrap text-center">
-              {{ format(deposit.dueDate, "dd/MM/yyyy") }}
+              {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '' }}
             </td>
             <td class="whitespace-nowrap text-center">
               {{ numberFormat(deposit.amount) }}
@@ -141,18 +130,10 @@
             </td>
             <td class="capitalize">{{ deposit.formStatus }}</td>
             <td class="flex justify-center">
-              <button
-                v-if="deposit.renewal_id"
-                class="btn btn-primary mr-2"
-                @click="onClickDetail(deposit)"
-              >
+              <button v-if="deposit.renewal_id" class="btn btn-primary mr-2" @click="onClickDetail(deposit)">
                 Details
               </button>
-              <button
-                class="btn btn-primary mr-2"
-                @click="onClickReceive(deposit)"
-                v-if="!deposit.renewal_id"
-              >
+              <button class="btn btn-primary mr-2" @click="onClickReceive(deposit)" v-if="!deposit.renewal_id">
                 Renewal
               </button>
             </td>
@@ -160,12 +141,8 @@
         </tbody>
       </table>
 
-      <Pagination
-        :current-page="depositStore.pagination.page"
-        :last-page="depositStore.pagination.pageCount"
-        @update-page="updatePage"
-        @update-page-size="updatePageSize"
-      />
+      <Pagination :current-page="depositStore.pagination.page" :last-page="depositStore.pagination.pageCount"
+        @update-page="updatePage" @update-page-size="updatePageSize" />
     </div>
   </div>
 
@@ -175,36 +152,20 @@
     </ModalHeader>
     <ModalBody class="flex flex-col gap-3">
       <ul class="nav">
-        <li
-          class="nav-item flex-1"
-          role="presentation"
-          @click="activeTab = 'info'"
-        >
-          <div
-            class="nav-link text-center w-full"
-            :class="{ 'text-blue-500': activeTab === 'info' }"
-          >
+        <li class="nav-item flex-1" role="presentation" @click="activeTab = 'info'">
+          <div class="nav-link text-center w-full" :class="{ 'text-blue-500': activeTab === 'info' }">
             <span class="py-4 cursor-pointer w-full">Information</span>
           </div>
         </li>
-        <li
-          class="nav-item flex-1"
-          role="presentation"
-          @click="activeTab = 'receival'"
-        >
-          <div
-            class="nav-link text-center w-full"
-            :class="{ 'text-blue-500': activeTab === 'receival' }"
-          >
+        <li class="nav-item flex-1" role="presentation" @click="activeTab = 'receival'">
+          <div class="nav-link text-center w-full" :class="{ 'text-blue-500': activeTab === 'receival' }">
             <span class="py-4 cursor-pointer w-full">Renewal</span>
           </div>
         </li>
       </ul>
       <div class="w-full mb-8" v-if="selectedDeposit && activeTab === 'info'">
         <div class="overflow-x-auto mb-8">
-          <h2
-            class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-          >
+          <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
             Value Information
           </h2>
           <table class="border-collapse border border-slate-400 w-full">
@@ -270,7 +231,7 @@
                   Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(selectedDeposit.dueDate, "yyyy/MM/dd") }}
+                  {{ selectedDeposit.dueDate ? format(selectedDeposit.dueDate, "yyyy/MM/dd") : '' }}
                 </td>
               </tr>
               <tr>
@@ -328,8 +289,8 @@
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   {{
                     selectedDeposit.paymentMethod === "advance"
-                      ? "Advance"
-                      : "In Arrear"
+                    ? "Advance"
+                    : "In Arrear"
                   }}
                 </td>
               </tr>
@@ -346,7 +307,7 @@
                   Amount of Interest (gross)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(selectedDeposit.grossInterest) }}
+                  Rp. {{ numberFormat(selectedDeposit.grossInterest || 0) }}
                 </td>
               </tr>
               <tr>
@@ -362,7 +323,7 @@
                   Amount of Tax
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(selectedDeposit.taxAmount) }}
+                  Rp. {{ numberFormat(selectedDeposit.taxAmount || 0) }}
                 </td>
               </tr>
               <tr>
@@ -370,7 +331,7 @@
                   Amount of Interest (net)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(selectedDeposit.netInterest) }}
+                  Rp. {{ numberFormat(selectedDeposit.netInterest || 0) }}
                 </td>
               </tr>
               <tr>
@@ -381,14 +342,14 @@
                   {{ selectedDeposit.isCashback ? "Yes" : "No" }}
                 </td>
               </tr>
-              <tr>
+              <tr v-if="selectedDeposit.isCashback">
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   Cashback
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                   Rp.
                   {{
-                    numberFormat(getTotalCashback(selectedDeposit.cashbacks))
+                    numberFormat(getTotalCashback(selectedDeposit.cashbacks || []))
                   }}
                 </td>
               </tr>
@@ -396,86 +357,77 @@
           </table>
         </div>
 
-        <h2
-          class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-        >
-          Interest Information
-        </h2>
-        <div
-          class="overflow-x-auto mb-8"
-          v-for="(item, index) in selectedDeposit.returns || []"
-          :key="index"
-        >
-          <table class="border-collapse border border-slate-400 w-full">
-            <tbody>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Base Days
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ item.baseDays }}
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Interest Due Date
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ format(item.dueDate, "yyyy/MM/dd") }}
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Interest Rate
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.interestRate }}%
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Amount of Interest (gross)
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.gross) }}
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Tax Rate
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.taxRate }}%
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Amount of Tax
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.taxAmount) }}
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Amount of Interest (net)
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.net) }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div v-if="selectedDeposit.returns && selectedDeposit.returns.length > 0">
+          <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
+            Interest Information
+          </h2>
+          <div class="overflow-x-auto mb-8" v-for="(item, index) in selectedDeposit.returns || []" :key="index">
+            <table class="border-collapse border border-slate-400 w-full">
+              <tbody>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Base Days
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    {{ item.baseDays }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Interest Due Date
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Interest Rate
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    {{ selectedDeposit.interestRate }}%
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Amount of Interest (gross)
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Rp. {{ numberFormat(item.gross || 0) }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Tax Rate
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    {{ selectedDeposit.taxRate }}%
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Amount of Tax
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Rp. {{ numberFormat(item.taxAmount || 0) }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Amount of Interest (net)
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Rp. {{ numberFormat(item.net || 0) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <div
-        class="w-full mb-8"
-        v-if="selectedDeposit && activeTab === 'receival'"
-      >
-        <h2
-          class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-        >
+      <div class="w-full mb-8" v-if="selectedDeposit && activeTab === 'receival'">
+        <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
           Value Information
         </h2>
         <div class="overflow-x-auto mb-8">
@@ -518,7 +470,7 @@
                   Amount of Interest (net)
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(selectedDeposit.netInterest) }}
+                  Rp. {{ numberFormat(selectedDeposit.netInterest || 0) }}
                 </td>
               </tr>
               <tr>
@@ -530,7 +482,7 @@
                   {{
                     numberFormat(
                       Number(selectedDeposit.netInterest) +
-                        Number(selectedDeposit.amount)
+                      Number(selectedDeposit.amount)
                     )
                   }}
                 </td>
@@ -547,9 +499,7 @@
           </table>
         </div>
 
-        <h2
-          class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-        >
+        <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
           Renewal Information
         </h2>
         <div class="overflow-x-auto mb-8">
@@ -561,9 +511,9 @@
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 px-4 text-left">
                   {{
-                    deposit.isRollOver == "true" || deposit.isRollOver
-                      ? "Include"
-                      : "Exclude"
+                    selectedDeposit.isRollOver
+                    ? "Include"
+                    : "Exclude"
                   }}
                 </td>
               </tr>
@@ -580,22 +530,17 @@
                   Placement Date
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
-                  <Litepicker
-                    v-model="renewal.date"
-                    :options="{
-                      autoApply: true,
-                      showWeekNumbers: true,
-                      format: 'DD/MM/YYYY',
-                      dropdowns: {
-                        minYear: 1990,
-                        maxYear: null,
-                        months: true,
-                        years: true,
-                      },
-                    }"
-                    @update:modelValue="calculate"
-                    class="border-0 w-full text-sm"
-                  />
+                  <Litepicker v-model="renewal.date" :options="{
+                    autoApply: true,
+                    showWeekNumbers: true,
+                    format: 'DD/MM/YYYY',
+                    dropdowns: {
+                      minYear: 1990,
+                      maxYear: null,
+                      months: true,
+                      years: true,
+                    },
+                  }" @update:modelValue="calculate" class="border-0 w-full text-sm" />
                 </td>
               </tr>
               <tr>
@@ -603,14 +548,8 @@
                   Base Date
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
-                  <input
-                    id="base-date"
-                    type="number"
-                    class="form-control border-0"
-                    placeholder="Base Date"
-                    v-model="renewal.baseDate"
-                    @keyup="calculate"
-                  />
+                  <input id="base-date" type="number" class="form-control border-0" placeholder="Base Date"
+                    v-model="renewal.baseDate" @keyup="calculate" />
                 </td>
               </tr>
               <tr>
@@ -618,31 +557,17 @@
                   Tenor
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
-                  <input
-                    id="tenor"
-                    type="number"
-                    class="form-control border-0"
-                    placeholder="Tenor"
-                    v-model="renewal.tenor"
-                    @keyup="calculate"
-                  />
+                  <input id="tenor" type="number" class="form-control border-0" placeholder="Tenor"
+                    v-model="renewal.tenor" @keyup="calculate" />
                 </td>
               </tr>
               <tr>
                 <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                   Due Date
                 </td>
-                <td
-                  class="border w-1/2 border-slate-300 p-1 text-left bg-slate-300"
-                >
-                  <input
-                    id="tenor"
-                    type="text"
-                    class="form-control border-0"
-                    placeholder="Due Date"
-                    disabled
-                    v-model="renewal.dueDate"
-                  />
+                <td class="border w-1/2 border-slate-300 p-1 text-left bg-slate-300">
+                  <input id="tenor" type="text" class="form-control border-0" placeholder="Due Date" disabled
+                    v-model="renewal.dueDate" />
                 </td>
               </tr>
               <tr>
@@ -650,19 +575,13 @@
                   Interest Rate
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
-                  <cleave
-                    v-model="renewal.interestRate"
-                    :options="{
-                      numeral: true,
-                      numeralDecimalScale: 15,
-                      numeralPositiveOnly: true,
-                      noImmediatePrefix: true,
-                      rawValueTrimPrefix: true,
-                    }"
-                    @keyup="calculate"
-                    class="form-control border-0"
-                    name="interest-rate"
-                  />
+                  <cleave v-model="renewal.interestRate" :options="{
+                    numeral: true,
+                    numeralDecimalScale: 15,
+                    numeralPositiveOnly: true,
+                    noImmediatePrefix: true,
+                    rawValueTrimPrefix: true,
+                  }" @keyup="calculate" class="form-control border-0" name="interest-rate" />
                 </td>
               </tr>
               <tr>
@@ -670,19 +589,13 @@
                   Amount of Interest (gross)
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
-                  <cleave
-                    v-model="renewal.grossInterest"
-                    :options="{
-                      numeral: true,
-                      numeralDecimalScale: 15,
-                      numeralPositiveOnly: true,
-                      noImmediatePrefix: true,
-                      rawValueTrimPrefix: true,
-                    }"
-                    :disabled="true"
-                    class="form-control border-0"
-                    name="gross-interest"
-                  />
+                  <cleave v-model="renewal.grossInterest" :options="{
+                    numeral: true,
+                    numeralDecimalScale: 15,
+                    numeralPositiveOnly: true,
+                    noImmediatePrefix: true,
+                    rawValueTrimPrefix: true,
+                  }" :disabled="true" class="form-control border-0" name="gross-interest" />
                 </td>
               </tr>
               <tr>
@@ -690,19 +603,13 @@
                   Tax Rate
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
-                  <cleave
-                    v-model="renewal.taxRate"
-                    :options="{
-                      numeral: true,
-                      numeralDecimalScale: 15,
-                      numeralPositiveOnly: true,
-                      noImmediatePrefix: true,
-                      rawValueTrimPrefix: true,
-                    }"
-                    @keyup="calculate"
-                    class="form-control border-0"
-                    name="tax-rate"
-                  />
+                  <cleave v-model="renewal.taxRate" :options="{
+                    numeral: true,
+                    numeralDecimalScale: 15,
+                    numeralPositiveOnly: true,
+                    noImmediatePrefix: true,
+                    rawValueTrimPrefix: true,
+                  }" @keyup="calculate" class="form-control border-0" name="tax-rate" />
                 </td>
               </tr>
               <tr>
@@ -710,19 +617,13 @@
                   Amount of Tax
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
-                  <cleave
-                    v-model="renewal.taxAmount"
-                    :options="{
-                      numeral: true,
-                      numeralDecimalScale: 15,
-                      numeralPositiveOnly: true,
-                      noImmediatePrefix: true,
-                      rawValueTrimPrefix: true,
-                    }"
-                    :disabled="true"
-                    class="form-control border-0"
-                    name="tax-amount"
-                  />
+                  <cleave v-model="renewal.taxAmount" :options="{
+                    numeral: true,
+                    numeralDecimalScale: 15,
+                    numeralPositiveOnly: true,
+                    noImmediatePrefix: true,
+                    rawValueTrimPrefix: true,
+                  }" :disabled="true" class="form-control border-0" name="tax-amount" />
                 </td>
               </tr>
               <tr>
@@ -730,19 +631,13 @@
                   Amount of Interest (net)
                 </td>
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
-                  <cleave
-                    v-model="renewal.netInterest"
-                    :options="{
-                      numeral: true,
-                      numeralDecimalScale: 15,
-                      numeralPositiveOnly: true,
-                      noImmediatePrefix: true,
-                      rawValueTrimPrefix: true,
-                    }"
-                    :disabled="true"
-                    class="form-control border-0"
-                    name="net-interest"
-                  />
+                  <cleave v-model="renewal.netInterest" :options="{
+                    numeral: true,
+                    numeralDecimalScale: 15,
+                    numeralPositiveOnly: true,
+                    noImmediatePrefix: true,
+                    rawValueTrimPrefix: true,
+                  }" :disabled="true" class="form-control border-0" name="net-interest" />
                 </td>
               </tr>
               <tr>
@@ -752,25 +647,15 @@
                 <td class="border w-1/2 border-slate-300 px-4 py-3 text-left">
                   <div class="flex flex-col sm:flex-row gap-4">
                     <div class="flex items-center mr-auto">
-                      <input
-                        type="radio"
-                        value="advance"
-                        name="payment-method"
-                        v-model="renewal.paymentMethod"
-                        class="form-check-input border mr-2"
-                      />
+                      <input type="radio" value="advance" name="payment-method" v-model="renewal.paymentMethod"
+                        class="form-check-input border mr-2" />
                       <label class="cursor-pointer select-none">
                         Advance
                       </label>
                     </div>
                     <div class="flex items-center mr-auto">
-                      <input
-                        type="radio"
-                        value="in_arrear"
-                        name="payment-method"
-                        v-model="renewal.paymentMethod"
-                        class="form-check-input border mr-2"
-                      />
+                      <input type="radio" value="in_arrear" name="payment-method" v-model="renewal.paymentMethod"
+                        class="form-check-input border mr-2" />
                       <label class="cursor-pointer select-none">
                         In Arrear
                       </label>
@@ -785,32 +670,16 @@
                 <td class="border w-1/2 border-slate-300 px-4 py-3 text-left">
                   <div class="flex flex-col sm:flex-row gap-4">
                     <div class="flex items-center mr-auto">
-                      <input
-                        type="radio"
-                        value="true"
-                        name="rollover"
-                        v-model="renewal.isRollOver"
-                        class="form-check-input border mr-2"
-                      />
-                      <label
-                        class="cursor-pointer select-none"
-                        for="remember-me"
-                      >
+                      <input type="radio" value="true" name="rollover" v-model="renewal.isRollOver"
+                        class="form-check-input border mr-2" @change="handleRollOverChange(renewal.isRollOver)" />
+                      <label class="cursor-pointer select-none" for="remember-me">
                         Yes
                       </label>
                     </div>
                     <div class="flex items-center mr-auto">
-                      <input
-                        type="radio"
-                        value="false"
-                        name="rollover"
-                        v-model="renewal.isRollOver"
-                        class="form-check-input border mr-2"
-                      />
-                      <label
-                        class="cursor-pointer select-none"
-                        for="remember-me"
-                      >
+                      <input type="radio" value="false" name="rollover" v-model="renewal.isRollOver"
+                        class="form-check-input border mr-2" @change="handleRollOverChange(renewal.isRollOver)" />
+                      <label class="cursor-pointer select-none" for="remember-me">
                         No
                       </label>
                     </div>
@@ -824,32 +693,16 @@
                 <td class="border w-1/2 border-slate-300 px-4 py-3 text-left">
                   <div class="flex flex-col sm:flex-row gap-4">
                     <div class="flex items-center mr-auto">
-                      <input
-                        type="radio"
-                        value="true"
-                        name="is-cashback"
-                        v-model="renewal.isCashback"
-                        class="form-check-input border mr-2"
-                      />
-                      <label
-                        class="cursor-pointer select-none"
-                        for="remember-me"
-                      >
+                      <input type="radio" value="true" name="is-cashback" v-model="renewal.isCashback"
+                        class="form-check-input border mr-2" @change="handleCashbackChange(renewal.isCashback)" />
+                      <label class="cursor-pointer select-none" for="remember-me">
                         Yes
                       </label>
                     </div>
                     <div class="flex items-center mr-auto">
-                      <input
-                        type="radio"
-                        value="false"
-                        name="is-cashback"
-                        v-model="renewal.isCashback"
-                        class="form-check-input border mr-2"
-                      />
-                      <label
-                        class="cursor-pointer select-none"
-                        for="remember-me"
-                      >
+                      <input type="radio" value="false" name="is-cashback" v-model="renewal.isCashback"
+                        class="form-check-input border mr-2" @change="handleCashbackChange(renewal.isCashback)" />
+                      <label class="cursor-pointer select-none" for="remember-me">
                         No
                       </label>
                     </div>
@@ -860,167 +713,100 @@
           </table>
         </div>
 
-        <div
-          class="w-full mb-8"
-          v-if="!renewal.isRollOver || renewal.isRollOver === 'false'"
-        >
-          <h2
-            class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-          >
+        <div class="w-full mb-8" v-if="!renewal.isRollOver || renewal.isRollOver === 'false'">
+          <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
             Return Information
           </h2>
-          <div
-            class="overflow-x-auto"
-            v-for="(item, index) in returns"
-            :key="index"
-          >
+          <div class="overflow-x-auto" v-for="(item, index) in returns" :key="index">
             <div class="pt-4">
               <table class="border-collapse border border-slate-400 w-full">
                 <tbody>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Base Days
                     </td>
                     <td class="border w-1/2 border-slate-300 p-1 text-left">
-                      <input
-                        :id="'interest-base-days-' + index"
-                        type="number"
-                        class="form-control border-0"
-                        placeholder="Base Date"
-                        v-model="item.baseDays"
-                        @keyup="calculateReturn(index)"
-                      />
+                      <input :id="'interest-base-days-' + index" type="number" class="form-control border-0"
+                        placeholder="Base Date" v-model="item.baseDays" @keyup="calculateReturn(index)" />
                     </td>
                   </tr>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Due Date
                     </td>
-                    <td
-                      class="border w-1/2 border-slate-300 p-1 text-left bg-slate-300"
-                    >
-                      <input
-                        :id="'return-due-date-' + index"
-                        type="text"
-                        class="form-control border-0"
-                        placeholder="Due Date"
-                        disabled
-                        :value="addDay(renewal.date, item.baseDays)"
-                      />
+                    <td class="border w-1/2 border-slate-300 p-1 text-left bg-slate-300">
+                      <input :id="'return-due-date-' + index" type="text" class="form-control border-0"
+                        placeholder="Due Date" disabled :value="addDay(renewal.date, item.baseDays)" />
                     </td>
                   </tr>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Interest Rate
                     </td>
                     <td class="border w-1/2 border-slate-300 p-1 text-left">
-                      <cleave
-                        v-model="renewal.interestRate"
-                        :options="{
-                          numeral: true,
-                          numeralDecimalScale: 15,
-                          numeralPositiveOnly: true,
-                          noImmediatePrefix: true,
-                          rawValueTrimPrefix: true,
-                        }"
-                        :disabled="true"
-                        class="form-control border-0"
-                        name="interest-rate"
-                      />
+                      <cleave v-model="renewal.interestRate" :options="{
+                        numeral: true,
+                        numeralDecimalScale: 15,
+                        numeralPositiveOnly: true,
+                        noImmediatePrefix: true,
+                        rawValueTrimPrefix: true,
+                      }" :disabled="true" class="form-control border-0" name="interest-rate" />
                     </td>
                   </tr>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Amount of Interest (gross)
                     </td>
                     <td class="border w-1/2 border-slate-300 p-1 text-left">
-                      <cleave
-                        v-model="item.gross"
-                        :options="{
-                          numeral: true,
-                          numeralDecimalScale: 15,
-                          numeralPositiveOnly: true,
-                          noImmediatePrefix: true,
-                          rawValueTrimPrefix: true,
-                        }"
-                        :disabled="true"
-                        class="form-control border-0"
-                        name="gross-interest"
-                      />
+                      <cleave v-model="item.gross" :options="{
+                        numeral: true,
+                        numeralDecimalScale: 15,
+                        numeralPositiveOnly: true,
+                        noImmediatePrefix: true,
+                        rawValueTrimPrefix: true,
+                      }" :disabled="true" class="form-control border-0" name="gross-interest" />
                     </td>
                   </tr>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Tax Rate
                     </td>
                     <td class="border w-1/2 border-slate-300 p-1 text-left">
-                      <cleave
-                        v-model="renewal.taxRate"
-                        :options="{
-                          numeral: true,
-                          numeralDecimalScale: 15,
-                          numeralPositiveOnly: true,
-                          noImmediatePrefix: true,
-                          rawValueTrimPrefix: true,
-                        }"
-                        :disabled="true"
-                        class="form-control border-0"
-                        name="tax-rate"
-                      />
+                      <cleave v-model="renewal.taxRate" :options="{
+                        numeral: true,
+                        numeralDecimalScale: 15,
+                        numeralPositiveOnly: true,
+                        noImmediatePrefix: true,
+                        rawValueTrimPrefix: true,
+                      }" :disabled="true" class="form-control border-0" name="tax-rate" />
                     </td>
                   </tr>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Amount of Tax
                     </td>
                     <td class="border w-1/2 border-slate-300 p-1 text-left">
-                      <cleave
-                        v-model="item.taxAmount"
-                        :options="{
-                          numeral: true,
-                          numeralDecimalScale: 15,
-                          numeralPositiveOnly: true,
-                          noImmediatePrefix: true,
-                          rawValueTrimPrefix: true,
-                        }"
-                        :disabled="true"
-                        class="form-control border-0"
-                        name="tax-amount"
-                      />
+                      <cleave v-model="item.taxAmount" :options="{
+                        numeral: true,
+                        numeralDecimalScale: 15,
+                        numeralPositiveOnly: true,
+                        noImmediatePrefix: true,
+                        rawValueTrimPrefix: true,
+                      }" :disabled="true" class="form-control border-0" name="tax-amount" />
                     </td>
                   </tr>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Amount of Interest (net)
                     </td>
                     <td class="border w-1/2 border-slate-300 p-1 text-left">
-                      <cleave
-                        v-model="item.net"
-                        :options="{
-                          numeral: true,
-                          numeralDecimalScale: 15,
-                          numeralPositiveOnly: true,
-                          noImmediatePrefix: true,
-                          rawValueTrimPrefix: true,
-                        }"
-                        :disabled="true"
-                        class="form-control border-0"
-                        name="net-interest"
-                      />
+                      <cleave v-model="item.net" :options="{
+                        numeral: true,
+                        numeralDecimalScale: 15,
+                        numeralPositiveOnly: true,
+                        noImmediatePrefix: true,
+                        rawValueTrimPrefix: true,
+                      }" :disabled="true" class="form-control border-0" name="net-interest" />
                     </td>
                   </tr>
                 </tbody>
@@ -1028,92 +814,55 @@
             </div>
           </div>
           <div class="mt-2">
-            <button
-              type="button"
-              class="btn btn-primary mr-1"
-              @click="addNewInterest"
-            >
+            <button type="button" class="btn btn-primary mr-1" @click="addNewInterest">
               Add New Interest
             </button>
           </div>
         </div>
 
-        <div
-          class="w-full mb-8"
-          v-if="renewal.isCashback && renewal.isCashback === 'true'"
-        >
-          <h2
-            class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-          >
+        <div class="w-full mb-8" v-if="renewal.isCashback && renewal.isCashback === 'true'">
+          <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
             Cashback Information
           </h2>
-          <div
-            class="overflow-x-auto"
-            v-for="(item, index) in cashbacks"
-            :key="index"
-          >
+          <div class="overflow-x-auto" v-for="(item, index) in cashbacks" :key="index">
             <div class="pt-4">
               <table class="border-collapse border border-slate-400 w-full">
                 <tbody>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Amount Placement
                     </td>
                     <td class="border w-1/2 border-slate-300 p-1 text-left">
-                      <cleave
-                        v-model="renewal.amount"
-                        :options="{
-                          numeral: true,
-                          numeralDecimalScale: 15,
-                          numeralPositiveOnly: true,
-                          noImmediatePrefix: true,
-                          rawValueTrimPrefix: true,
-                        }"
-                        :disabled="true"
-                        class="form-control border-0"
-                        name="interest-rate"
-                      />
+                      <cleave v-model="renewal.amount" :options="{
+                        numeral: true,
+                        numeralDecimalScale: 15,
+                        numeralPositiveOnly: true,
+                        noImmediatePrefix: true,
+                        rawValueTrimPrefix: true,
+                      }" :disabled="true" class="form-control border-0" name="interest-rate" />
                     </td>
                   </tr>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Cashback
                     </td>
                     <td class="border w-1/2 border-slate-300 p-1 text-left">
-                      <input
-                        :id="'cashback-rate-' + index"
-                        type="number"
-                        class="form-control border-0"
-                        placeholder="Cashback Rate"
-                        v-model="item.rate"
-                        @keyup="calculateCashback(index)"
-                      />
+                      <input :id="'cashback-rate-' + index" type="number" class="form-control border-0"
+                        placeholder="Cashback Rate" v-model="item.rate" @keyup="calculateCashback(index)" />
                     </td>
                   </tr>
                   <tr>
-                    <td
-                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
-                    >
+                    <td class="border w-1/2 border-slate-300 py-1 px-4 text-left">
                       Amount of Cashback
                     </td>
                     <td class="border w-1/2 border-slate-300 p-1 text-left">
-                      <cleave
-                        v-model="item.amount"
-                        :options="{
-                          numeral: true,
-                          numeralDecimalScale: 15,
-                          numeralPositiveOnly: true,
-                          noImmediatePrefix: true,
-                          rawValueTrimPrefix: true,
-                        }"
-                        :disabled="true"
-                        class="form-control border-0"
-                        name="interest-rate"
-                      />
+                      <cleave v-model="item.amount" :options="{
+                        numeral: true,
+                        numeralDecimalScale: 15,
+                        numeralPositiveOnly: true,
+                        noImmediatePrefix: true,
+                        rawValueTrimPrefix: true,
+                      }" :disabled="true" class="form-control border-0" name="interest-rate" />
                     </td>
                   </tr>
                 </tbody>
@@ -1121,11 +870,7 @@
             </div>
           </div>
           <div class="mt-2">
-            <button
-              type="button"
-              class="btn btn-primary mr-1"
-              @click="addNewCashback"
-            >
+            <button type="button" class="btn btn-primary mr-1" @click="addNewCashback">
               Add New Cashback
             </button>
           </div>
@@ -1134,24 +879,14 @@
         <div class="w-full mb-8">
           <h2 class="font-medium text-lg pb-2">Note</h2>
           <div class="pt-4 grid grid-cols-1 md:grid-cols-2 gap-5">
-            <textarea
-              id="note"
-              cols="30"
-              rows="5"
-              class="form-control resize-none"
-              v-model.trim="renewal.note"
-              name="note"
-            ></textarea>
+            <textarea id="note" cols="30" rows="5" class="form-control resize-none" v-model.trim="renewal.note"
+              name="note"></textarea>
           </div>
         </div>
       </div>
     </ModalBody>
     <ModalFooter>
-      <button
-        type="button"
-        @click="modalForm = false"
-        class="btn btn-outline-secondary w-20 mr-1"
-      >
+      <button type="button" @click="modalForm = false" class="btn btn-outline-secondary w-20 mr-1">
         Cancel
       </button>
       <button @click="onSubmit" class="btn btn-primary" data-cy="btn-save">
@@ -1185,7 +920,10 @@ const modalStore = useModalStore();
 const navStore = useNavStore();
 const bankStore = useBanksStore();
 
-navStore.create([investmentNav.investment]);
+navStore.create([
+  investmentNav.investment,
+  depositNav.renewal,
+]);
 
 const { banks } = storeToRefs(bankStore);
 const { deposits } = storeToRefs(depositStore);
@@ -1279,6 +1017,24 @@ onMounted(async () => {
   await getDeposit();
 });
 
+const handleRollOverChange = (value: boolean | string) => {
+  if (!value || value === "false") {
+    returns.value = [{ baseDays: 0 }];
+    renewal.value.returns = returns.value;
+  } else {
+    renewal.value.returns = [];
+  }
+};
+
+const handleCashbackChange = (value: boolean | string) => {
+  if (!value || value === "false") {
+    renewal.value.cashbacks = [];
+  } else {
+    cashbacks.value = [{ rate: 0 }];
+    renewal.value.cashbacks = cashbacks.value;
+  }
+};
+
 const onSubmit = async () => {
   if (selectedDeposit.value && renewal.value) {
     renewal.value.returns = returns.value;
@@ -1318,22 +1074,27 @@ const getPlacementRemaining = (deposit: Deposit) => {
 };
 
 const getRenewalAmount = (deposit: Deposit) => {
-  return (
-    Number(deposit.remaining) +
-    Number(deposit.netInterest) -
-    getInterests(deposit)
-  );
+  if (deposit.isRollOver) {
+    return (
+      Number(deposit.amount) +
+      Number(deposit.netInterest) -
+      getInterests(deposit) -
+      getWithdrawals(deposit)
+    );
+  } else {
+    return (
+      Number(deposit.amount) -
+      getWithdrawals(deposit)
+    );
+  }
 };
 
 const getInterests = (deposit: Deposit) => {
   let total = 0;
   if (
-    deposit.interestPayments &&
-    deposit.interestPayments.length > 0 &&
-    deposit.interestPayments[0]._id
+    deposit.interestPayment
   ) {
-    const interestPayments = deposit.interestPayments[0];
-    for (const interest of interestPayments.interests) {
+    for (const interest of deposit.interestPayment.interests) {
       total += Number(interest.received);
     }
   }
@@ -1343,12 +1104,9 @@ const getInterests = (deposit: Deposit) => {
 const getWithdrawals = (deposit: Deposit) => {
   let total = 0;
   if (
-    deposit.withdrawals &&
-    deposit.withdrawals.length > 0 &&
-    deposit.withdrawals[0]._id
+    deposit.withdrawal
   ) {
-    const withdrawal = deposit.withdrawals[0];
-    for (const payment of withdrawal.payments)
+    for (const payment of deposit.withdrawal.payments)
       if (payment) {
         total += Number(payment.amount);
       }
@@ -1358,7 +1116,7 @@ const getWithdrawals = (deposit: Deposit) => {
 
 const getTotalReceival = (deposit: Deposit) => {
   // return getInterests(deposit) + getWithdrawals(deposit);
-  return getWithdrawals(deposit);
+  return deposit.amount - Number(deposit.remaining || 0);
 };
 
 const numberFormat = (value: number) => {
