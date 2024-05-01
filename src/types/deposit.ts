@@ -67,6 +67,7 @@ export interface Deposit {
   withdrawal?: DepositWithdrawalPayment;
   withdrawalArchives?: DepositWithdrawalPayment[];
   renewal_id?: string;
+  renewalAmount?: number;
   createdBy?: UserForm;
   createdAt?: string;
   updatedBy?: UserForm;

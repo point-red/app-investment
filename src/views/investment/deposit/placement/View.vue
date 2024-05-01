@@ -14,7 +14,10 @@
         class="p-5 w-full border-b border-slate-200/60 dark:border-darkmode-400"
       >
         <div class="w-full mb-8">
-          <div class="pt-4 grid grid-cols-2 md:grid-cols-4 gap-5" v-if="deposit.createdAt && deposit.createdBy">
+          <div
+            class="pt-4 grid grid-cols-2 md:grid-cols-4 gap-5"
+            v-if="deposit.createdAt && deposit.createdBy"
+          >
             <div>
               <table class="border-collapse border border-slate-400 w-full">
                 <tbody>
@@ -63,14 +66,18 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                     >
-                      {{ deposit.deletedAt ? format(new Date(deposit.deletedAt), "yyyy/MM/dd") : '-' }}
+                      {{
+                        deposit.deletedAt
+                          ? format(new Date(deposit.deletedAt), "yyyy/MM/dd")
+                          : "-"
+                      }}
                     </td>
                   </tr>
                   <tr v-if="deposit.deletedBy">
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                    Deleted By
+                      Deleted By
                     </td>
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
@@ -82,7 +89,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                    Deleted Reason
+                      Deleted Reason
                     </td>
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-center"
@@ -101,7 +108,10 @@
                   {{ deposit.formStatus }}
                 </button>
               </div>
-              <div class="flex flex-row gap-4 justify-end items-end" v-if="!deposit.deletedBy">
+              <div
+                class="flex flex-row gap-4 justify-end items-end"
+                v-if="!deposit.deletedBy && !deposit.renewal_id"
+              >
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   @click="onClickDelete()"
@@ -396,7 +406,10 @@
           </div>
         </div>
 
-        <div class="w-full mb-8" v-if="deposit.returns && deposit.returns.length > 0">
+        <div
+          class="w-full mb-8"
+          v-if="deposit.returns && deposit.returns.length > 0"
+        >
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
           >
@@ -431,7 +444,9 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ item.dueDate ? format(item.dueDate, "dd/MM/yyyy") : '-' }}
+                      {{
+                        item.dueDate ? format(item.dueDate, "dd/MM/yyyy") : "-"
+                      }}
                     </td>
                   </tr>
                   <tr>
@@ -500,7 +515,10 @@
           </div>
         </div>
 
-        <div class="w-full mb-8" v-if="deposit.cashbacks && deposit.cashbacks.length > 0">
+        <div
+          class="w-full mb-8"
+          v-if="deposit.cashbacks && deposit.cashbacks.length > 0"
+        >
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
           >

@@ -3,7 +3,7 @@
   <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
     <h2 class="text-lg font-medium mr-auto" data-cy="title-page"></h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-    <Tippy
+      <Tippy
         @click="router.push({ name: depositNav.placementArchive.name })"
         tag="button"
         class="tooltip btn btn-secondary mr-2"
@@ -56,7 +56,7 @@
         <div class="mt-2 xl:mt-0 sm:mr-4">
           <Dropdown data-cy="btn-sort">
             <DropdownToggle class="btn btn-primary" type="button">
-              Form Status
+              <span class="capitalize">{{ formStatus }}</span>
               <ChevronDownIcon class="w-4 h-4 ml-2" />
             </DropdownToggle>
             <DropdownMenu class="w-48">
@@ -80,57 +80,52 @@
             </DropdownMenu>
           </Dropdown>
         </div>
-        <!--        <div class="mt-2 xl:mt-0 sm:mr-4">-->
-        <!--          <div class="relative w-56">-->
-        <!--            <div-->
-        <!--              class="absolute flex items-center justify-center w-10 h-full border rounded-l bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:border-darkmode-800 dark:text-slate-400"-->
-        <!--            >-->
-        <!--              <CalendarIcon class="w-4 h-4" />-->
-        <!--            </div>-->
-        <!--            <Litepicker-->
-        <!--              v-model="date"-->
-        <!--              :options="{-->
-        <!--                autoApply: false,-->
-        <!--                singleMode: false,-->
-        <!--                numberOfColumns: 2,-->
-        <!--                numberOfMonths: 2,-->
-        <!--                showWeekNumbers: true,-->
-        <!--                dropdowns: {-->
-        <!--                  minYear: 1990,-->
-        <!--                  maxYear: null,-->
-        <!--                  months: true,-->
-        <!--                  years: true,-->
-        <!--                },-->
-        <!--              }"-->
-        <!--            />-->
-        <!--          </div>-->
-        <!--        </div>-->
-        <!--        <div class="mt-2 xl:mt-0 sm:ml-4">-->
-        <!--          <div class="relative w-56 mx-auto">-->
-        <!--            <div-->
-        <!--              class="absolute flex items-center justify-center w-10 h-full border rounded-l bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:border-darkmode-800 dark:text-slate-400"-->
-        <!--            >-->
-        <!--              <CalendarIcon class="w-4 h-4" />-->
-        <!--            </div>-->
-        <!--            <Litepicker-->
-        <!--              v-model="dueDate"-->
-        <!--              :options="{-->
-        <!--                autoApply: false,-->
-        <!--                singleMode: false,-->
-        <!--                numberOfColumns: 2,-->
-        <!--                numberOfMonths: 2,-->
-        <!--                showWeekNumbers: true,-->
-        <!--                dropdowns: {-->
-        <!--                  minYear: 1990,-->
-        <!--                  maxYear: null,-->
-        <!--                  months: true,-->
-        <!--                  years: true,-->
-        <!--                },-->
-        <!--              }"-->
-        <!--              class="pl-12"-->
-        <!--            />-->
-        <!--          </div>-->
-        <!--        </div>-->
+        <div class="mt-2 xl:mt-0 sm:mr-4">
+          <div class="items-center block intro-y sm:flex">
+            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+              <CalendarIcon
+                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+              />
+              <Litepicker
+                v-model="startDate"
+                :options="{
+                  autoApply: false,
+                  showWeekNumbers: true,
+                  format: 'DD/MM/YYYY',
+                  dropdowns: {
+                    minYear: 1990,
+                    maxYear: null,
+                    months: true,
+                    years: true,
+                  },
+                }"
+                @update:modelValue="onChangeDate"
+                class="pl-10 sm:w-36 !box border-slate-200 mr-2"
+              />
+            </div>
+            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+              <CalendarIcon
+                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+              />
+              <Litepicker
+                v-model="endDate"
+                :options="{
+                  autoApply: false,
+                  showWeekNumbers: true,
+                  format: 'DD/MM/YYYY',
+                  dropdowns: {
+                    minYear: 1990,
+                    maxYear: null,
+                    months: true,
+                    years: true,
+                  },
+                }"
+                @update:modelValue="onChangeDate"
+                class="pl-10 sm:w-36 !box border-slate-200"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="overflow-x-auto scrollbar-hidden">
@@ -157,30 +152,55 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="deposit in deposits" :key="deposit._id">
-            <td>{{ deposit.bilyetNumber }}</td>
-            <td>{{ deposit.number }}</td>
-            <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
-            <td>{{ deposit.bank.name }}</td>
-            <td>{{ deposit.account.number }}</td>
-            <td>{{ deposit.owner.name }}</td>
-            <td>Rp. {{ numberFormat(deposit.amount) }}</td>
-            <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
-            <td>{{ deposit.baseDate }} days</td>
-            <td>{{ deposit.tenor }} days</td>
-            <td>{{ deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : '-' }}</td>
-            <td>{{ deposit.interestRate }}%</td>
-            <td>{{ deposit.taxRate }}%</td>
-            <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
-            <td class="flex justify-center">
-              <button
-                class="btn btn-primary mr-2"
-                @click="onClickDetail(deposit)"
-              >
-                Details
-              </button>
-            </td>
-          </tr>
+          <template v-for="(data, index) in depositGroup" :key="index">
+            <template v-for="(deposit, i) in data.deposits" :key="deposit._id">
+              <tr v-if="i == 0 || (i > 0 && expandeds[index])">
+                <td>
+                  <div class="flex flex-row items-center">
+                    <span v-if="i == 0">{{ deposit.bilyetNumber }}</span>
+                    <button
+                      v-if="i == 0 && data.deposits.length > 1"
+                      class="btn btn-primary ml-2"
+                      @click="toggleExpand(index)"
+                    >
+                      <ChevronDownIcon
+                        v-if="!expandeds[index]"
+                        class="w-4 h-4"
+                      />
+                      <ChevronUpIcon v-if="expandeds[index]" class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+                <td>{{ deposit.number }}</td>
+                <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
+                <td>{{ deposit.bank.name }}</td>
+                <td>{{ deposit.account.number }}</td>
+                <td>{{ deposit.owner.name }}</td>
+                <td>Rp. {{ numberFormat(deposit.amount) }}</td>
+                <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
+                <td>{{ deposit.baseDate }} days</td>
+                <td>{{ deposit.tenor }} days</td>
+                <td>
+                  {{
+                    deposit.dueDate
+                      ? format(deposit.dueDate, "dd/MM/yyyy")
+                      : "-"
+                  }}
+                </td>
+                <td>{{ deposit.interestRate }}%</td>
+                <td>{{ deposit.taxRate }}%</td>
+                <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
+                <td class="flex justify-center">
+                  <button
+                    class="btn btn-primary mr-2"
+                    @click="onClickDetail(deposit)"
+                  >
+                    Details
+                  </button>
+                </td>
+              </tr>
+            </template>
+          </template>
         </tbody>
       </table>
 
@@ -207,8 +227,6 @@ import { useNavStore } from "@/stores/nav";
 import { QueryParams } from "@/types/api/QueryParams";
 import { useModalStore } from "@/stores/modal";
 import { format } from "date-fns";
-import { Bank } from "@/types/Bank";
-import { bankNav } from "@/router/master";
 import { Deposit } from "@/types/deposit";
 
 const authStore = useAuthStore();
@@ -217,19 +235,22 @@ const depositStore = useDepositsStore();
 const modalStore = useModalStore();
 const navStore = useNavStore();
 
-navStore.create([
-  investmentNav.investment,
-  depositNav.home,
-]);
+navStore.create([investmentNav.investment, depositNav.home]);
 
-const { deposits } = storeToRefs(depositStore);
-const date = ref("");
-const dueDate = ref("due date");
+const { depositGroup } = storeToRefs(depositStore);
+const expandeds = ref<boolean[]>([]);
+const startDate = ref(new Date().toDateString());
+const endDate = ref(new Date().toDateString());
 const searchTerm = ref("");
+const formStatus = ref<string>("all");
 
 const query = ref<QueryParams>({
   page: depositStore.pagination.page,
   pageSize: depositStore.pagination.pageSize,
+  filter: {
+    dateFrom: startDate.value,
+    dateTo: endDate.value,
+  },
   sort: {
     createdAt: "desc",
   },
@@ -242,7 +263,7 @@ watch(searchTerm, async (searchTerm) => {
       bilyetNumber: searchTerm,
       date: searchTerm,
       "bank.name": searchTerm,
-      "account.number": searchTerm,
+      "account.number": Number(searchTerm),
       "owner.name": searchTerm,
       amount: searchTerm,
       remaining: searchTerm,
@@ -259,9 +280,17 @@ watch(searchTerm, async (searchTerm) => {
   await getDeposit();
 });
 
+const onChangeDate = async () => {
+  await getDeposit();
+};
+
 const onClickStatus = async (status: string) => {
-  if (status == "all") delete query.value.filter;
-  else query.value.filter = { formStatus: status };
+  formStatus.value = status;
+  if (status == "all") {
+    if (query.value.filter) {
+      delete query.value.filter["formStatus"];
+    }
+  } else query.value.filter = { formStatus: status };
   await getDeposit();
 };
 
@@ -275,14 +304,27 @@ const onClickCreate = () => {
 };
 
 const getDeposit = async () => {
+  if (query.value.filter) {
+    query.value.filter["dateTo"] = endDate.value;
+    query.value.filter["dateFrom"] = startDate.value;
+  }
   await depositStore.get({ ...query.value });
-  if (depositStore.deposits.length === 0) {
+  if (depositStore.depositGroup.length === 0) {
     modalStore.setModalAlertNotFound(true);
+  }
+
+  expandeds.value = [];
+  for (let i = 0; i < depositStore.depositGroup.length; i++) {
+    expandeds.value.push(true);
   }
 
   // update ref value
   query.value.page = depositStore.pagination.page;
   query.value.pageSize = depositStore.pagination.pageSize;
+};
+
+const toggleExpand = (index: number) => {
+  expandeds.value[index] = !expandeds.value[index];
 };
 
 const updatePage = async (value: number) => {
@@ -304,6 +346,11 @@ const onClickDetail = (deposit: Deposit) => {
 };
 
 onMounted(async () => {
+  const currentDate = new Date();
+  const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const end = currentDate;
+  startDate.value = start.toDateString();
+  endDate.value = end.toDateString();
   await getDeposit();
 });
 

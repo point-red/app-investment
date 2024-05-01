@@ -69,7 +69,7 @@
                           class="form-control border-0 shadow-none"
                           placeholder="Bilyet Number"
                           name="bilyetNumber"
-                          v-model.trim="validate.bilyetNumber.$model"
+                          v-model="validate.bilyetNumber.$model"
                         />
                         <template v-if="validate.bilyetNumber.$error">
                           <div
@@ -94,7 +94,7 @@
                         <v-select
                           :options="banks"
                           label="name"
-                          v-model.trim="validate.bank.$model"
+                          v-model="validate.bank.$model"
                           @option:selected="onBankChange"
                         ></v-select>
                         <template v-if="validate.bank.$error">
@@ -119,7 +119,7 @@
                         <v-select
                           :options="accounts"
                           label="number"
-                          v-model.trim="validate.account.$model"
+                          v-model="validate.account.$model"
                         ></v-select>
                         <template v-if="validate.account.$error">
                           <div
@@ -143,7 +143,7 @@
                         <v-select
                           :options="owners"
                           label="name"
-                          v-model.trim="validate.owner.$model"
+                          v-model="validate.owner.$model"
                         ></v-select>
                         <template v-if="validate.owner.$error">
                           <div
@@ -247,6 +247,7 @@
                               name="rollover"
                               v-model="formData.isRollOver"
                               class="form-check-input border mr-2"
+                              @change="handleRollOverChange(deposit.isRollOver)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -262,6 +263,7 @@
                               name="rollover"
                               v-model="formData.isRollOver"
                               class="form-check-input border mr-2"
+                              @change="handleRollOverChange(deposit.isRollOver)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -315,7 +317,7 @@
                         <v-select
                           :options="banks"
                           label="name"
-                          v-model.trim="validate.sourceBank.$model"
+                          v-model="validate.sourceBank.$model"
                           @option:selected="onSourceBankChange"
                         ></v-select>
                         <template v-if="validate.sourceBank.$error">
@@ -341,7 +343,7 @@
                         <v-select
                           :options="sourceAccounts"
                           label="number"
-                          v-model.trim="validate.sourceBankAccount.$model"
+                          v-model="validate.sourceBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.sourceBankAccount.$error">
                           <div
@@ -366,7 +368,7 @@
                         <v-select
                           :options="banks"
                           label="name"
-                          v-model.trim="validate.recipientBank.$model"
+                          v-model="validate.recipientBank.$model"
                           @option:selected="onRecipientBankChange"
                         ></v-select>
                         <template v-if="validate.recipientBank.$error">
@@ -392,7 +394,7 @@
                         <v-select
                           :options="recipientAccounts"
                           label="number"
-                          v-model.trim="validate.recipientBankAccount.$model"
+                          v-model="validate.recipientBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.recipientBankAccount.$error">
                           <div
@@ -571,6 +573,7 @@
                               name="is-cashback"
                               v-model="formData.isCashback"
                               class="form-check-input border mr-2"
+                              @change="handleCashbackChange(deposit.isCashback)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -586,6 +589,7 @@
                               name="is-cashback"
                               v-model="formData.isCashback"
                               class="form-check-input border mr-2"
+                              @change="handleCashbackChange(deposit.isCashback)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -603,7 +607,10 @@
             </div>
           </div>
 
-          <div class="w-full mb-8" v-if="!formData.isRollOver">
+          <div
+            class="w-full mb-8"
+            v-if="!formData.isRollOver || formData.isRollOver === 'false'"
+          >
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -778,7 +785,10 @@
             </div>
           </div>
 
-          <div class="w-full mb-8" v-if="formData.isCashback">
+          <div
+            class="w-full mb-8"
+            v-if="formData.isCashback && formData.isCashback === 'true'"
+          >
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -881,7 +891,7 @@
                 cols="30"
                 rows="5"
                 class="form-control resize-none"
-                v-model.trim="formData.note"
+                v-model="formData.note"
                 name="note"
               ></textarea>
             </div>
@@ -893,13 +903,6 @@
           class="flex justify-end p-5 border-t border-slate-200/60 dark:border-darkmode-400"
         >
           <div>
-            <!--            <button-->
-            <!--              @click="router.push({ name: bankNav.home.name })"-->
-            <!--              type="button"-->
-            <!--              class="btn btn-outline-secondary mr-1"-->
-            <!--            >-->
-            <!--              Cancel-->
-            <!--            </button>-->
             <button type="submit" class="btn btn-primary" data-cy="btn-save">
               Save
             </button>
@@ -1030,6 +1033,26 @@ const onSubmit = async () => {
       );
       await router.push({ name: depositNav.placement.name });
     }
+  }
+};
+
+const handleRollOverChange = (value: boolean | string) => {
+  if (!value || value === "false") {
+    returns.value = [{ baseDays: 0 }];
+    formData.value.returns = returns.value;
+  } else {
+    returns.value = [];
+    formData.value.returns = [];
+  }
+};
+
+const handleCashbackChange = (value: boolean | string) => {
+  if (!value || value === "false") {
+    formData.value.cashbacks = [];
+    cashbacks.value = [];
+  } else {
+    cashbacks.value = [{ rate: 0 }];
+    formData.value.cashbacks = cashbacks.value;
   }
 };
 

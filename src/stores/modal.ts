@@ -41,7 +41,7 @@ export const useModalStore = defineStore("modal", {
       },
       modalAlertNotFound: false,
       modalAlertSuccess: false,
-      deleteReason: '',
+      deleteReason: "",
       modalMessage: {
         title: "",
         message: "",

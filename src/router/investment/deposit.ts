@@ -223,7 +223,7 @@ export const depositRoute = [
     component: Withdrawal,
     beforeEnter: async (to, from, next) => {
       const authStore = useAuthStore();
-      if (authStore.permissions.includes("deposit.view")) {
+      if (authStore.permissions.includes("deposit.withdrawal")) {
         next();
       } else {
         next({ name: "404" });
@@ -236,7 +236,7 @@ export const depositRoute = [
     component: ViewWithdrawal,
     beforeEnter: async (to, from, next) => {
       const authStore = useAuthStore();
-      if (authStore.permissions.includes("deposit.view")) {
+      if (authStore.permissions.includes("deposit.withdrawal")) {
         next();
       } else {
         next({ name: "404" });

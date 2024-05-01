@@ -18,6 +18,7 @@ const url = "/deposits";
 export type RootState = {
   deposits: Deposit[];
   deposit: Deposit;
+  depositGroup: { deposits: Deposit[]; bilyetNumber: string; expanded: true }[];
   pagination: IPagination;
 };
 
@@ -111,16 +112,17 @@ export const depositForm = {
 
 export const useDepositsStore = defineStore("deposits", {
   state: () =>
-  ({
-    deposits: [],
-    deposit: deposit,
-    pagination: {
-      page: 1,
-      pageSize: 10,
-      pageCount: 0,
-      totalDocument: 0,
-    },
-  } as unknown as RootState),
+    ({
+      deposits: [],
+      deposit: deposit,
+      depositGroup: [{ deposits: [], bilyetNumber: "" }],
+      pagination: {
+        page: 1,
+        pageSize: 10,
+        pageCount: 0,
+        totalDocument: 0,
+      },
+    } as unknown as RootState),
   getters: {
     dataBank(state) {
       return state.deposits;
@@ -129,10 +131,12 @@ export const useDepositsStore = defineStore("deposits", {
   actions: {
     async get(params: QueryParams): Promise<ApiResponse> {
       try {
-        const banks = await api.get<RootState>(url, { params: { ...params } });
-        this.deposits = banks.data.deposits;
-        this.pagination = banks.data.pagination;
-        return { data: banks.data };
+        const deposit = await api.get<RootState>(url, {
+          params: { ...params },
+        });
+        this.depositGroup = deposit.data.depositGroup;
+        this.pagination = deposit.data.pagination;
+        return { data: deposit.data };
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };
@@ -219,9 +223,15 @@ export const useDepositsStore = defineStore("deposits", {
         return { error: err.response?.data as ErrorResponse };
       }
     },
-    async delete(id: string, password: string, reason: string): Promise<ApiResponse> {
+    async delete(
+      id: string,
+      password: string,
+      reason: string
+    ): Promise<ApiResponse> {
       try {
-        await api.delete(url + "/" + id, { data: { password, deleteReason: reason } });
+        await api.delete(url + "/" + id, {
+          data: { password, deleteReason: reason },
+        });
         return { error: null };
       } catch (error) {
         const err = error as AxiosError;

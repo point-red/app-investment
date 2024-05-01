@@ -37,7 +37,11 @@
                       <td
                         class="border w-1/2 border-slate-300 py-2 px-4 text-center"
                       >
-                        {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
+                        {{
+                          deposit.createdAt
+                            ? format(deposit.createdAt, "yyyy/MM/dd")
+                            : "-"
+                        }}
                       </td>
                     </tr>
                     <tr>
@@ -115,7 +119,7 @@
                           class="form-control border-0 shadow-none"
                           placeholder="Bilyet Number"
                           name="bilyetNumber"
-                          v-model.trim="validate.bilyetNumber.$model"
+                          v-model="validate.bilyetNumber.$model"
                         />
                         <template v-if="validate.bilyetNumber.$error">
                           <div
@@ -140,7 +144,7 @@
                         <v-select
                           :options="banks"
                           label="name"
-                          v-model.trim="validate.bank.$model"
+                          v-model="validate.bank.$model"
                           @option:selected="onBankChange"
                         ></v-select>
                         <template v-if="validate.bank.$error">
@@ -165,7 +169,7 @@
                         <v-select
                           :options="accounts"
                           label="number"
-                          v-model.trim="validate.account.$model"
+                          v-model="validate.account.$model"
                         ></v-select>
                         <template v-if="validate.account.$error">
                           <div
@@ -189,7 +193,7 @@
                         <v-select
                           :options="owners"
                           label="name"
-                          v-model.trim="validate.owner.$model"
+                          v-model="validate.owner.$model"
                         ></v-select>
                         <template v-if="validate.owner.$error">
                           <div
@@ -363,7 +367,7 @@
                         <v-select
                           :options="banks"
                           label="name"
-                          v-model.trim="validate.sourceBank.$model"
+                          v-model="validate.sourceBank.$model"
                           @option:selected="onSourceBankChange"
                         ></v-select>
                         <template v-if="validate.sourceBank.$error">
@@ -389,7 +393,7 @@
                         <v-select
                           :options="sourceAccounts"
                           label="number"
-                          v-model.trim="validate.sourceBankAccount.$model"
+                          v-model="validate.sourceBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.sourceBankAccount.$error">
                           <div
@@ -414,7 +418,7 @@
                         <v-select
                           :options="banks"
                           label="name"
-                          v-model.trim="validate.recipientBank.$model"
+                          v-model="validate.recipientBank.$model"
                           @option:selected="onRecipientBankChange"
                         ></v-select>
                         <template v-if="validate.recipientBank.$error">
@@ -440,7 +444,7 @@
                         <v-select
                           :options="recipientAccounts"
                           label="number"
-                          v-model.trim="validate.recipientBankAccount.$model"
+                          v-model="validate.recipientBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.recipientBankAccount.$error">
                           <div
@@ -1225,6 +1229,7 @@ const handleRollOverChange = (value: boolean | string) => {
     returns.value = [{ baseDays: 0 }];
     deposit.value.returns = returns.value;
   } else {
+    returns.value = [];
     deposit.value.returns = [];
   }
 };
@@ -1232,6 +1237,7 @@ const handleRollOverChange = (value: boolean | string) => {
 const handleCashbackChange = (value: boolean | string) => {
   if (!value || value === "false") {
     deposit.value.cashbacks = [];
+    cashbacks.value = [];
   } else {
     cashbacks.value = [{ rate: 0 }];
     deposit.value.cashbacks = cashbacks.value;

@@ -4,8 +4,13 @@
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
       <div id="tabulator-html-filter-form" class="md:flex xl:flex sm:mr-auto">
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
-          <input id="tabulator-html-filter-value" type="search" v-model="searchTerm"
-            class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0" placeholder="Search..." />
+          <input
+            id="tabulator-html-filter-value"
+            type="search"
+            v-model="searchTerm"
+            class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
+            placeholder="Search..."
+          />
         </div>
         <div class="mt-2 xl:mt-0 sm:mr-4">
           <Dropdown data-cy="btn-sort">
@@ -28,7 +33,7 @@
         <div class="mt-2 xl:mt-0 sm:mr-4">
           <Dropdown data-cy="btn-sort">
             <DropdownToggle class="btn btn-primary" type="button">
-              Form Status
+              <span class="capitalize">{{ formStatus }}</span>
               <ChevronDownIcon class="w-4 h-4 ml-2" />
             </DropdownToggle>
             <DropdownMenu class="w-48">
@@ -36,42 +41,68 @@
                 <DropdownItem @click="onClickStatus('all')" data-cy="sort-desc">
                   All
                 </DropdownItem>
-                <DropdownItem @click="onClickStatus('complete')" data-cy="sort-asc">
-                  Complete
+                <DropdownItem
+                  @click="onClickStatus('draft')"
+                  data-cy="sort-desc"
+                >
+                  Draft
                 </DropdownItem>
-                <DropdownItem @click="onClickStatus('incomplete')" data-cy="sort-asc">
-                  Incomplete
+                <DropdownItem
+                  @click="onClickStatus('complete')"
+                  data-cy="sort-asc"
+                >
+                  Completed
                 </DropdownItem>
               </DropdownContent>
             </DropdownMenu>
           </Dropdown>
         </div>
-        <!--        <div class="mt-2 xl:mt-0 sm:mr-8">-->
-        <!--          <div class="relative w-56 mx-auto">-->
-        <!--            <div-->
-        <!--              class="absolute flex items-center justify-center w-10 h-full border rounded-l bg-slate-100 text-slate-500 dark:bg-darkmode-700 dark:border-darkmode-800 dark:text-slate-400"-->
-        <!--            >-->
-        <!--              <CalendarIcon class="w-4 h-4" />-->
-        <!--            </div>-->
-        <!--            <Litepicker-->
-        <!--              v-model="date"-->
-        <!--              :options="{-->
-        <!--                autoApply: false,-->
-        <!--                singleMode: false,-->
-        <!--                numberOfColumns: 2,-->
-        <!--                numberOfMonths: 2,-->
-        <!--                showWeekNumbers: true,-->
-        <!--                dropdowns: {-->
-        <!--                  minYear: 1990,-->
-        <!--                  maxYear: null,-->
-        <!--                  months: true,-->
-        <!--                  years: true,-->
-        <!--                },-->
-        <!--              }"-->
-        <!--              class="pl-12"-->
-        <!--            />-->
-        <!--          </div>-->
-        <!--        </div>-->
+        <div class="mt-2 xl:mt-0 sm:mr-4">
+          <div class="items-center block intro-y sm:flex">
+            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+              <CalendarIcon
+                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+              />
+              <Litepicker
+                v-model="startDate"
+                :options="{
+                  autoApply: false,
+                  showWeekNumbers: true,
+                  format: 'DD/MM/YYYY',
+                  dropdowns: {
+                    minYear: 1990,
+                    maxYear: null,
+                    months: true,
+                    years: true,
+                  },
+                }"
+                @update:modelValue="onChangeDate"
+                class="pl-10 sm:w-36 !box border-slate-200 mr-2"
+              />
+            </div>
+            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+              <CalendarIcon
+                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+              />
+              <Litepicker
+                v-model="endDate"
+                :options="{
+                  autoApply: false,
+                  showWeekNumbers: true,
+                  format: 'DD/MM/YYYY',
+                  dropdowns: {
+                    minYear: 1990,
+                    maxYear: null,
+                    months: true,
+                    years: true,
+                  },
+                }"
+                @update:modelValue="onChangeDate"
+                class="pl-10 sm:w-36 !box border-slate-200"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="overflow-x-auto scrollbar-hidden">
@@ -95,61 +126,100 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="deposit in deposits" :key="deposit._id">
-            <td>
-              {{ deposit.bilyetNumber }}
-            </td>
-            <td>{{ deposit.number }}</td>
-            <td class="whitespace-nowrap text-center">
-              {{ deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : '-' }}
-            </td>
-            <td class="whitespace-nowrap text-center">
-              {{ numberFormat(deposit.amount) }}
-            </td>
-            <td class="whitespace-nowrap text-center">
-              {{ deposit.interestRate }}%
-            </td>
-            <td class="whitespace-nowrap text-center">
-              {{ deposit.taxRate }}%
-            </td>
-            <td class="whitespace-nowrap text-center">
-              {{ numberFormat(deposit.netInterest || 0) }}
-            </td>
-            <td class="whitespace-nowrap text-center">
-              {{ numberFormat(getReceived(deposit)) }}
-            </td>
-            <td class="whitespace-nowrap text-center">
-              {{ numberFormat((deposit.netInterest || 0) - getReceived(deposit)) }}
-            </td>
-            <td class="capitalize">
-              {{ deposit.interestPayment?.status || "incomplete" }}
-            </td>
-            <td class="flex justify-center">
-              <button v-if="deposit.interestPayment
-                " class="btn btn-primary mr-2" @click="onClickDetail(deposit)">
-                Details
-              </button>
-              <button class="btn btn-primary mr-2" @click="onClickReceive(deposit)">
-                {{
-                  deposit.interestPayment
-                  ? "Edit"
-                  : "Receive Interest"
-                }}
-              </button>
-            </td>
-            <td>
-              <Tippy @click="showArchive(deposit)" tag="button" class="tooltip btn btn-secondary mr-2" content="Archive"
-                data-cy="btn-archive"
-                v-if="deposit.interestPaymentArchives && deposit.interestPaymentArchives.length > 0">
-                <ArchiveIcon class="w-5 h-5" />
-              </Tippy>
-            </td>
-          </tr>
+          <template v-for="(data, index) in depositGroup" :key="index">
+            <template v-for="(deposit, i) in data.deposits" :key="deposit._id">
+              <tr v-if="i == 0 || (i > 0 && expandeds[index])">
+                <td>
+                  <div class="flex flex-row items-center">
+                    <span v-if="i == 0">{{ deposit.bilyetNumber }}</span>
+                    <button
+                      v-if="i == 0 && data.deposits.length > 1"
+                      class="btn btn-primary ml-2"
+                      @click="toggleExpand(index)"
+                    >
+                      <ChevronDownIcon
+                        v-if="!expandeds[index]"
+                        class="w-4 h-4"
+                      />
+                      <ChevronUpIcon v-if="expandeds[index]" class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+                <td>{{ deposit.number }}</td>
+                <td class="whitespace-nowrap text-center">
+                  {{
+                    deposit.dueDate
+                      ? format(deposit.dueDate, "dd/MM/yyyy")
+                      : "-"
+                  }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ numberFormat(deposit.amount) }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ deposit.interestRate }}%
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ deposit.taxRate }}%
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ numberFormat(deposit.netInterest || 0) }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ numberFormat(getReceived(deposit)) }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{
+                    numberFormat(
+                      (deposit.netInterest || 0) - getReceived(deposit)
+                    )
+                  }}
+                </td>
+                <td class="capitalize">
+                  {{ deposit.interestPayment?.status || "incomplete" }}
+                </td>
+                <td class="flex justify-center">
+                  <button
+                    v-if="deposit.interestPayment"
+                    class="btn btn-primary mr-2"
+                    @click="onClickDetail(deposit)"
+                  >
+                    Details
+                  </button>
+                  <button
+                    class="btn btn-primary mr-2"
+                    @click="onClickReceive(deposit)"
+                  >
+                    {{ deposit.interestPayment ? "Edit" : "Receive Interest" }}
+                  </button>
+                </td>
+                <td>
+                  <Tippy
+                    @click="showArchive(deposit)"
+                    tag="button"
+                    class="tooltip btn btn-secondary mr-2"
+                    content="Archive"
+                    data-cy="btn-archive"
+                    v-if="
+                      deposit.interestPaymentArchives &&
+                      deposit.interestPaymentArchives.length > 0
+                    "
+                  >
+                    <ArchiveIcon class="w-5 h-5" />
+                  </Tippy>
+                </td>
+              </tr>
+            </template>
+          </template>
         </tbody>
       </table>
 
-      <Pagination :current-page="depositStore.pagination.page" :last-page="depositStore.pagination.pageCount"
-        @update-page="updatePage" @update-page-size="updatePageSize" />
+      <Pagination
+        :current-page="depositStore.pagination.page"
+        :last-page="depositStore.pagination.pageCount"
+        @update-page="updatePage"
+        @update-page-size="updatePageSize"
+      />
     </div>
   </div>
 
@@ -159,20 +229,36 @@
     </ModalHeader>
     <ModalBody class="flex flex-col gap-3">
       <ul class="nav">
-        <li class="nav-item flex-1" role="presentation" @click="activeTab = 'info'">
-          <div class="nav-link text-center w-full" :class="{ 'text-blue-500': activeTab === 'info' }">
+        <li
+          class="nav-item flex-1"
+          role="presentation"
+          @click="activeTab = 'info'"
+        >
+          <div
+            class="nav-link text-center w-full"
+            :class="{ 'text-blue-500': activeTab === 'info' }"
+          >
             <span class="py-4 cursor-pointer w-full">Information</span>
           </div>
         </li>
-        <li class="nav-item flex-1" role="presentation" @click="activeTab = 'receival'">
-          <div class="nav-link text-center w-full" :class="{ 'text-blue-500': activeTab === 'receival' }">
+        <li
+          class="nav-item flex-1"
+          role="presentation"
+          @click="activeTab = 'receival'"
+        >
+          <div
+            class="nav-link text-center w-full"
+            :class="{ 'text-blue-500': activeTab === 'receival' }"
+          >
             <span class="py-4 cursor-pointer w-full">Interest Receival</span>
           </div>
         </li>
       </ul>
       <div class="w-full mb-8" v-if="deposit && activeTab === 'info'">
         <div class="overflow-x-auto mb-8">
-          <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
+          <h2
+            class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
+          >
             Deposit Information
           </h2>
           <table class="border-collapse border border-slate-400 w-full">
@@ -238,7 +324,11 @@
                   Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '-' }}
+                  {{
+                    deposit.dueDate
+                      ? format(deposit.dueDate, "yyyy/MM/dd")
+                      : "-"
+                  }}
                 </td>
               </tr>
               <tr>
@@ -246,7 +336,11 @@
                   Created At
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
+                  {{
+                    deposit.createdAt
+                      ? format(deposit.createdAt, "yyyy/MM/dd")
+                      : "-"
+                  }}
                 </td>
               </tr>
               <tr>
@@ -261,10 +355,16 @@
           </table>
         </div>
 
-        <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
+        <h2
+          class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
+        >
           Interest Information
         </h2>
-        <div class="overflow-x-auto mb-8" v-for="(item, index) in deposit.returns || []" :key="index">
+        <div
+          class="overflow-x-auto mb-8"
+          v-for="(item, index) in deposit.returns || []"
+          :key="index"
+        >
           <table class="border-collapse border border-slate-400 w-full">
             <tbody>
               <tr>
@@ -280,7 +380,7 @@
                   Interest Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
+                  {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : "-" }}
                 </td>
               </tr>
               <tr>
@@ -329,7 +429,11 @@
       </div>
 
       <div class="w-full mb-8" v-if="deposit && activeTab === 'receival'">
-        <div class="overflow-x-auto" v-for="(interest, index) in interestPayments.interests" :key="'cashback-' + index">
+        <div
+          class="overflow-x-auto"
+          v-for="(interest, index) in interestPayments.interests"
+          :key="'cashback-' + index"
+        >
           <div class="overflow-x-auto mb-8">
             <table class="border-collapse border border-slate-400 w-full">
               <tbody>
@@ -338,8 +442,12 @@
                     Interest Recipient Bank
                   </td>
                   <td class="border w-1/2 border-slate-300 p-1 text-left">
-                    <v-select :options="banks" label="name" v-model="interest.bank"
-                      @option:selected="onBankChange($event, interest)"></v-select>
+                    <v-select
+                      :options="banks"
+                      label="name"
+                      v-model="interest.bank"
+                      @option:selected="onBankChange($event, interest)"
+                    ></v-select>
                   </td>
                 </tr>
                 <tr>
@@ -347,14 +455,20 @@
                     Interest Recipient Account
                   </td>
                   <td class="border w-1/2 border-slate-300 p-1 text-left">
-                    <v-select :options="accounts" label="number" v-model="interest.account"></v-select>
+                    <v-select
+                      :options="accounts"
+                      label="number"
+                      v-model="interest.account"
+                    ></v-select>
                   </td>
                 </tr>
                 <tr>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Base Days
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ interest.baseDays || 0 }} Days
                   </td>
                 </tr>
@@ -362,7 +476,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Due Date
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ format(interest.dueDate, "dd/MM/yyyy") }}
                   </td>
                 </tr>
@@ -370,7 +486,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Interest Rate
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     {{ deposit.interestRate }}%
                   </td>
                 </tr>
@@ -378,7 +496,9 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Amount of Interest (net)
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp. {{ numberFormat(interest.net) }}
                   </td>
                 </tr>
@@ -387,13 +507,19 @@
                     Amount Received
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
-                    <cleave v-model="interest.received" :options="{
-                      numeral: true,
-                      numeralDecimalScale: 15,
-                      numeralPositiveOnly: true,
-                      noImmediatePrefix: true,
-                      rawValueTrimPrefix: true,
-                    }" @keyup="handleMaxAmount(interest)" class="form-control border-0" name="amount" />
+                    <cleave
+                      v-model="interest.received"
+                      :options="{
+                        numeral: true,
+                        numeralDecimalScale: 15,
+                        numeralPositiveOnly: true,
+                        noImmediatePrefix: true,
+                        rawValueTrimPrefix: true,
+                      }"
+                      @keyup="handleMaxAmount(interest)"
+                      class="form-control border-0"
+                      name="amount"
+                    />
                   </td>
                 </tr>
                 <tr>
@@ -401,24 +527,30 @@
                     Date Received
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-2 text-left">
-                    <Litepicker v-model="interest.date" :options="{
-                      autoApply: true,
-                      showWeekNumbers: true,
-                      format: 'DD/MM/YYYY',
-                      dropdowns: {
-                        minYear: 1990,
-                        maxYear: null,
-                        months: true,
-                        years: true,
-                      },
-                    }" class="border-0 w-full text-sm" />
+                    <Litepicker
+                      v-model="interest.date"
+                      :options="{
+                        autoApply: true,
+                        showWeekNumbers: true,
+                        format: 'DD/MM/YYYY',
+                        dropdowns: {
+                          minYear: 1990,
+                          maxYear: null,
+                          months: true,
+                          years: true,
+                        },
+                      }"
+                      class="border-0 w-full text-sm"
+                    />
                   </td>
                 </tr>
                 <tr>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     Remaining Interest
                   </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200">
+                  <td
+                    class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
+                  >
                     Rp.
                     {{ numberFormat(interest.net - interest.received) }}
                   </td>
@@ -430,14 +562,24 @@
         <div class="w-full mb-8">
           <h2 class="font-medium text-lg pb-2">Note</h2>
           <div class="pt-4 w-full">
-            <textarea id="note" cols="30" rows="5" class="form-control resize-none" v-model.trim="interestPayments.note"
-              name="note"></textarea>
+            <textarea
+              id="note"
+              cols="30"
+              rows="5"
+              class="form-control resize-none"
+              v-model.trim="interestPayments.note"
+              name="note"
+            ></textarea>
           </div>
         </div>
       </div>
     </ModalBody>
     <ModalFooter>
-      <button type="button" @click="modalForm = false" class="btn btn-outline-secondary w-20 mr-1">
+      <button
+        type="button"
+        @click="modalForm = false"
+        class="btn btn-outline-secondary w-20 mr-1"
+      >
         Cancel
       </button>
       <button @click="onSubmit" class="btn btn-primary" data-cy="btn-save">
@@ -453,7 +595,9 @@
     <ModalBody class="flex flex-col gap-3">
       <div class="w-full mb-4" v-if="depositArchive">
         <div class="overflow-x-auto mb-8">
-          <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
+          <h2
+            class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
+          >
             Deposit Information
           </h2>
           <table class="border-collapse border border-slate-400 w-full">
@@ -486,10 +630,16 @@
           </table>
         </div>
 
-        <h2 class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400">
+        <h2
+          class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
+        >
           Interest Information
         </h2>
-        <div class="overflow-x-auto mb-8" v-for="(item, index) in depositArchive.returns || []" :key="index">
+        <div
+          class="overflow-x-auto mb-8"
+          v-for="(item, index) in depositArchive.returns || []"
+          :key="index"
+        >
           <table class="border-collapse border border-slate-400 w-full">
             <tbody>
               <tr>
@@ -557,18 +707,30 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(archive, index) in depositArchive.interestPaymentArchives" :key="index">
+            <tr
+              v-for="(archive, index) in depositArchive.interestPaymentArchives"
+              :key="index"
+            >
               <td class="whitespace-nowrap text-center">
                 {{ numberFormat(getReceivedArchive(archive)) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat((depositArchive.netInterest || 0) - getReceivedArchive(archive)) }}
-              </td>              
+                {{
+                  numberFormat(
+                    (depositArchive.netInterest || 0) -
+                      getReceivedArchive(archive)
+                  )
+                }}
+              </td>
               <td class="whitespace-nowrap text-center">
                 {{ archive.deletedBy?.name || "-" }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ archive.deletedAt ? format(archive.deletedAt, "yyyy/MM/dd") : '-' }}
+                {{
+                  archive.deletedAt
+                    ? format(archive.deletedAt, "yyyy/MM/dd")
+                    : "-"
+                }}
               </td>
               <td class="whitespace-nowrap text-center">
                 {{ archive.deleteReason }}
@@ -579,7 +741,11 @@
       </div>
     </ModalBody>
     <ModalFooter>
-      <button type="button" @click="modalArchive = false" class="btn btn-outline-secondary w-20 mr-1">
+      <button
+        type="button"
+        @click="modalArchive = false"
+        class="btn btn-outline-secondary w-20 mr-1"
+      >
         Close
       </button>
     </ModalFooter>
@@ -608,34 +774,35 @@ import {
 import Cleave from "vue-cleave-component";
 import { useBanksStore } from "@/stores/bank";
 
-const authStore = useAuthStore();
 const router = useRouter();
 const depositStore = useDepositsStore();
 const modalStore = useModalStore();
 const navStore = useNavStore();
 const bankStore = useBanksStore();
 
-navStore.create([
-  investmentNav.investment,
-  depositNav.interest,
-]);
+navStore.create([investmentNav.investment, depositNav.interest]);
 
 const { banks } = storeToRefs(bankStore);
-const { deposits } = storeToRefs(depositStore);
-const depositArchive = ref<Deposit | null>(null)
+const { depositGroup } = storeToRefs(depositStore);
+const expandeds = ref<boolean[]>([]);
+const startDate = ref(new Date().toDateString());
+const endDate = ref(new Date().toDateString());
+const searchTerm = ref("");
+const formStatus = ref<string>("all");
+const depositArchive = ref<Deposit | null>(null);
 const interestPayments = ref<DepositInterestPayment>({ interests: [] });
 const query = ref<QueryParams>({
   page: depositStore.pagination.page,
   pageSize: depositStore.pagination.pageSize,
   filter: {
     isRollOver: false,
+    dateFrom: startDate.value,
+    dateTo: endDate.value,
   },
   sort: {
     createdAt: "desc",
   },
 });
-
-const searchTerm = ref("");
 
 watch(searchTerm, async (searchTerm) => {
   if (searchTerm.length) {
@@ -650,20 +817,30 @@ watch(searchTerm, async (searchTerm) => {
   await getDeposit();
 });
 
+const onChangeDate = async () => {
+  await getDeposit();
+};
+
 const onClickStatus = async (status: string) => {
-  if (status == "all") query.value.filter = { isRollOver: false };
-  else
-    query.value.filter = {
-      isRollOver: false,
-      interestPayment: status,
-    };
+  formStatus.value = status;
+  if (status == "all") {
+    if (query.value.filter) {
+      query.value.filter["isRollOver"] = true;
+      delete query.value.filter["interestPayment"];
+    }
+  } else {
+    if (query.value.filter) {
+      query.value.filter["isRollOver"] = true;
+      query.value.filter["interestPayment"] = status;
+    }
+  }
   await getDeposit();
 };
 
 const showArchive = (deposit: Deposit) => {
-  modalArchive.value = true
-  depositArchive.value = deposit
-}
+  modalArchive.value = true;
+  depositArchive.value = deposit;
+};
 
 const accounts = ref<DepositBankAccount[]>([]);
 const modalArchive = ref(false);
@@ -672,14 +849,27 @@ const activeTab = ref("info");
 const deposit = ref<Deposit | null>(null);
 
 const getDeposit = async () => {
+  if (query.value.filter) {
+    query.value.filter["dateTo"] = endDate.value;
+    query.value.filter["dateFrom"] = startDate.value;
+  }
   await depositStore.get({ ...query.value });
-  if (depositStore.deposits.length === 0) {
+  if (depositStore.depositGroup.length === 0) {
     modalStore.setModalAlertNotFound(true);
+  }
+
+  expandeds.value = [];
+  for (let i = 0; i < depositStore.depositGroup.length; i++) {
+    expandeds.value.push(true);
   }
 
   // update ref value
   query.value.page = depositStore.pagination.page;
   query.value.pageSize = depositStore.pagination.pageSize;
+};
+
+const toggleExpand = (index: number) => {
+  expandeds.value[index] = !expandeds.value[index];
 };
 
 const onClickSort = async (sort: string) => {
@@ -735,6 +925,11 @@ const getBanks = async () => {
 };
 
 onMounted(async () => {
+  const currentDate = new Date();
+  const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const end = currentDate;
+  startDate.value = start.toDateString();
+  endDate.value = end.toDateString();
   await getBanks();
   await getDeposit();
 });
@@ -774,11 +969,11 @@ const getReceived = (deposit: Deposit) => {
 const getReceivedArchive = (interestPayment: DepositInterestPayment) => {
   let total = 0;
   const interestPayments = interestPayment;
-    for (const interest of interestPayments.interests) {
-      if (interest.received) {
-        total += Number(interest.received);
-      }
+  for (const interest of interestPayments.interests) {
+    if (interest.received) {
+      total += Number(interest.received);
     }
+  }
   return total;
 };
 
