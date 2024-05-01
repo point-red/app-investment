@@ -179,6 +179,7 @@
                   {{ numberFormat(deposit.remaining || 0) }}
                 </td>
                 <td class="flex justify-center">
+                  <span>&nbsp;</span>
                   <button
                     v-if="deposit.withdrawal"
                     class="btn btn-primary mr-2"
@@ -194,6 +195,7 @@
                   </button>
                 </td>
                 <td>
+                  <span>&nbsp;</span>
                   <Tippy
                     @click="showArchive(deposit)"
                     tag="button"

@@ -6,7 +6,11 @@
       style="overflow-x: auto"
     >
       <ul class="nav">
-        <li class="nav-item flex-1" role="presentation">
+        <li
+          class="nav-item flex-1"
+          role="presentation"
+          v-if="authStore.permissions.includes('deposit.view')"
+        >
           <router-link
             v-if="authStore.permissions.includes('deposit.view')"
             to="/deposit/placement"
@@ -16,7 +20,11 @@
             <span class="py-4 cursor-pointer w-full">Deposit Placement</span>
           </router-link>
         </li>
-        <li class="nav-item flex-1" role="presentation">
+        <li
+          class="nav-item flex-1"
+          role="presentation"
+          v-if="authStore.permissions.includes('deposit.view')"
+        >
           <router-link
             v-if="authStore.permissions.includes('deposit.view')"
             to="/deposit/cashback"
@@ -26,7 +34,11 @@
             <span class="py-4 cursor-pointer w-full">Deposit Cashback</span>
           </router-link>
         </li>
-        <li class="nav-item flex-1" role="presentation">
+        <li
+          class="nav-item flex-1"
+          role="presentation"
+          v-if="authStore.permissions.includes('deposit.view')"
+        >
           <router-link
             v-if="authStore.permissions.includes('deposit.view')"
             to="/deposit/interest"
@@ -36,9 +48,12 @@
             <span class="py-4 cursor-pointer w-full">Realised Interest</span>
           </router-link>
         </li>
-        <li class="nav-item flex-1" role="presentation">
+        <li
+          class="nav-item flex-1"
+          role="presentation"
+          v-if="authStore.permissions.includes('deposit.withdrawal')"
+        >
           <router-link
-            v-if="authStore.permissions.includes('deposit.withdrawal')"
             to="/deposit/withdrawal"
             class="nav-link text-center w-full"
             :class="{ 'text-blue-500': isMatch('/deposit/withdrawal') }"
@@ -46,9 +61,12 @@
             <span class="py-4 cursor-pointer w-full">Deposit Withdrawal</span>
           </router-link>
         </li>
-        <li class="nav-item flex-1" role="presentation">
+        <li
+          class="nav-item flex-1"
+          role="presentation"
+          v-if="authStore.permissions.includes('deposit.view')"
+        >
           <router-link
-            v-if="authStore.permissions.includes('deposit.view')"
             to="/deposit/renewal"
             class="nav-link text-center w-full"
             :class="{ 'text-blue-500': isMatch('/deposit/renewal') }"
