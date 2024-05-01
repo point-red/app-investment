@@ -8,6 +8,7 @@
       <ul class="nav">
         <li class="nav-item flex-1" role="presentation">
           <router-link
+            v-if="authStore.permissions.includes('deposit.view')"
             to="/deposit/placement"
             class="nav-link text-center w-full"
             :class="{ 'text-blue-500': isMatch('/deposit/placement') }"
@@ -17,6 +18,7 @@
         </li>
         <li class="nav-item flex-1" role="presentation">
           <router-link
+            v-if="authStore.permissions.includes('deposit.view')"
             to="/deposit/cashback"
             class="nav-link text-center w-full"
             :class="{ 'text-blue-500': isMatch('/deposit/cashback') }"
@@ -26,6 +28,7 @@
         </li>
         <li class="nav-item flex-1" role="presentation">
           <router-link
+            v-if="authStore.permissions.includes('deposit.view')"
             to="/deposit/interest"
             class="nav-link text-center w-full"
             :class="{ 'text-blue-500': isMatch('/deposit/interest') }"
@@ -35,6 +38,7 @@
         </li>
         <li class="nav-item flex-1" role="presentation">
           <router-link
+            v-if="authStore.permissions.includes('deposit.withdrawal')"
             to="/deposit/withdrawal"
             class="nav-link text-center w-full"
             :class="{ 'text-blue-500': isMatch('/deposit/withdrawal') }"
@@ -44,6 +48,7 @@
         </li>
         <li class="nav-item flex-1" role="presentation">
           <router-link
+            v-if="authStore.permissions.includes('deposit.view')"
             to="/deposit/renewal"
             class="nav-link text-center w-full"
             :class="{ 'text-blue-500': isMatch('/deposit/renewal') }"
@@ -56,8 +61,11 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useAuthStore } from "@/stores/auth";
 import { useRoute } from "vue-router";
 const route = useRoute();
+
+const authStore = useAuthStore();
 
 const path = route.path;
 const isMatch = (value: string) => {

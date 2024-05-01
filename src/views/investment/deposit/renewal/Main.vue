@@ -110,6 +110,7 @@
         <thead>
           <tr>
             <th class="whitespace-nowrap text-center">Bilyet Number</th>
+            <th class="whitespace-nowrap text-center"></th>
             <th class="whitespace-nowrap text-center">Deposit Form Number</th>
             <th class="whitespace-nowrap text-center">Due Date</th>
             <th class="whitespace-nowrap text-center">Amount of Placement</th>
@@ -131,20 +132,17 @@
             <template v-for="(deposit, i) in data.deposits" :key="deposit._id">
               <tr v-if="i == 0 || (i > 0 && expandeds[index])">
                 <td>
-                  <div class="flex flex-row items-center">
-                    <span v-if="i == 0">{{ deposit.bilyetNumber }}</span>
-                    <button
-                      v-if="i == 0 && data.deposits.length > 1"
-                      class="btn btn-primary ml-2"
-                      @click="toggleExpand(index)"
-                    >
-                      <ChevronDownIcon
-                        v-if="!expandeds[index]"
-                        class="w-4 h-4"
-                      />
-                      <ChevronUpIcon v-if="expandeds[index]" class="w-4 h-4" />
-                    </button>
-                  </div>
+                  <span v-if="i == 0">{{ deposit.bilyetNumber }}</span>
+                </td>
+                <td>
+                  <button
+                    v-if="i == 0 && data.deposits.length > 1"
+                    class="btn btn-primary"
+                    @click="toggleExpand(index)"
+                  >
+                    <ChevronDownIcon v-if="!expandeds[index]" class="w-4 h-4" />
+                    <ChevronUpIcon v-if="expandeds[index]" class="w-4 h-4" />
+                  </button>
                 </td>
                 <td>{{ deposit.number }}</td>
                 <td class="whitespace-nowrap text-center">
