@@ -126,6 +126,52 @@
             </div>
           </div>
         </div>
+        <div class="mt-2 xl:mt-0 sm:mr-4 lg:ml-4">
+          <div class="items-center block intro-y sm:flex">
+            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+              <CalendarIcon
+                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+              />
+              <Litepicker
+                v-model="startDueDate"
+                :options="{
+                  autoApply: false,
+                  showWeekNumbers: true,
+                  format: 'DD/MM/YYYY',
+                  dropdowns: {
+                    minYear: 1990,
+                    maxYear: null,
+                    months: true,
+                    years: true,
+                  },
+                }"
+                @update:modelValue="onChangeDate"
+                class="pl-10 sm:w-36 !box border-slate-200 mr-2"
+              />
+            </div>
+            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+              <CalendarIcon
+                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+              />
+              <Litepicker
+                v-model="endDueDate"
+                :options="{
+                  autoApply: false,
+                  showWeekNumbers: true,
+                  format: 'DD/MM/YYYY',
+                  dropdowns: {
+                    minYear: 1990,
+                    maxYear: null,
+                    months: true,
+                    years: true,
+                  },
+                }"
+                @update:modelValue="onChangeDate"
+                class="pl-10 sm:w-36 !box border-slate-200"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="overflow-x-auto scrollbar-hidden">
@@ -153,45 +199,76 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="(data, index) in depositGroup" :key="index">
-            <template v-for="(deposit, i) in data.deposits" :key="deposit._id">
-              <tr v-if="i == 0 || (i > 0 && expandeds[index])">
+          <template v-for="(deposit, i) in deposits" :key="deposit._id">
+            <tr>
+              <td>
+                {{ deposit.bilyetNumber }}
+              </td>
+              <td>
+                <button
+                  v-if="deposit.renewals && deposit.renewals.length > 0"
+                  class="btn btn-primary"
+                  @click="toggleExpand(i)"
+                >
+                  <ChevronDownIcon v-if="!expandeds[i]" class="w-4 h-4" />
+                  <ChevronUpIcon v-if="expandeds[i]" class="w-4 h-4" />
+                </button>
+              </td>
+              <td>{{ deposit.number }}</td>
+              <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
+              <td>{{ deposit.bank.name }}</td>
+              <td>{{ deposit.account.number }}</td>
+              <td>{{ deposit.owner.name }}</td>
+              <td>Rp. {{ numberFormat(deposit.amount) }}</td>
+              <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
+              <td>{{ deposit.baseDate }} days</td>
+              <td>{{ deposit.tenor }} days</td>
+              <td>
+                {{
+                  deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : "-"
+                }}
+              </td>
+              <td>{{ deposit.interestRate }}%</td>
+              <td>{{ deposit.taxRate }}%</td>
+              <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
+              <td class="flex justify-center">
+                <button
+                  class="btn btn-primary mr-2"
+                  @click="onClickDetail(deposit)"
+                >
+                  Details
+                </button>
+              </td>
+            </tr>
+            <template v-if="deposit.renewals && expandeds[i]">
+              <tr v-for="renewal in deposit.renewals" :key="renewal._id">
                 <td>
-                  <span v-if="i == 0">{{ deposit.bilyetNumber }}</span>
+                  {{ renewal.bilyetNumber }}
                 </td>
-                <td>
-                  <button
-                    v-if="i == 0 && data.deposits.length > 1"
-                    class="btn btn-primary"
-                    @click="toggleExpand(index)"
-                  >
-                    <ChevronDownIcon v-if="!expandeds[index]" class="w-4 h-4" />
-                    <ChevronUpIcon v-if="expandeds[index]" class="w-4 h-4" />
-                  </button>
-                </td>
-                <td>{{ deposit.number }}</td>
-                <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
-                <td>{{ deposit.bank.name }}</td>
-                <td>{{ deposit.account.number }}</td>
-                <td>{{ deposit.owner.name }}</td>
-                <td>Rp. {{ numberFormat(deposit.amount) }}</td>
-                <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
-                <td>{{ deposit.baseDate }} days</td>
-                <td>{{ deposit.tenor }} days</td>
+                <td></td>
+                <td>{{ renewal.number }}</td>
+                <td>{{ format(renewal.date, "dd/MM/yyyy") }}</td>
+                <td>{{ renewal.bank.name }}</td>
+                <td>{{ renewal.account.number }}</td>
+                <td>{{ renewal.owner.name }}</td>
+                <td>Rp. {{ numberFormat(renewal.amount) }}</td>
+                <td>Rp. {{ numberFormat(renewal.remaining || 0) }}</td>
+                <td>{{ renewal.baseDate }} days</td>
+                <td>{{ renewal.tenor }} days</td>
                 <td>
                   {{
-                    deposit.dueDate
-                      ? format(deposit.dueDate, "dd/MM/yyyy")
+                    renewal.dueDate
+                      ? format(renewal.dueDate, "dd/MM/yyyy")
                       : "-"
                   }}
                 </td>
-                <td>{{ deposit.interestRate }}%</td>
-                <td>{{ deposit.taxRate }}%</td>
-                <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
+                <td>{{ renewal.interestRate }}%</td>
+                <td>{{ renewal.taxRate }}%</td>
+                <td>Rp. {{ numberFormat(renewal.netInterest || 0) }}</td>
                 <td class="flex justify-center">
                   <button
                     class="btn btn-primary mr-2"
-                    @click="onClickDetail(deposit)"
+                    @click="onClickDetail(renewal)"
                   >
                     Details
                   </button>
@@ -235,10 +312,16 @@ const navStore = useNavStore();
 
 navStore.create([investmentNav.investment, depositNav.home]);
 
-const { depositGroup } = storeToRefs(depositStore);
+const currentDate = new Date();
+const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+const end = currentDate;
+
+const { deposits } = storeToRefs(depositStore);
 const expandeds = ref<boolean[]>([]);
-const startDate = ref(new Date().toDateString());
-const endDate = ref(new Date().toDateString());
+const startDate = ref<string>(start.toDateString());
+const endDate = ref<string>(end.toDateString());
+const startDueDate = ref<string>(start.toDateString());
+const endDueDate = ref<string>(end.toDateString());
 const searchTerm = ref("");
 const formStatus = ref<string>("all");
 
@@ -248,8 +331,11 @@ const query = ref<QueryParams>({
   filter: {
     dateFrom: startDate.value,
     dateTo: endDate.value,
+    dueDateFrom: startDueDate.value,
+    dueDateTo: endDueDate.value,
   },
   sort: {
+    index: "asc",
     createdAt: "desc",
   },
 });
@@ -293,7 +379,7 @@ const onClickStatus = async (status: string) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { createdAt: sort };
+  query.value.sort = { index: "asc", createdAt: sort };
   await getDeposit();
 };
 
@@ -305,14 +391,16 @@ const getDeposit = async () => {
   if (query.value.filter) {
     query.value.filter["dateTo"] = endDate.value;
     query.value.filter["dateFrom"] = startDate.value;
+    query.value.filter["dueDateFrom"] = startDueDate.value;
+    query.value.filter["dueDateTo"] = endDueDate.value;
   }
   await depositStore.get({ ...query.value });
-  if (depositStore.depositGroup.length === 0) {
+  if (depositStore.deposits.length === 0) {
     modalStore.setModalAlertNotFound(true);
   }
 
   expandeds.value = [];
-  for (let i = 0; i < depositStore.depositGroup.length; i++) {
+  for (let i = 0; i < depositStore.deposits.length; i++) {
     expandeds.value.push(true);
   }
 
@@ -344,11 +432,6 @@ const onClickDetail = (deposit: Deposit) => {
 };
 
 onMounted(async () => {
-  const currentDate = new Date();
-  const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-  const end = currentDate;
-  startDate.value = start.toDateString();
-  endDate.value = end.toDateString();
   await getDeposit();
 });
 

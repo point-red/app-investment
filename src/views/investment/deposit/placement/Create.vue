@@ -933,6 +933,8 @@ import { useOwnersStore } from "@/stores/owner";
 import { format } from "date-fns";
 import Cleave from "vue-cleave-component";
 import { useModalStore } from "@/stores/modal";
+import { data } from "cypress/types/jquery";
+import { toast } from "vue3-toastify";
 
 const router = useRouter();
 const depositStore = useDepositsStore();
@@ -1024,6 +1026,19 @@ const onSubmit = async () => {
   if (!validate.value.$invalid) {
     formData.value.returns = returns.value;
     formData.value.cashbacks = cashbacks.value;
+
+    if (formData.value.returns && formData.value.returns.length > 0) {
+      let totalReturn = 0;
+      for (const ret of formData.value.returns) {
+        totalReturn += Number(ret.net || 0);
+      }
+
+      if (totalReturn < Number(formData.value.netInterest || 0)) {
+        toast.error("total returns value must same with net interest");
+        return;
+      }
+    }
+
     const { error } = await depositStore.create(formData.value);
     if (!error) {
       modalStore.setModalAlertSuccess(

@@ -129,57 +129,56 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="(data, index) in depositGroup" :key="index">
-            <template v-for="(deposit, i) in data.deposits" :key="deposit._id">
-              <tr v-if="i == 0 || (i > 0 && expandeds[index])">
-                <td>
-                  <span v-if="i == 0">{{ deposit.bilyetNumber }}</span>
-                </td>
-                <td>
-                  <button
-                    v-if="i == 0 && data.deposits.length > 1"
-                    class="btn btn-primary"
-                    @click="toggleExpand(index)"
-                  >
-                    <ChevronDownIcon v-if="!expandeds[index]" class="w-4 h-4" />
-                    <ChevronUpIcon v-if="expandeds[index]" class="w-4 h-4" />
-                  </button>
-                </td>
-                <td>{{ deposit.number }}</td>
-                <td class="whitespace-nowrap text-center">
-                  {{
-                    deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : ""
-                  }}
-                </td>
-                <td class="whitespace-nowrap text-center">
-                  {{ numberFormat(deposit.amount) }}
-                </td>
-                <td class="whitespace-nowrap text-center">
-                  {{ deposit.interestRate }}%
-                </td>
-                <td class="whitespace-nowrap text-center">
-                  {{ deposit.taxRate }}%
-                </td>
-                <td class="whitespace-nowrap text-center">
-                  {{ numberFormat(deposit.netInterest || 0) }}
-                </td>
-                <td class="whitespace-nowrap text-center">
-                  {{ numberFormat(getTotalCashback(deposit.cashbacks || [])) }}
-                </td>
-                <td class="whitespace-nowrap text-center">
-                  {{ numberFormat(getTotalAmount(deposit)) }}
-                </td>
-                <td class="capitalize">
-                  {{ deposit.withdrawal?.status || "incomplete" }}
-                </td>
-                <td class="whitespace-nowrap text-center">
-                  {{ numberFormat(getReceived(deposit)) }}
-                </td>
-                <td class="whitespace-nowrap text-center">
-                  {{ numberFormat(deposit.remaining || 0) }}
-                </td>
-                <td class="flex justify-center">
-                  <span>&nbsp;</span>
+          <template v-for="(deposit, i) in deposits" :key="deposit._id">
+            <tr>
+              <td>
+                {{ deposit.bilyetNumber }}
+              </td>
+              <td>
+                <button
+                  v-if="deposit.renewals && deposit.renewals.length > 0"
+                  class="btn btn-primary"
+                  @click="toggleExpand(i)"
+                >
+                  <ChevronDownIcon v-if="!expandeds[i]" class="w-4 h-4" />
+                  <ChevronUpIcon v-if="expandeds[i]" class="w-4 h-4" />
+                </button>
+              </td>
+              <td>{{ deposit.number }}</td>
+              <td class="whitespace-nowrap text-center">
+                {{
+                  deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : ""
+                }}
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(deposit.amount) }}
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ deposit.interestRate }}%
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ deposit.taxRate }}%
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(deposit.netInterest || 0) }}
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(getTotalCashback(deposit.cashbacks || [])) }}
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(getTotalAmount(deposit)) }}
+              </td>
+              <td class="capitalize">
+                {{ deposit.withdrawal?.status || "incomplete" }}
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(getReceived(deposit)) }}
+              </td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(deposit.remaining || 0) }}
+              </td>
+              <td>
+                <div class="flex justify-center">
                   <button
                     v-if="deposit.withdrawal"
                     class="btn btn-primary mr-2"
@@ -188,23 +187,105 @@
                     Details
                   </button>
                   <button
+                    v-if="
+                      (!deposit.withdrawal && (deposit.remaining || 0) > 0) ||
+                      deposit.withdrawal
+                    "
                     class="btn btn-primary mr-2"
                     @click="onClickReceive(deposit)"
                   >
                     {{ deposit.withdrawal ? "Edit" : "Receive Withdrawal" }}
                   </button>
+                </div>
+              </td>
+              <td>
+                <span>&nbsp;</span>
+                <Tippy
+                  @click="showArchive(deposit)"
+                  tag="button"
+                  class="tooltip btn btn-secondary mr-2"
+                  content="Archive"
+                  data-cy="btn-archive"
+                  v-if="
+                    deposit.withdrawalArchives &&
+                    deposit.withdrawalArchives.length > 0
+                  "
+                >
+                  <ArchiveIcon class="w-5 h-5" />
+                </Tippy>
+              </td>
+            </tr>
+            <template v-if="deposit.renewals && expandeds[i]">
+              <tr v-for="renewal in deposit.renewals" :key="renewal._id">
+                <td>
+                  {{ renewal.bilyetNumber }}
+                </td>
+                <td></td>
+                <td>{{ renewal.number }}</td>
+                <td class="whitespace-nowrap text-center">
+                  {{
+                    renewal.dueDate ? format(renewal.dueDate, "yyyy/MM/dd") : ""
+                  }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ numberFormat(renewal.amount) }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ renewal.interestRate }}%
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ renewal.taxRate }}%
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ numberFormat(renewal.netInterest || 0) }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ numberFormat(getTotalCashback(renewal.cashbacks || [])) }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ numberFormat(getTotalAmount(renewal)) }}
+                </td>
+                <td class="capitalize">
+                  {{ renewal.withdrawal?.status || "incomplete" }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ numberFormat(getReceived(renewal)) }}
+                </td>
+                <td class="whitespace-nowrap text-center">
+                  {{ numberFormat(renewal.remaining || 0) }}
+                </td>
+                <td>
+                  <div class="flex justify-center">
+                    <button
+                      v-if="renewal.withdrawal"
+                      class="btn btn-primary mr-2"
+                      @click="onClickDetail(renewal)"
+                    >
+                      Details
+                    </button>
+                    <button
+                      v-if="
+                        (!renewal.withdrawal && (renewal.remaining || 0) > 0) ||
+                        renewal.withdrawal
+                      "
+                      class="btn btn-primary mr-2"
+                      @click="onClickReceive(renewal)"
+                    >
+                      {{ renewal.withdrawal ? "Edit" : "Receive Withdrawal" }}
+                    </button>
+                  </div>
                 </td>
                 <td>
                   <span>&nbsp;</span>
                   <Tippy
-                    @click="showArchive(deposit)"
+                    @click="showArchive(renewal)"
                     tag="button"
                     class="tooltip btn btn-secondary mr-2"
                     content="Archive"
                     data-cy="btn-archive"
                     v-if="
-                      deposit.withdrawalArchives &&
-                      deposit.withdrawalArchives.length > 0
+                      renewal.withdrawalArchives &&
+                      renewal.withdrawalArchives.length > 0
                     "
                   >
                     <ArchiveIcon class="w-5 h-5" />
@@ -789,10 +870,15 @@ const bankStore = useBanksStore();
 navStore.create([investmentNav.investment, depositNav.withdraw]);
 
 const { banks } = storeToRefs(bankStore);
-const { depositGroup } = storeToRefs(depositStore);
+const { deposits } = storeToRefs(depositStore);
 const expandeds = ref<boolean[]>([]);
-const startDate = ref(new Date().toDateString());
-const endDate = ref(new Date().toDateString());
+
+const currentDate = new Date();
+const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+const end = currentDate;
+
+const startDate = ref(start.toDateString());
+const endDate = ref(end.toDateString());
 const searchTerm = ref("");
 const formStatus = ref<string>("all");
 const depositArchive = ref<Deposit | null>(null);
@@ -805,6 +891,7 @@ const query = ref<QueryParams>({
     dateTo: endDate.value,
   },
   sort: {
+    index: "asc",
     createdAt: "desc",
   },
 });
@@ -855,7 +942,7 @@ const onClickStatus = async (status: string) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { createdAt: sort };
+  query.value.sort = { index: "asc", createdAt: sort };
   await getDeposit();
 };
 
@@ -871,12 +958,12 @@ const getDeposit = async () => {
     query.value.filter["dateFrom"] = startDate.value;
   }
   await depositStore.get({ ...query.value });
-  if (depositStore.depositGroup.length === 0) {
+  if (depositStore.deposits.length === 0) {
     modalStore.setModalAlertNotFound(true);
   }
 
   expandeds.value = [];
-  for (let i = 0; i < depositStore.depositGroup.length; i++) {
+  for (let i = 0; i < depositStore.deposits.length; i++) {
     expandeds.value.push(true);
   }
   // update ref value
@@ -933,11 +1020,6 @@ const getBanks = async () => {
 };
 
 onMounted(async () => {
-  const currentDate = new Date();
-  const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-  const end = currentDate;
-  startDate.value = start.toDateString();
-  endDate.value = end.toDateString();
   await getBanks();
   await getDeposit();
 });

@@ -74,6 +74,7 @@ export interface Deposit {
   deletedAt?: string;
   deletedBy?: UserForm;
   deleteReason?: string;
+  renewals?: Deposit[];
 }
 
 export interface DepositBank {

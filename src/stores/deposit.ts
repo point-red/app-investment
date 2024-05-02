@@ -134,7 +134,7 @@ export const useDepositsStore = defineStore("deposits", {
         const deposit = await api.get<RootState>(url, {
           params: { ...params },
         });
-        this.depositGroup = deposit.data.depositGroup;
+        this.deposits = deposit.data.deposits;
         this.pagination = deposit.data.pagination;
         return { data: deposit.data };
       } catch (error) {

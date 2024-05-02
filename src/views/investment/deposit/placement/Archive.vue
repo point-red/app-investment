@@ -142,45 +142,76 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="(data, index) in depositGroup" :key="index">
-            <template v-for="(deposit, i) in data.deposits" :key="deposit._id">
-              <tr v-if="i == 0 || (i > 0 && expandeds[index])">
+          <template v-for="(deposit, i) in deposits" :key="deposit._id">
+            <tr>
+              <td>
+                {{ deposit.bilyetNumber }}
+              </td>
+              <td>
+                <button
+                  v-if="deposit.renewals && deposit.renewals.length > 0"
+                  class="btn btn-primary"
+                  @click="toggleExpand(i)"
+                >
+                  <ChevronDownIcon v-if="!expandeds[i]" class="w-4 h-4" />
+                  <ChevronUpIcon v-if="expandeds[i]" class="w-4 h-4" />
+                </button>
+              </td>
+              <td>{{ deposit.number }}</td>
+              <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
+              <td>{{ deposit.bank.name }}</td>
+              <td>{{ deposit.account.number }}</td>
+              <td>{{ deposit.owner.name }}</td>
+              <td>Rp. {{ numberFormat(deposit.amount) }}</td>
+              <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
+              <td>{{ deposit.baseDate }} days</td>
+              <td>{{ deposit.tenor }} days</td>
+              <td>
+                {{
+                  deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : "-"
+                }}
+              </td>
+              <td>{{ deposit.interestRate }}%</td>
+              <td>{{ deposit.taxRate }}%</td>
+              <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
+              <td class="flex justify-center">
+                <button
+                  class="btn btn-primary mr-2"
+                  @click="onClickDetail(deposit)"
+                >
+                  Details
+                </button>
+              </td>
+            </tr>
+            <template v-if="deposit.renewals && expandeds[i]">
+              <tr v-for="renewal in deposit.renewals" :key="renewal._id">
                 <td>
-                  <span v-if="i == 0">{{ deposit.bilyetNumber }}</span>
+                  {{ renewal.bilyetNumber }}
                 </td>
-                <td>
-                  <button
-                    v-if="i == 0 && data.deposits.length > 1"
-                    class="btn btn-primary"
-                    @click="toggleExpand(index)"
-                  >
-                    <ChevronDownIcon v-if="!expandeds[index]" class="w-4 h-4" />
-                    <ChevronUpIcon v-if="expandeds[index]" class="w-4 h-4" />
-                  </button>
-                </td>
-                <td>{{ deposit.number }}</td>
-                <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
-                <td>{{ deposit.bank.name }}</td>
-                <td>{{ deposit.account.number }}</td>
-                <td>{{ deposit.owner.name }}</td>
-                <td>Rp. {{ numberFormat(deposit.amount) }}</td>
-                <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
-                <td>{{ deposit.baseDate }} days</td>
-                <td>{{ deposit.tenor }} days</td>
+                <td></td>
+                <td>{{ renewal.number }}</td>
+                <td>{{ format(renewal.date, "dd/MM/yyyy") }}</td>
+                <td>{{ renewal.bank.name }}</td>
+                <td>{{ renewal.account.number }}</td>
+                <td>{{ renewal.owner.name }}</td>
+                <td>Rp. {{ numberFormat(renewal.amount) }}</td>
+                <td>Rp. {{ numberFormat(renewal.remaining || 0) }}</td>
+                <td>{{ renewal.baseDate }} days</td>
+                <td>{{ renewal.tenor }} days</td>
                 <td>
                   {{
-                    deposit.dueDate
-                      ? format(deposit.dueDate, "dd/MM/yyyy")
+                    renewal.dueDate
+                      ? format(renewal.dueDate, "dd/MM/yyyy")
                       : "-"
                   }}
                 </td>
-                <td>{{ deposit.interestRate }}%</td>
-                <td>{{ deposit.taxRate }}%</td>
-                <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
+                <td>{{ renewal.interestRate }}%</td>
+                <td>{{ renewal.taxRate }}%</td>
+                <td>Rp. {{ numberFormat(renewal.netInterest || 0) }}</td>
                 <td class="flex justify-center">
                   <button
                     class="btn btn-primary mr-2"
-                    @click="onClickDetail(deposit)"
+                    @click="onClickDetail(renewal)"
                   >
                     Details
                   </button>
@@ -230,10 +261,14 @@ navStore.create([
   depositNav.placementArchive,
 ]);
 
-const { depositGroup } = storeToRefs(depositStore);
+const currentDate = new Date();
+const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+const end = currentDate;
+
+const { deposits } = storeToRefs(depositStore);
 const expandeds = ref<boolean[]>([]);
-const startDate = ref(new Date().toDateString());
-const endDate = ref(new Date().toDateString());
+const startDate = ref(start.toDateString());
+const endDate = ref(end.toDateString());
 const searchTerm = ref("");
 const formStatus = ref<string>("all");
 
@@ -246,6 +281,7 @@ const query = ref<QueryParams>({
     dateTo: endDate.value,
   },
   sort: {
+    index: "asc",
     createdAt: "desc",
   },
 });
@@ -289,7 +325,7 @@ const onClickStatus = async (status: string) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { createdAt: sort };
+  query.value.sort = { index: "asc", createdAt: sort };
   await getDeposit();
 };
 
@@ -300,12 +336,12 @@ const getDeposit = async () => {
   }
 
   await depositStore.get({ ...query.value });
-  if (depositStore.depositGroup.length === 0) {
+  if (depositStore.deposits.length === 0) {
     modalStore.setModalAlertNotFound(true);
   }
 
   expandeds.value = [];
-  for (let i = 0; i < depositStore.depositGroup.length; i++) {
+  for (let i = 0; i < depositStore.deposits.length; i++) {
     expandeds.value.push(true);
   }
 
@@ -337,11 +373,6 @@ const onClickDetail = (deposit: Deposit) => {
 };
 
 onMounted(async () => {
-  const currentDate = new Date();
-  const start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-  const end = currentDate;
-  startDate.value = start.toDateString();
-  endDate.value = end.toDateString();
   await getDeposit();
 });
 
