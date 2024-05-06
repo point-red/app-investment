@@ -2,7 +2,7 @@
   <Menu />
   <div class="intro-y box p-5 mt-5">
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
-      <div id="tabulator-html-filter-form" class="flex flex sm:mr-auto">
+      <div id="tabulator-html-filter-form" class="lg:flex xl:flex sm:mr-auto">
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
           <input
             id="tabulator-html-filter-value"

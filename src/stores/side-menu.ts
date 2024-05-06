@@ -59,14 +59,18 @@ export const useSideMenuStore = defineStore("sideMenu", {
           pageName: "investment",
           title: "Investment",
           path: "/investment",
-          canView: authStore.permissions.includes("deposit.view"),
+          canView:
+            authStore.permissions.includes("deposit.view") ||
+            authStore.permissions.includes("deposit.withdrawal"),
           subMenu: [
             {
               icon: "NewspaperIcon",
               pageName: depositNav.placement.name,
               title: "Deposit",
               path: "/deposit",
-              canView: authStore.permissions.includes("deposit.view"),
+              canView:
+                authStore.permissions.includes("deposit.view") ||
+                authStore.permissions.includes("deposit.withdrawal"),
             },
           ],
         },
