@@ -35,7 +35,7 @@
             placeholder="Search..."
           />
         </div>
-        <div class="mt-2 xl:mt-0 sm:mr-4">
+        <div class="mt-2 2xl:mt-0 sm:mr-4">
           <Dropdown data-cy="btn-sort">
             <DropdownToggle class="btn btn-primary" type="button">
               Sort by
@@ -53,7 +53,7 @@
             </DropdownMenu>
           </Dropdown>
         </div>
-        <div class="mt-2 xl:mt-0 sm:mr-4">
+        <div class="mt-2 2xl:mt-0 sm:mr-4">
           <Dropdown data-cy="btn-sort">
             <DropdownToggle class="btn btn-primary" type="button">
               <span class="capitalize">{{ formStatus }}</span>
@@ -80,7 +80,7 @@
             </DropdownMenu>
           </Dropdown>
         </div>
-        <div class="mt-2 xl:mt-0 sm:mr-4">
+        <div class="mt-2 2xl:mt-0 sm:mr-4">
           <div class="items-center block intro-y sm:flex">
             <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
               <CalendarIcon
@@ -126,7 +126,7 @@
             </div>
           </div>
         </div>
-        <div class="mt-2 xl:mt-0 sm:mr-4 2xl:ml-4">
+        <div class="mt-2 2xl:mt-0 sm:mr-4 2xl:ml-4">
           <div class="items-center block intro-y sm:flex">
             <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
               <CalendarIcon
