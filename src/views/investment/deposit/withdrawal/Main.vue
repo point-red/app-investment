@@ -169,7 +169,7 @@
                 {{ numberFormat(getTotalAmount(deposit)) }}
               </td>
               <td class="capitalize">
-                {{ deposit.withdrawal?.status || "incomplete" }}
+                {{ (deposit.remaining || 0) == 0 ? "complete" : "incomplete" }}
               </td>
               <td class="whitespace-nowrap text-center">
                 {{ numberFormat(getReceived(deposit)) }}
