@@ -25,7 +25,7 @@
   </div>
   <div class="intro-y box p-5 mt-5">
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
-      <div id="tabulator-html-filter-form" class="lg:flex xl:flex sm:mr-auto">
+      <div id="tabulator-html-filter-form" class="xl:flex sm:mr-auto">
         <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
           <input
             id="tabulator-html-filter-value"
@@ -126,7 +126,7 @@
             </div>
           </div>
         </div>
-        <div class="mt-2 xl:mt-0 sm:mr-4 lg:ml-4">
+        <div class="mt-2 xl:mt-0 sm:mr-4 xl:ml-4">
           <div class="items-center block intro-y sm:flex">
             <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
               <CalendarIcon
