@@ -20,7 +20,10 @@ export const investmentRoute = [
     component: Investment,
     beforeEnter: async (to, from, next) => {
       const authStore = useAuthStore();
-      if (authStore.permissions.includes("deposit.view")) {
+      if (
+        authStore.permissions.includes("deposit.view") ||
+        authStore.permissions.includes("deposit.withdrawal")
+      ) {
         next();
       } else {
         next({ name: "404" });
