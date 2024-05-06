@@ -933,7 +933,6 @@ import { useOwnersStore } from "@/stores/owner";
 import { format } from "date-fns";
 import Cleave from "vue-cleave-component";
 import { useModalStore } from "@/stores/modal";
-import { data } from "cypress/types/jquery";
 import { toast } from "vue3-toastify";
 
 const router = useRouter();

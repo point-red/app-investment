@@ -26,149 +26,169 @@
   <div class="intro-y box p-5 mt-5">
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
       <div id="tabulator-html-filter-form" class="2xl:flex sm:mr-auto">
-        <div class="sm:flex items-center sm:mr-4 mt-2 xl:mt-0">
-          <input
-            id="tabulator-html-filter-value"
-            type="search"
-            v-model="searchTerm"
-            class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
-            placeholder="Search..."
-          />
-        </div>
-        <div class="mt-2 2xl:mt-0 sm:mr-4">
-          <Dropdown data-cy="btn-sort">
-            <DropdownToggle class="btn btn-primary" type="button">
-              Sort by
-              <ChevronDownIcon class="w-4 h-4 ml-2" />
-            </DropdownToggle>
-            <DropdownMenu class="w-48">
-              <DropdownContent>
-                <DropdownItem @click="onClickSort('desc')" data-cy="sort-desc">
-                  <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
-                </DropdownItem>
-                <DropdownItem @click="onClickSort('asc')" data-cy="sort-asc">
-                  <ArrowDownIcon class="w-4 h-4 mr-2" /> Oldest
-                </DropdownItem>
-              </DropdownContent>
-            </DropdownMenu>
-          </Dropdown>
-        </div>
-        <div class="mt-2 2xl:mt-0 sm:mr-4">
-          <Dropdown data-cy="btn-sort">
-            <DropdownToggle class="btn btn-primary" type="button">
-              <span class="capitalize">{{ formStatus }}</span>
-              <ChevronDownIcon class="w-4 h-4 ml-2" />
-            </DropdownToggle>
-            <DropdownMenu class="w-48">
-              <DropdownContent>
-                <DropdownItem @click="onClickStatus('all')" data-cy="sort-desc">
-                  All
-                </DropdownItem>
-                <DropdownItem
-                  @click="onClickStatus('draft')"
-                  data-cy="sort-desc"
-                >
-                  Draft
-                </DropdownItem>
-                <DropdownItem
-                  @click="onClickStatus('complete')"
-                  data-cy="sort-asc"
-                >
-                  Completed
-                </DropdownItem>
-              </DropdownContent>
-            </DropdownMenu>
-          </Dropdown>
+        <div class="flex flex-row">
+          <div class="flex mr-4 mt-2 xl:mt-0 items-end">
+            <input
+              id="tabulator-html-filter-value"
+              type="search"
+              v-model="searchTerm"
+              class="form-control w-full md:w-80 xl:w-80 2xl:w-full mt-2 sm:mt-0"
+              placeholder="Search..."
+            />
+          </div>
+          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+            <Dropdown data-cy="btn-sort">
+              <DropdownToggle class="btn btn-primary" type="button">
+                Sort by
+                <ChevronDownIcon class="w-4 h-4 ml-2" />
+              </DropdownToggle>
+              <DropdownMenu class="w-48">
+                <DropdownContent>
+                  <DropdownItem
+                    @click="onClickSort('desc')"
+                    data-cy="sort-desc"
+                  >
+                    <ArrowUpIcon class="w-4 h-4 mr-2" /> Newest
+                  </DropdownItem>
+                  <DropdownItem @click="onClickSort('asc')" data-cy="sort-asc">
+                    <ArrowDownIcon class="w-4 h-4 mr-2" /> Oldest
+                  </DropdownItem>
+                </DropdownContent>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+            <Dropdown data-cy="btn-sort">
+              <DropdownToggle class="btn btn-primary" type="button">
+                <span class="capitalize">{{ formStatus }}</span>
+                <ChevronDownIcon class="w-4 h-4 ml-2" />
+              </DropdownToggle>
+              <DropdownMenu class="w-48">
+                <DropdownContent>
+                  <DropdownItem
+                    @click="onClickStatus('all')"
+                    data-cy="sort-desc"
+                  >
+                    All
+                  </DropdownItem>
+                  <DropdownItem
+                    @click="onClickStatus('draft')"
+                    data-cy="sort-desc"
+                  >
+                    Draft
+                  </DropdownItem>
+                  <DropdownItem
+                    @click="onClickStatus('complete')"
+                    data-cy="sort-asc"
+                  >
+                    Completed
+                  </DropdownItem>
+                </DropdownContent>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
         </div>
         <div class="mt-2 2xl:mt-0 sm:mr-4">
           <div class="items-center block intro-y sm:flex">
-            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
-              <CalendarIcon
-                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
-              />
-              <Litepicker
-                v-model="startDate"
-                :options="{
-                  autoApply: false,
-                  showWeekNumbers: true,
-                  format: 'DD/MM/YYYY',
-                  dropdowns: {
-                    minYear: 1990,
-                    maxYear: null,
-                    months: true,
-                    years: true,
-                  },
-                }"
-                @update:model-value="onChangeDate"
-                class="pl-10 sm:w-36 !box border-slate-200 mr-2"
-              />
+            <div class="flex flex-col mr-2">
+              <span class="font-bold">Placement Start Date</span>
+              <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+                <CalendarIcon
+                  class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+                />
+                <Litepicker
+                  v-model="startDate"
+                  :options="{
+                    autoApply: false,
+                    showWeekNumbers: true,
+                    format: 'DD/MM/YYYY',
+                    dropdowns: {
+                      minYear: 1990,
+                      maxYear: null,
+                      months: true,
+                      years: true,
+                    },
+                  }"
+                  @update:model-value="onChangeDate"
+                  class="pl-10 sm:w-36 !box border-slate-200 mr-2"
+                />
+              </div>
             </div>
-            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
-              <CalendarIcon
-                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
-              />
-              <Litepicker
-                v-model="endDate"
-                :options="{
-                  autoApply: false,
-                  showWeekNumbers: true,
-                  format: 'DD/MM/YYYY',
-                  dropdowns: {
-                    minYear: 1990,
-                    maxYear: null,
-                    months: true,
-                    years: true,
-                  },
-                }"
-                @update:model-value="onChangeDate"
-                class="pl-10 sm:w-36 !box border-slate-200"
-              />
+            <div class="flex flex-col">
+              <span class="font-bold">Placement End Date</span>
+              <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+                <CalendarIcon
+                  class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+                />
+                <Litepicker
+                  v-model="endDate"
+                  :options="{
+                    autoApply: false,
+                    showWeekNumbers: true,
+                    format: 'DD/MM/YYYY',
+                    dropdowns: {
+                      minYear: 1990,
+                      maxYear: null,
+                      months: true,
+                      years: true,
+                    },
+                  }"
+                  @update:model-value="onChangeDate"
+                  class="pl-10 sm:w-36 !box border-slate-200"
+                />
+              </div>
             </div>
           </div>
         </div>
         <div class="mt-2 2xl:mt-0 sm:mr-4 2xl:ml-4">
           <div class="items-center block intro-y sm:flex">
-            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
-              <CalendarIcon
-                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
-              />
-              <Litepicker
-                v-model="startDueDate"
-                :options="{
-                  autoApply: false,
-                  showWeekNumbers: true,
-                  format: 'DD/MM/YYYY',
-                  dropdowns: {
-                    minYear: 1990,
-                    maxYear: null,
-                    months: true,
-                    years: true,
-                  },
-                }"
-                @update:model-value="onChangeDate"
-                class="pl-10 sm:w-36 !box border-slate-200 mr-2"
-              />
+            <div class="flex flex-col mr-4">
+              <span class="font-bold">Start Due Date</span>
+              <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+                <CalendarIcon
+                  class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+                />
+                <Litepicker
+                  v-model="startDueDate"
+                  :options="{
+                    autoApply: false,
+                    showWeekNumbers: true,
+                    format: 'DD/MM/YYYY',
+                    dropdowns: {
+                      minYear: 1990,
+                      maxYear: null,
+                      months: true,
+                      years: true,
+                    },
+                  }"
+                  @update:model-value="onChangeDate"
+                  class="pl-10 sm:w-36 !box border-slate-200"
+                />
+              </div>
             </div>
-            <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
-              <CalendarIcon
-                class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
-              />
-              <Litepicker
-                v-model="endDueDate"
-                :options="{
-                  autoApply: false,
-                  showWeekNumbers: true,
-                  format: 'DD/MM/YYYY',
-                  dropdowns: {
-                    minYear: 1990,
-                    maxYear: null,
-                    months: true,
-                    years: true,
-                  },
-                }"
-                @update:model-value="onChangeDate"
-                class="pl-10 sm:w-36 !box border-slate-200"
-              />
+            <div class="flex flex-col mr-2">
+              <span class="font-bold">End Due Date</span>
+              <div class="relative mt-3 sm:ml-auto sm:mt-0 text-slate-500">
+                <CalendarIcon
+                  class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
+                />
+                <Litepicker
+                  v-model="endDueDate"
+                  :options="{
+                    autoApply: false,
+                    showWeekNumbers: true,
+                    format: 'DD/MM/YYYY',
+                    dropdowns: {
+                      minYear: 1990,
+                      maxYear: null,
+                      months: true,
+                      years: true,
+                    },
+                  }"
+                  @update:model-value="onChangeDate"
+                  class="pl-10 sm:w-36 !box border-slate-200"
+                />
+              </div>
             </div>
           </div>
         </div>
