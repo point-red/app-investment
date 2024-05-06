@@ -95,7 +95,7 @@ export const depositRoute = [
       const authStore = useAuthStore();
       if (
         authStore.permissions.includes("deposit.view") ||
-        authStore.permissions.includes("withdrawal.view")
+        authStore.permissions.includes("deposit.withdrawal")
       ) {
         next();
       } else {
