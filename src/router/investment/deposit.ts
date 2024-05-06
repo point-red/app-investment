@@ -93,7 +93,10 @@ export const depositRoute = [
     component: Deposit,
     beforeEnter: async (to, from, next) => {
       const authStore = useAuthStore();
-      if (authStore.permissions.includes("deposit.view")) {
+      if (
+        authStore.permissions.includes("deposit.view") ||
+        authStore.permissions.includes("withdrawal.view")
+      ) {
         next();
       } else {
         next({ name: "404" });
