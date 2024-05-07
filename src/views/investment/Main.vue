@@ -7,7 +7,7 @@
     <router-link
       v-if="
         authStore.permissions.includes('deposit.view') ||
-        authStore.permissions.includes('deposit.withdrawal')
+        authStore.permissions.includes('withdrawal.view')
       "
       :to="{ name: depositNav.home.name }"
       class="intro-y col-span-12 md:col-span-3 lg:col-span-3 box py-10 hover:shadow-xl transition-all duration-500"

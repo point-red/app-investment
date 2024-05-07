@@ -41,7 +41,7 @@
                               years: true,
                             },
                           }"
-                          @update:modelValue="calculate"
+                          @update:model-value="calculate"
                           class="border-0 w-full text-sm"
                         />
                         <template v-if="validate.date.$error">
@@ -1046,6 +1046,8 @@ const onSubmit = async () => {
         "You have added a new Deposit Placement."
       );
       await router.push({ name: depositNav.placement.name });
+    } else {
+      toast.error(error["errors"]["message"]);
     }
   }
 };

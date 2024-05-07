@@ -51,7 +51,7 @@
         <li
           class="nav-item flex-1"
           role="presentation"
-          v-if="authStore.permissions.includes('deposit.withdrawal')"
+          v-if="authStore.permissions.includes('withdrawal.view')"
         >
           <router-link
             to="/deposit/withdrawal"

@@ -72,12 +72,14 @@
               </div>
               <div class="flex flex-row gap-4 justify-end items-end">
                 <button
+                  v-if="authStore.permissions.includes('withdrawal.delete')"
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   @click="onClickDelete"
                 >
                   Delete
                 </button>
                 <button
+                  v-if="authStore.permissions.includes('withdrawal.update')"
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   @click="onClickEdit"
                 >
@@ -191,7 +193,11 @@
                     Due Date
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '' }}
+                    {{
+                      deposit.dueDate
+                        ? format(deposit.dueDate, "yyyy/MM/dd")
+                        : ""
+                    }}
                   </td>
                 </tr>
                 <tr>
@@ -307,7 +313,10 @@
                     Cashback
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(getTotalCashback(deposit.cashbacks || [])) }}
+                    Rp.
+                    {{
+                      numberFormat(getTotalCashback(deposit.cashbacks || []))
+                    }}
                   </td>
                 </tr>
               </tbody>
@@ -316,76 +325,106 @@
 
           <div v-if="deposit.returns && deposit.returns.length > 0">
             <h2
-            class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-          >
-            Interest Information
-          </h2>
-          <div
-            class="overflow-x-auto mb-8"
-            v-for="(item, index) in deposit.returns || []"
-            :key="index"
-          >
-            <table class="border-collapse border border-slate-400 w-full">
-              <tbody>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Base Days
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ item.baseDays }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Interest Due Date
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Interest Rate
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.interestRate }}%
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Amount of Interest (gross)
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.gross || 0) }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Tax Rate
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.taxRate }}%
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Amount of Tax
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.taxAmount || 0) }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Amount of Interest (net)
-                  </td>
-                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    Rp. {{ numberFormat(item.net || 0) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+              class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
+            >
+              Interest Information
+            </h2>
+            <div
+              class="overflow-x-auto mb-8"
+              v-for="(item, index) in deposit.returns || []"
+              :key="index"
+            >
+              <table class="border-collapse border border-slate-400 w-full">
+                <tbody>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Base Days
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      {{ item.baseDays }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Interest Due Date
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      {{
+                        item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : "-"
+                      }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Interest Rate
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      {{ deposit.interestRate }}%
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Amount of Interest (gross)
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Rp. {{ numberFormat(item.gross || 0) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Tax Rate
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      {{ deposit.taxRate }}%
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Amount of Tax
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Rp. {{ numberFormat(item.taxAmount || 0) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Amount of Interest (net)
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Rp. {{ numberFormat(item.net || 0) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -560,7 +599,9 @@
                   Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '' }}
+                  {{
+                    deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : ""
+                  }}
                 </td>
               </tr>
               <tr>
@@ -685,76 +726,78 @@
 
         <div v-if="deposit.returns && deposit.returns.length > 0">
           <h2
-          class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
-        >
-          Interest Information
-        </h2>
-        <div
-          class="overflow-x-auto mb-8"
-          v-for="(item, index) in deposit.returns || []"
-          :key="index"
-        >
-          <table class="border-collapse border border-slate-400 w-full">
-            <tbody>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Base Days
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ item.baseDays }}
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Interest Due Date
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Interest Rate
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.interestRate }}%
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Amount of Interest (gross)
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.gross || 0) }}
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Tax Rate
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.taxRate }}%
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Amount of Tax
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.taxAmount || 0) }}
-                </td>
-              </tr>
-              <tr>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Amount of Interest (net)
-                </td>
-                <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  Rp. {{ numberFormat(item.net || 0) }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+            class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
+          >
+            Interest Information
+          </h2>
+          <div
+            class="overflow-x-auto mb-8"
+            v-for="(item, index) in deposit.returns || []"
+            :key="index"
+          >
+            <table class="border-collapse border border-slate-400 w-full">
+              <tbody>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Base Days
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    {{ item.baseDays }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Interest Due Date
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    {{
+                      item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : "-"
+                    }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Interest Rate
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    {{ deposit.interestRate }}%
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Amount of Interest (gross)
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Rp. {{ numberFormat(item.gross || 0) }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Tax Rate
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    {{ deposit.taxRate }}%
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Amount of Tax
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Rp. {{ numberFormat(item.taxAmount || 0) }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Amount of Interest (net)
+                  </td>
+                  <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
+                    Rp. {{ numberFormat(item.net || 0) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -929,7 +972,7 @@ const bankStore = useBanksStore();
 navStore.create([
   investmentNav.investment,
   depositNav.withdraw,
-  depositNav.withdrawDetail
+  depositNav.withdrawDetail,
 ]);
 const id = route.params.id;
 
@@ -1037,9 +1080,7 @@ const getTotalCashback = (cashbacks: DepositCashback[]) => {
 
 const getReceived = (deposit: Deposit) => {
   let total = 0;
-  if (
-    deposit.withdrawal
-  ) {
+  if (deposit.withdrawal) {
     for (const payment of deposit.withdrawal.payments)
       if (payment) {
         total += Number(payment.amount);

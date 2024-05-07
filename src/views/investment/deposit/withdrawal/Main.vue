@@ -188,8 +188,9 @@
                   </button>
                   <button
                     v-if="
-                      (!deposit.withdrawal && (deposit.remaining || 0) > 0) ||
-                      deposit.withdrawal
+                      ((!deposit.withdrawal && (deposit.remaining || 0) > 0) ||
+                        deposit.withdrawal) &&
+                      authStore.permissions.includes('withdrawal.create')
                     "
                     class="btn btn-primary mr-2"
                     @click="onClickReceive(deposit)"

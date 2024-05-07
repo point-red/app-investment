@@ -75,33 +75,6 @@
               </label>
             </div>
           </div>
-          <div class="intro-y" v-if="feature == 'Deposit'">
-            <div
-              class="inbox__item inline-block sm:block text-slate-600 dark:text-slate-500 bg-white dark:bg-darkmode-400/70 border-b border-slate-200/60 dark:border-darkmode-400"
-            >
-              <label
-                :for="`${feature}-Withdrawal`"
-                class="cursor-pointer flex px-5 py-3"
-              >
-                <div class="flex-1 flex items-center mr-5">
-                  <span class="inbox__item--sender truncate"> Withdrawal </span>
-                </div>
-                <div class="inbox__item--time whitespace-nowrap ml-auto pl-10">
-                  <input
-                    :id="`${feature}-Withdrawal`"
-                    class="form-check-input flex-none"
-                    type="checkbox"
-                    :checked="
-                      role.permissions.includes(
-                        `${feature.toLowerCase()}.withdrawal`
-                      )
-                    "
-                    @click="togglePermissions(feature, 'Withdrawal')"
-                  />
-                </div>
-              </label>
-            </div>
-          </div>
         </AccordionPanel>
       </AccordionItem>
     </AccordionGroup>
@@ -153,15 +126,6 @@ const togglePermissions = (feature: string, data: string) => {
   } else {
     role.value.permissions.push(key);
   }
-
-  if (feature == "Deposit" && data == "Withdrawal") {
-    if (role.value.permissions.includes("withdrawal")) {
-      const index = role.value.permissions.indexOf("withdrawal");
-      role.value.permissions.splice(index, 1);
-    } else {
-      role.value.permissions.push("withdrawal");
-    }
-  }
 };
 
 const togglePermissionsAll = (feature: string) => {
@@ -176,20 +140,6 @@ const togglePermissionsAll = (feature: string) => {
     } else {
       if (!checkPermission) {
         role.value.permissions.push(key);
-      }
-    }
-  }
-
-  // for withdrawal
-  if (feature === "Deposit") {
-    if (role.value.permissions.includes("withdrawal")) {
-      if (checkPermission) {
-        const index = role.value.permissions.indexOf("withdrawal");
-        role.value.permissions.splice(index, 1);
-      }
-    } else {
-      if (!checkPermission) {
-        role.value.permissions.push("withdrawal");
       }
     }
   }
@@ -243,6 +193,13 @@ onMounted(async () => {
   await getRole();
 });
 
-const dataFeature = ref(["User", "Role", "Owner", "Bank", "Deposit"]);
+const dataFeature = ref([
+  "User",
+  "Role",
+  "Owner",
+  "Bank",
+  "Deposit",
+  "Withdrawal",
+]);
 const dataCrud = ref(["Create", "View", "Update", "Delete"]);
 </script>
