@@ -88,7 +88,7 @@
                     years: true,
                   },
                 }"
-                @update:modelValue="onChangeDate"
+                @update:model-value="onChangeDate"
                 class="pl-10 sm:w-36 !box border-slate-200 mr-2"
               />
             </div>
@@ -109,7 +109,7 @@
                     years: true,
                   },
                 }"
-                @update:modelValue="onChangeDate"
+                @update:model-value="onChangeDate"
                 class="pl-10 sm:w-36 !box border-slate-200"
               />
             </div>
@@ -245,8 +245,6 @@ import { useNavStore } from "@/stores/nav";
 import { QueryParams } from "@/types/api/QueryParams";
 import { useModalStore } from "@/stores/modal";
 import { format } from "date-fns";
-import { Bank } from "@/types/Bank";
-import { bankNav } from "@/router/master";
 import { Deposit } from "@/types/deposit";
 
 const authStore = useAuthStore();
@@ -281,8 +279,8 @@ const query = ref<QueryParams>({
     dateTo: endDate.value,
   },
   sort: {
-    index: "asc",
     createdAt: "desc",
+    index: "asc",
   },
 });
 
@@ -325,7 +323,7 @@ const onClickStatus = async (status: string) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { index: "asc", createdAt: sort };
+  query.value.sort = { createdAt: sort, index: "asc" };
   await getDeposit();
 };
 

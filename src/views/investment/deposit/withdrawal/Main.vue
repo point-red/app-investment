@@ -892,8 +892,8 @@ const query = ref<QueryParams>({
     dateTo: endDate.value,
   },
   sort: {
+    date: "desc",
     index: "asc",
-    createdAt: "desc",
   },
 });
 
@@ -943,7 +943,7 @@ const onClickStatus = async (status: string) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { index: "asc", createdAt: sort };
+  query.value.sort = { date: sort, index: "asc" };
   await getDeposit();
 };
 
