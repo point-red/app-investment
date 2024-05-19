@@ -7,11 +7,14 @@ export type RootState = {
   confirmDelete: boolean;
   modalRequestDelete: boolean;
   confirmRequestDelete: boolean;
+  modalDeleteReason: boolean;
+  confirmDeleteReason: boolean;
   permission: string;
   requestDelete: {
     approvalTo: string;
     reasonDelete: string;
   };
+  deleteReason: string;
   modalAlertNotFound: boolean;
   modalAlertSuccess: boolean;
   modalMessage: {
@@ -29,6 +32,8 @@ export const useModalStore = defineStore("modal", {
       confirmDelete: false,
       modalRequestDelete: false,
       confirmRequestDelete: false,
+      modalDeleteReason: false,
+      confirmDeleteReason: false,
       permission: "",
       requestDelete: {
         approvalTo: "",
@@ -36,6 +41,7 @@ export const useModalStore = defineStore("modal", {
       },
       modalAlertNotFound: false,
       modalAlertSuccess: false,
+      deleteReason: "",
       modalMessage: {
         title: "",
         message: "",
@@ -69,12 +75,25 @@ export const useModalStore = defineStore("modal", {
     setConfirmRequestDelete(payload: boolean) {
       this.confirmRequestDelete = payload;
     },
+    setModalDeleteReason(payload: boolean) {
+      this.modalDeleteReason = payload;
+      if (!payload) {
+        this.modalPasswordValue = null;
+      }
+    },
+    setConfirmDeleteReason(payload: boolean) {
+      this.confirmDeleteReason = payload;
+    },
     setModalAlertNotFound(payload: boolean) {
       this.modalAlertNotFound = payload;
     },
     setRequestDeleteParam(approver: string, note: string) {
       this.requestDelete.approvalTo = approver;
       this.requestDelete.reasonDelete = note;
+    },
+    setDeleteReason(password: string, reason: string) {
+      this.deleteReason = reason;
+      this.modalPasswordValue = password;
     },
     setModalAlertSuccess(payload: boolean, title?: string, message?: string) {
       this.modalAlertSuccess = payload;

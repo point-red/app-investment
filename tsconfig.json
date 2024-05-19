@@ -13,6 +13,7 @@
     "baseUrl": ".",
     "forceConsistentCasingInFileNames": false,
     "noImplicitAny": false,
+    "allowJs": true,
     "types": ["vite/client", "vue3-toastify/global"],
     "paths": {
       "@/*": ["./src/*"]

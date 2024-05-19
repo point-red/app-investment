@@ -34,11 +34,19 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
           break;
         }
         case 403: {
-          toast.error(data.message);
+          if (data["errors"] && data["errors"]["message"]) {
+            toast.error(data["errors"]["message"]);
+          } else {
+            toast.error(data.message);
+          }
           break;
         }
         case 422: {
-          toast.error(data.message);
+          if (data["errors"] && data["errors"]["message"]) {
+            toast.error(data["errors"]["message"]);
+          } else {
+            toast.error(data.message);
+          }
           break;
         }
         case 500: {

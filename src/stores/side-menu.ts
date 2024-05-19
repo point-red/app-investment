@@ -2,6 +2,8 @@ import { defineStore } from "pinia";
 import { roleNav } from "../router/master/roles";
 import { bankNav } from "../router/master";
 import { useAuthStore } from "./auth";
+import { Newspaper, NfcIcon } from "lucide-vue-next";
+import { depositNav } from "@/router/investment";
 
 export const useSideMenuStore = defineStore("sideMenu", {
   state: () => ({
@@ -53,11 +55,24 @@ export const useSideMenuStore = defineStore("sideMenu", {
           ],
         },
         {
-          icon: "HomeIcon",
-          pageName: "side-menu-page-1",
-          title: "Page 1",
-          path: "/",
-          canView: true,
+          icon: "NewspaperIcon",
+          pageName: "investment",
+          title: "Investment",
+          path: "/investment",
+          canView:
+            authStore.permissions.includes("deposit.view") ||
+            authStore.permissions.includes("withdrawal.view"),
+          subMenu: [
+            {
+              icon: "NewspaperIcon",
+              pageName: depositNav.placement.name,
+              title: "Deposit",
+              path: "/deposit",
+              canView:
+                authStore.permissions.includes("deposit.view") ||
+                authStore.permissions.includes("withdrawal.view"),
+            },
+          ],
         },
         {
           icon: "HomeIcon",
