@@ -357,7 +357,7 @@
                   Bank
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.account.number }}
+                  {{ deposit.account.name }}
                 </td>
               </tr>
               <tr>
@@ -522,7 +522,7 @@
                   <td class="border w-1/2 border-slate-300 p-1 text-left">
                     <v-select
                       :options="accounts"
-                      label="number"
+                      label="name"
                       v-model="interest.account"
                     ></v-select>
                   </td>
@@ -873,6 +873,13 @@ const query = ref<QueryParams>({
     index: "asc",
   },
 });
+const queryBank = ref<QueryParams>({
+  page: depositStore.pagination.page,
+  pageSize: depositStore.pagination.pageSize,
+  sort: {
+    createdAt: "desc",
+  },
+});
 
 watch(searchTerm, async (searchTerm) => {
   if (searchTerm.length) {
@@ -991,7 +998,7 @@ const onBankChange = (value, payment: InterestPayment) => {
 };
 
 const getBanks = async () => {
-  await bankStore.get({ ...query.value });
+  await bankStore.get({ ...queryBank.value });
 };
 
 onMounted(async () => {

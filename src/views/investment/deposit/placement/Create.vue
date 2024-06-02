@@ -118,7 +118,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="accounts"
-                          label="number"
+                          label="name"
                           v-model="validate.account.$model"
                         ></v-select>
                         <template v-if="validate.account.$error">
@@ -342,7 +342,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="sourceAccounts"
-                          label="number"
+                          label="name"
                           v-model="validate.sourceBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.sourceBankAccount.$error">
@@ -393,7 +393,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="recipientAccounts"
-                          label="number"
+                          label="name"
                           v-model="validate.recipientBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.recipientBankAccount.$error">
@@ -961,7 +961,47 @@ const query = ref({
   pageCount: 1,
 });
 
-const formData = ref<Deposit>(deposit);
+const formData = ref<Deposit>({
+  _id: "",
+  date: new Date().toISOString(),
+  bilyetNumber: "",
+  bank: {
+    _id: "",
+    name: "",
+  },
+  account: {
+    number: 0,
+    name: "",
+  },
+  owner: {
+    _id: "",
+    name: "",
+  },
+  baseDate: 0,
+  tenor: 0,
+  isRollOver: false,
+  amount: 0,
+  sourceBank: {
+    _id: "",
+    name: "",
+  },
+  sourceBankAccount: {
+    number: 0,
+    name: "",
+  },
+  recipientBank: {
+    _id: "",
+    name: "",
+  },
+  recipientBankAccount: {
+    number: 0,
+    name: "",
+  },
+  paymentMethod: "advance",
+  isCashback: false,
+  returns: [],
+  cashbacks: [],
+});
 const returns = ref<DepositReturn[]>([{ baseDays: 0 }]);
 const cashbacks = ref<DepositCashback[]>([{ rate: 0 }]);
 
@@ -1175,5 +1215,6 @@ const getOwners = async () => {
 onMounted(async () => {
   await getBanks();
   await getOwners();
+  validate.value.$reset();
 });
 </script>

@@ -342,7 +342,7 @@
                   Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.account.number }}
+                  {{ selectedDeposit.account.name }}
                 </td>
               </tr>
               <tr>
@@ -410,7 +410,7 @@
                   Bank Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.sourceBankAccount.number }}
+                  {{ selectedDeposit.sourceBankAccount.name }}
                 </td>
               </tr>
               <tr>
@@ -426,7 +426,7 @@
                   Interest Recipient Bank Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.recipientBankAccount.number }}
+                  {{ selectedDeposit.recipientBankAccount.name }}
                 </td>
               </tr>
               <tr>
@@ -618,7 +618,7 @@
                   Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ selectedDeposit.account.number }}
+                  {{ selectedDeposit.account.name }}
                 </td>
               </tr>
               <tr>
