@@ -1120,6 +1120,15 @@ const calculate = () => {
   if (data.taxRate && data.taxRate > 100) {
     data.taxRate = 100;
   }
+
+  if (data.baseDate && data.baseDate < 0) {
+    data.baseDate = 0
+  }
+
+  if (data.tenor && data.tenor < 0) {
+    data.tenor = 0
+  }
+
   if (data.baseDate > 0 && data.tenor > 0) {
     data.baseInterest = Math.floor(
       (data.amount * ((data.interestRate || 0) / 100)) / data.baseDate
