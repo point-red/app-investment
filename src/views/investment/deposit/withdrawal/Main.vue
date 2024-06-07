@@ -442,7 +442,7 @@
                   Bank Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.sourceBankAccount.name }}
+                  {{ deposit.sourceBankAccount.number }}
                 </td>
               </tr>
               <tr>
@@ -458,7 +458,7 @@
                   Interest Recipient Bank Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.recipientBankAccount.name }}
+                  {{ deposit.recipientBankAccount.number }}
                 </td>
               </tr>
               <tr>
@@ -638,7 +638,7 @@
                 <td class="border w-1/2 border-slate-300 p-1 text-left">
                   <v-select
                     :options="accounts"
-                    label="name"
+                    label="number"
                     v-model="payment.account"
                   ></v-select>
                 </td>
