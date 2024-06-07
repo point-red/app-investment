@@ -392,7 +392,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="sourceAccounts"
-                          label="name"
+                          label="number"
                           v-model="validate.sourceBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.sourceBankAccount.$error">
@@ -443,7 +443,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="recipientAccounts"
-                          label="name"
+                          label="number"
                           v-model="validate.recipientBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.recipientBankAccount.$error">
@@ -1109,11 +1109,11 @@ const onSubmit = async () => {
 const calculate = () => {
   const data = deposit.value;
   if (data.baseDate && data.baseDate < 0) {
-    data.baseDate = 0
+    data.baseDate = 0;
   }
 
   if (data.tenor && data.tenor < 0) {
-    data.tenor = 0
+    data.tenor = 0;
   }
   if (data.baseDate > 0 && data.tenor > 0) {
     data.baseInterest = Math.floor(

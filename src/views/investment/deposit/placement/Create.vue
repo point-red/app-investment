@@ -342,7 +342,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="sourceAccounts"
-                          label="name"
+                          label="number"
                           v-model="validate.sourceBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.sourceBankAccount.$error">
@@ -393,7 +393,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="recipientAccounts"
-                          label="name"
+                          label="number"
                           v-model="validate.recipientBankAccount.$model"
                         ></v-select>
                         <template v-if="validate.recipientBankAccount.$error">
@@ -1122,11 +1122,11 @@ const calculate = () => {
   }
 
   if (data.baseDate && data.baseDate < 0) {
-    data.baseDate = 0
+    data.baseDate = 0;
   }
 
   if (data.tenor && data.tenor < 0) {
-    data.tenor = 0
+    data.tenor = 0;
   }
 
   if (data.baseDate > 0 && data.tenor > 0) {
@@ -1202,14 +1202,16 @@ const addDay = (date: string, days: number) => {
 };
 
 const addReturnDay = (index: number) => {
-  let add = 0
+  let add = 0;
   for (let i = 0; i <= index; i++) {
-    const ret = returns.value[i]
+    const ret = returns.value[i];
     if (ret) {
-      add += ret.baseDays
+      add += ret.baseDays;
     }
   }
-  const result = new Date(formData.value.date.replace(/(\d+[/])(\d+[/])/, "$2$1"));
+  const result = new Date(
+    formData.value.date.replace(/(\d+[/])(\d+[/])/, "$2$1")
+  );
   result.setDate(result.getDate() + add);
   return format(result, "dd/MM/yyyy");
 };
