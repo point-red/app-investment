@@ -128,14 +128,14 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="(deposit, i) in deposits" :key="deposit._id">
+          <template v-for="(depo, i) in deposits" :key="depo._id">
             <tr>
               <td>
-                {{ deposit.bilyetNumber }}
+                {{ depo.bilyetNumber }}
               </td>
               <td>
                 <button
-                  v-if="deposit.renewals && deposit.renewals.length > 0"
+                  v-if="depo.renewals && depo.renewals.length > 0"
                   class="btn btn-primary"
                   @click="toggleExpand(i)"
                 >
@@ -143,63 +143,54 @@
                   <ChevronUpIcon v-if="expandeds[i]" class="w-4 h-4" />
                 </button>
               </td>
-              <td>{{ deposit.number }}</td>
+              <td>{{ depo.number }}</td>
               <td class="whitespace-nowrap text-center">
-                {{
-                  deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : ""
-                }}
+                {{ depo.dueDate ? format(depo.dueDate, "yyyy/MM/dd") : "" }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat(deposit.amount) }}
+                {{ numberFormat(depo.amount) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ deposit.interestRate }}%
+                {{ depo.interestRate }}%
+              </td>
+              <td class="whitespace-nowrap text-center">{{ depo.taxRate }}%</td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(depo.netInterest || 0) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ deposit.taxRate }}%
+                {{ depo.isRollOver ? "Yes" : "No" }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat(deposit.netInterest || 0) }}
+                {{ numberFormat(getTotalReceival(depo)) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ deposit.isRollOver ? "Yes" : "No" }}
+                {{ numberFormat(getPlacementRemaining(depo)) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat(getTotalReceival(deposit)) }}
-              </td>
-              <td class="whitespace-nowrap text-center">
-                {{ numberFormat(getPlacementRemaining(deposit)) }}
-              </td>
-              <td class="whitespace-nowrap text-center">
-                {{ numberFormat(getRenewalAmount(deposit)) }}
+                {{ numberFormat(getRenewalAmount(depo)) }}
               </td>
               <td class="capitalize">
-                {{ deposit.renewal_id ? "Complete" : "Incomplete" }}
+                {{ depo.renewal_id ? "Complete" : "Incomplete" }}
               </td>
               <td class="flex justify-center">
                 <button
-                  v-if="deposit.renewal_id"
+                  v-if="depo.renewal_id"
                   class="btn btn-primary mr-2"
-                  @click="onClickDetail(deposit)"
+                  @click="onClickDetail(depo)"
                 >
                   Details
                 </button>
                 <button
                   class="btn btn-primary mr-2"
-                  @click="onClickReceive(deposit)"
-                  v-if="
-                    !deposit.renewal_id && Number(deposit.remaining || 0) > 0
-                  "
+                  @click="onClickReceive(depo)"
+                  v-if="!depo.renewal_id && Number(depo.remaining || 0) > 0"
                 >
                   Renewal
                 </button>
               </td>
             </tr>
-            <template v-if="deposit.renewals && expandeds[i]">
-              <tr
-                v-for="renewalData in deposit.renewals"
-                :key="renewalData._id"
-              >
+            <template v-if="depo.renewals && expandeds[i]">
+              <tr v-for="renewalData in depo.renewals" :key="renewalData._id">
                 <td>
                   {{ renewalData.bilyetNumber }}
                 </td>
