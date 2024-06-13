@@ -97,7 +97,7 @@
                   class="absolute inset-y-0 left-0 z-10 w-4 h-4 my-auto ml-3"
                 />
                 <Litepicker
-                  v-model="startDate" 
+                  v-model="startDate"
                   :options="{
                     autoApply: true,
                     showWeekNumbers: true,
@@ -280,9 +280,7 @@
             </tr>
             <template v-if="deposit.renewals && expandeds[i]">
               <tr v-for="renewal in deposit.renewals" :key="renewal._id">
-                <td>
-                  {{ renewal.bilyetNumber }}
-                </td>
+                <td></td>
                 <td></td>
                 <td>{{ renewal.number }}</td>
                 <td>{{ format(renewal.date, "dd/MM/yyyy") }}</td>
@@ -415,19 +413,25 @@ watch(endDate, async (endDate) => {
 });
 
 watch(startDueDate, async (startDueDate) => {
-  if ((startDueDate && endDueDate.value) || (!startDueDate && !endDueDate.value)) {
+  if (
+    (startDueDate && endDueDate.value) ||
+    (!startDueDate && !endDueDate.value)
+  ) {
     await getDeposit();
   }
 });
 
 watch(endDueDate, async (endDueDate) => {
-  if ((endDueDate && startDueDate.value) || (!endDueDate && !startDueDate.value)) {
+  if (
+    (endDueDate && startDueDate.value) ||
+    (!endDueDate && !startDueDate.value)
+  ) {
     await getDeposit();
   }
 });
 
 const onChangeDate = async () => {
-  console.log(startDate)
+  console.log(startDate);
   await getDeposit();
 };
 
@@ -495,16 +499,16 @@ const onClickDetail = (deposit: Deposit) => {
 };
 
 const clearPlacement = async () => {
-  startDate.value = null
-  endDate.value = null
+  startDate.value = null;
+  endDate.value = null;
   // await getDeposit();
-}
+};
 
 const clearDueDate = async () => {
-  startDueDate.value = null
-  endDueDate.value = null
+  startDueDate.value = null;
+  endDueDate.value = null;
   // await getDeposit();
-}
+};
 
 onMounted(async () => {
   await getDeposit();

@@ -191,9 +191,7 @@
             </tr>
             <template v-if="depo.renewals && expandeds[i]">
               <tr v-for="renewalData in depo.renewals" :key="renewalData._id">
-                <td>
-                  {{ renewalData.bilyetNumber }}
-                </td>
+                <td></td>
                 <td></td>
                 <td>{{ renewalData.number }}</td>
                 <td class="whitespace-nowrap text-center">
