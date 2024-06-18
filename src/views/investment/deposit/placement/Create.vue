@@ -118,7 +118,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="accounts"
-                          label="number"
+                          label="name"
                           v-model="validate.account.$model"
                         ></v-select>
                         <template v-if="validate.account.$error">
@@ -656,7 +656,7 @@
                           class="form-control border-0"
                           placeholder="Due Date"
                           disabled
-                          :value="addDay(formData.date, item.baseDays)"
+                          :value="addReturnDay(index)"
                         />
                       </td>
                     </tr>
@@ -961,7 +961,47 @@ const query = ref({
   pageCount: 1,
 });
 
-const formData = ref<Deposit>(deposit);
+const formData = ref<Deposit>({
+  _id: "",
+  date: new Date().toISOString(),
+  bilyetNumber: "",
+  bank: {
+    _id: "",
+    name: "",
+  },
+  account: {
+    number: 0,
+    name: "",
+  },
+  owner: {
+    _id: "",
+    name: "",
+  },
+  baseDate: 0,
+  tenor: 0,
+  isRollOver: false,
+  amount: 0,
+  sourceBank: {
+    _id: "",
+    name: "",
+  },
+  sourceBankAccount: {
+    number: 0,
+    name: "",
+  },
+  recipientBank: {
+    _id: "",
+    name: "",
+  },
+  recipientBankAccount: {
+    number: 0,
+    name: "",
+  },
+  paymentMethod: "advance",
+  isCashback: false,
+  returns: [],
+  cashbacks: [],
+});
 const returns = ref<DepositReturn[]>([{ baseDays: 0 }]);
 const cashbacks = ref<DepositCashback[]>([{ rate: 0 }]);
 
@@ -1080,6 +1120,15 @@ const calculate = () => {
   if (data.taxRate && data.taxRate > 100) {
     data.taxRate = 100;
   }
+
+  if (data.baseDate && data.baseDate < 0) {
+    data.baseDate = 0;
+  }
+
+  if (data.tenor && data.tenor < 0) {
+    data.tenor = 0;
+  }
+
   if (data.baseDate > 0 && data.tenor > 0) {
     data.baseInterest = Math.floor(
       (data.amount * ((data.interestRate || 0) / 100)) / data.baseDate
@@ -1152,6 +1201,21 @@ const addDay = (date: string, days: number) => {
   return format(result, "dd/MM/yyyy");
 };
 
+const addReturnDay = (index: number) => {
+  let add = 0;
+  for (let i = 0; i <= index; i++) {
+    const ret = returns.value[i];
+    if (ret) {
+      add += ret.baseDays;
+    }
+  }
+  const result = new Date(
+    formData.value.date.replace(/(\d+[/])(\d+[/])/, "$2$1")
+  );
+  result.setDate(result.getDate() + add);
+  return format(result, "dd/MM/yyyy");
+};
+
 const onBankChange = (value) => {
   accounts.value = value.accounts;
 };
@@ -1175,5 +1239,6 @@ const getOwners = async () => {
 onMounted(async () => {
   await getBanks();
   await getOwners();
+  validate.value.$reset();
 });
 </script>

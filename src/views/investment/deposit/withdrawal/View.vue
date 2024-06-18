@@ -161,7 +161,7 @@
                     Account
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.account.number }}
+                    {{ deposit.account.name }}
                   </td>
                 </tr>
                 <tr>
@@ -567,7 +567,7 @@
                   Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.account.number }}
+                  {{ deposit.account.name }}
                 </td>
               </tr>
               <tr>

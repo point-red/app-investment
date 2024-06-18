@@ -127,6 +127,14 @@ export interface InterestPayment {
   account: DepositBankAccount;
   date: string;
   received: number;
+  corrections: InterestPaymentCorrection[];
+}
+
+export interface InterestPaymentCorrection {
+  bank: DepositBank;
+  account: DepositBankAccount;
+  date: string;
+  received: number;
 }
 
 export interface WithdrawalPayment {

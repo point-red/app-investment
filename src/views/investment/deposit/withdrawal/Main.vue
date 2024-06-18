@@ -129,14 +129,14 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="(deposit, i) in deposits" :key="deposit._id">
+          <template v-for="(depo, i) in deposits" :key="depo._id">
             <tr>
               <td>
-                {{ deposit.bilyetNumber }}
+                {{ depo.bilyetNumber }}
               </td>
               <td>
                 <button
-                  v-if="deposit.renewals && deposit.renewals.length > 0"
+                  v-if="depo.renewals && depo.renewals.length > 0"
                   class="btn btn-primary"
                   @click="toggleExpand(i)"
                 >
@@ -144,83 +144,77 @@
                   <ChevronUpIcon v-if="expandeds[i]" class="w-4 h-4" />
                 </button>
               </td>
-              <td>{{ deposit.number }}</td>
+              <td>{{ depo.number }}</td>
               <td class="whitespace-nowrap text-center">
-                {{
-                  deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : ""
-                }}
+                {{ depo.dueDate ? format(depo.dueDate, "yyyy/MM/dd") : "" }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat(deposit.amount) }}
+                {{ numberFormat(depo.amount) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ deposit.interestRate }}%
+                {{ depo.interestRate }}%
+              </td>
+              <td class="whitespace-nowrap text-center">{{ depo.taxRate }}%</td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(depo.netInterest || 0) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ deposit.taxRate }}%
+                {{ numberFormat(getTotalCashback(depo.cashbacks || [])) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat(deposit.netInterest || 0) }}
-              </td>
-              <td class="whitespace-nowrap text-center">
-                {{ numberFormat(getTotalCashback(deposit.cashbacks || [])) }}
-              </td>
-              <td class="whitespace-nowrap text-center">
-                {{ numberFormat(getTotalAmount(deposit)) }}
+                {{ numberFormat(getTotalAmount(depo)) }}
               </td>
               <td class="capitalize">
-                {{ (deposit.remaining || 0) == 0 ? "complete" : "incomplete" }}
+                {{ (depo.remaining || 0) == 0 ? "complete" : "incomplete" }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat(getReceived(deposit)) }}
+                {{ numberFormat(getReceived(depo)) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat(deposit.remaining || 0) }}
+                {{ numberFormat(depo.remaining || 0) }}
               </td>
               <td>
                 <div class="flex justify-center">
                   <button
-                    v-if="deposit.withdrawal"
+                    v-if="depo.withdrawal"
                     class="btn btn-primary mr-2"
-                    @click="onClickDetail(deposit)"
+                    @click="onClickDetail(depo)"
                   >
                     Details
                   </button>
                   <button
                     v-if="
-                      ((!deposit.withdrawal && (deposit.remaining || 0) > 0) ||
-                        deposit.withdrawal) &&
+                      ((!depo.withdrawal && (depo.remaining || 0) > 0) ||
+                        depo.withdrawal) &&
                       authStore.permissions.includes('withdrawal.create')
                     "
                     class="btn btn-primary mr-2"
-                    @click="onClickReceive(deposit)"
+                    @click="onClickReceive(depo)"
                   >
-                    {{ deposit.withdrawal ? "Edit" : "Receive Withdrawal" }}
+                    {{ depo.withdrawal ? "Edit" : "Receive Withdrawal" }}
                   </button>
                 </div>
               </td>
               <td>
                 <span>&nbsp;</span>
                 <Tippy
-                  @click="showArchive(deposit)"
+                  @click="showArchive(depo)"
                   tag="button"
                   class="tooltip btn btn-secondary mr-2"
                   content="Archive"
                   data-cy="btn-archive"
                   v-if="
-                    deposit.withdrawalArchives &&
-                    deposit.withdrawalArchives.length > 0
+                    depo.withdrawalArchives &&
+                    depo.withdrawalArchives.length > 0
                   "
                 >
                   <ArchiveIcon class="w-5 h-5" />
                 </Tippy>
               </td>
             </tr>
-            <template v-if="deposit.renewals && expandeds[i]">
-              <tr v-for="renewal in deposit.renewals" :key="renewal._id">
-                <td>
-                  {{ renewal.bilyetNumber }}
-                </td>
+            <template v-if="depo.renewals && expandeds[i]">
+              <tr v-for="renewal in depo.renewals" :key="renewal._id">
+                <td></td>
                 <td></td>
                 <td>{{ renewal.number }}</td>
                 <td class="whitespace-nowrap text-center">
@@ -376,7 +370,7 @@
                   Account
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.account.number }}
+                  {{ deposit.account.name }}
                 </td>
               </tr>
               <tr>

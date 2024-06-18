@@ -156,7 +156,7 @@
                     Bank
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.account.name }}
+                    {{ deposit.account.number }}
                   </td>
                 </tr>
                 <tr>
@@ -188,7 +188,11 @@
                     Due Date
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '-' }}
+                    {{
+                      deposit.dueDate
+                        ? format(deposit.dueDate, "yyyy/MM/dd")
+                        : "-"
+                    }}
                   </td>
                 </tr>
                 <tr>
@@ -196,7 +200,11 @@
                     Created At
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
+                    {{
+                      deposit.createdAt
+                        ? format(deposit.createdAt, "yyyy/MM/dd")
+                        : "-"
+                    }}
                   </td>
                 </tr>
                 <tr>
@@ -235,7 +243,9 @@
                     Interest Due Date
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
+                    {{
+                      item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : "-"
+                    }}
                   </td>
                 </tr>
                 <tr>
@@ -313,7 +323,7 @@
                     <td
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
-                      {{ interest.account.name }}
+                      {{ interest.account.number }}
                     </td>
                   </tr>
                   <tr>
@@ -398,11 +408,77 @@
                       class="border w-1/2 border-slate-300 py-2 px-4 text-left"
                     >
                       Rp.
-                      {{ numberFormat(interest.net - interest.received) }}
+                      {{
+                        numberFormat(
+                          interest.net -
+                            interest.received -
+                            getCorrection(interest)
+                        )
+                      }}
                     </td>
                   </tr>
                 </tbody>
               </table>
+            </div>
+            <div
+              class="overflow-x-auto"
+              v-for="(correction, i) in interest.corrections"
+              :key="'correctoin-' + i"
+            >
+              <div class="overflow-x-auto mb-8">
+                <table class="border-collapse border border-slate-400 w-full">
+                  <tbody>
+                    <tr>
+                      <td
+                        class="border w-1/2 border-slate-300 py-1 px-4 text-left"
+                      >
+                        Interest Recipient Bank
+                      </td>
+                      <td
+                        class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                      >
+                        {{ correction.bank.name }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="border w-1/2 border-slate-300 py-1 px-4 text-left"
+                      >
+                        Interest Recipient Account
+                      </td>
+                      <td
+                        class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                      >
+                        {{ correction.account.number }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                      >
+                        Amount Received
+                      </td>
+                      <td
+                        class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                      >
+                        Rp. {{ numberFormat(correction.received) }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                      >
+                        Date Received
+                      </td>
+                      <td
+                        class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                      >
+                        {{ correction.date }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
           <div class="w-full mb-8">
@@ -524,7 +600,11 @@
                   Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.dueDate ? format(deposit.dueDate, "yyyy/MM/dd") : '-' }}
+                  {{
+                    deposit.dueDate
+                      ? format(deposit.dueDate, "yyyy/MM/dd")
+                      : "-"
+                  }}
                 </td>
               </tr>
               <tr>
@@ -532,7 +612,11 @@
                   Created At
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
+                  {{
+                    deposit.createdAt
+                      ? format(deposit.createdAt, "yyyy/MM/dd")
+                      : "-"
+                  }}
                 </td>
               </tr>
               <tr>
@@ -572,7 +656,7 @@
                   Interest Due Date
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : '-' }}
+                  {{ item.dueDate ? format(item.dueDate, "yyyy/MM/dd") : "-" }}
                 </td>
               </tr>
               <tr>
@@ -744,11 +828,128 @@
                     class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
                   >
                     Rp.
-                    {{ numberFormat(interest.net - interest.received) }}
+                    {{
+                      numberFormat(
+                        interest.net -
+                          interest.received -
+                          getCorrection(interest)
+                      )
+                    }}
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div
+            class="overflow-x-auto"
+            v-for="(correction, i) in interest.corrections"
+            :key="'correctoin-' + i"
+          >
+            <div class="overflow-x-auto mb-8">
+              <table class="border-collapse border border-slate-400 w-full">
+                <tbody>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
+                    >
+                      Interest Recipient Bank
+                    </td>
+                    <td class="border w-1/2 border-slate-300 p-1 text-left">
+                      <v-select
+                        :options="banks"
+                        label="name"
+                        v-model="correction.bank"
+                        @option:selected="onBankChange($event, correction)"
+                      ></v-select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
+                    >
+                      Interest Recipient Account
+                    </td>
+                    <td class="border w-1/2 border-slate-300 p-1 text-left">
+                      <v-select
+                        :options="accounts"
+                        label="name"
+                        v-model="correction.account"
+                      ></v-select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Amount Received
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-2 text-left"
+                    >
+                      <cleave
+                        v-model="correction.received"
+                        :options="{
+                          numeral: true,
+                          numeralDecimalScale: 15,
+                          numeralPositiveOnly: true,
+                          noImmediatePrefix: true,
+                          rawValueTrimPrefix: true,
+                        }"
+                        @keyup="handleMaxCorrection(interest, i)"
+                        class="form-control border-0"
+                        name="amount"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Date Received
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-2 text-left"
+                    >
+                      <Litepicker
+                        v-model="correction.date"
+                        :options="{
+                          autoApply: true,
+                          showWeekNumbers: true,
+                          format: 'DD/MM/YYYY',
+                          dropdowns: {
+                            minYear: 1990,
+                            maxYear: null,
+                            months: true,
+                            years: true,
+                          },
+                        }"
+                        class="border-0 w-full text-sm"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      colspan="2"
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-right"
+                    >
+                      <TrashIcon
+                        class="w-4 h-4 mr-2 cursor-pointer"
+                        @click="deleteCorrection(i, interest)"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="mt-2 mb-8">
+            <button
+              type="button"
+              class="btn btn-primary mr-1"
+              @click="addNewCorrection(interest)"
+            >
+              Add New Correction
+            </button>
           </div>
         </div>
         <div class="w-full mb-8">
@@ -795,6 +996,7 @@ import {
   DepositBankAccount,
   DepositInterestPayment,
   InterestPayment,
+  InterestPaymentCorrection,
   InterestPaymentDetail,
 } from "@/types/deposit";
 import Cleave from "vue-cleave-component";
@@ -872,7 +1074,57 @@ const handleMaxAmount = (interest: InterestPayment) => {
   }
 };
 
-const onBankChange = (value, payment: InterestPayment) => {
+const handleMaxCorrection = (interest: InterestPayment, index: number) => {
+  let received = interest.received;
+  if (interest.corrections) {
+    for (let i = 0; i < interest.corrections.length; i++) {
+      if (i != index) {
+        received = Number(received) + Number(interest.corrections[i].received);
+      }
+    }
+  }
+
+  const correction = interest.corrections[index];
+  if (correction.received > interest.net - received) {
+    correction.received = interest.net - received;
+  }
+};
+
+const getCorrection = (interest: InterestPayment) => {
+  let correction = 0;
+  if (interest.corrections) {
+    for (const cor of interest.corrections) {
+      correction += Number(cor.received);
+    }
+  }
+  return correction;
+};
+
+const addNewCorrection = (interest: InterestPayment) => {
+  if (!interest.corrections) {
+    interest.corrections = [];
+  }
+  if (deposit.value) {
+    interest.corrections.push({
+      bank: deposit.value.bank,
+      account: deposit.value.account,
+      date: format(new Date(), "dd/MM/yyyy"),
+      received: 0,
+    });
+  }
+};
+
+const deleteCorrection = (index: number, interest: InterestPayment) => {
+  if (interest.corrections) {
+    interest.corrections.splice(index, 1);
+    // calculateRemaining(index - 1, interest);
+  }
+};
+
+const onBankChange = (
+  value,
+  payment: InterestPayment | InterestPaymentCorrection
+) => {
   accounts.value = value.accounts;
   payment.account = { number: 0, name: "" };
 };

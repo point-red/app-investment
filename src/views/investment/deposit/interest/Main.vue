@@ -127,14 +127,14 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="(deposit, i) in deposits" :key="deposit._id">
+          <template v-for="(depo, i) in deposits" :key="depo._id">
             <tr>
               <td>
-                {{ deposit.bilyetNumber }}
+                {{ depo.bilyetNumber }}
               </td>
               <td>
                 <button
-                  v-if="deposit.renewals && deposit.renewals.length > 0"
+                  v-if="depo.renewals && depo.renewals.length > 0"
                   class="btn btn-primary"
                   @click="toggleExpand(i)"
                 >
@@ -142,73 +142,63 @@
                   <ChevronUpIcon v-if="expandeds[i]" class="w-4 h-4" />
                 </button>
               </td>
-              <td>{{ deposit.number }}</td>
+              <td>{{ depo.number }}</td>
               <td class="whitespace-nowrap text-center">
-                {{
-                  deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : "-"
-                }}
+                {{ depo.dueDate ? format(depo.dueDate, "dd/MM/yyyy") : "-" }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat(deposit.amount) }}
+                {{ numberFormat(depo.amount) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ deposit.interestRate }}%
+                {{ depo.interestRate }}%
+              </td>
+              <td class="whitespace-nowrap text-center">{{ depo.taxRate }}%</td>
+              <td class="whitespace-nowrap text-center">
+                {{ numberFormat(depo.netInterest || 0) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ deposit.taxRate }}%
+                {{ numberFormat(getReceived(depo)) }}
               </td>
               <td class="whitespace-nowrap text-center">
-                {{ numberFormat(deposit.netInterest || 0) }}
-              </td>
-              <td class="whitespace-nowrap text-center">
-                {{ numberFormat(getReceived(deposit)) }}
-              </td>
-              <td class="whitespace-nowrap text-center">
-                {{
-                  numberFormat(
-                    (deposit.netInterest || 0) - getReceived(deposit)
-                  )
-                }}
+                {{ numberFormat((depo.netInterest || 0) - getReceived(depo)) }}
               </td>
               <td class="capitalize">
-                {{ deposit.interestPayment?.status || "incomplete" }}
+                {{ depo.interestPayment?.status || "incomplete" }}
               </td>
               <td class="flex justify-center">
                 <button
-                  v-if="deposit.interestPayment"
+                  v-if="depo.interestPayment"
                   class="btn btn-primary mr-2"
-                  @click="onClickDetail(deposit)"
+                  @click="onClickDetail(depo)"
                 >
                   Details
                 </button>
                 <button
                   class="btn btn-primary mr-2"
-                  @click="onClickReceive(deposit)"
+                  @click="onClickReceive(depo)"
                 >
-                  {{ deposit.interestPayment ? "Edit" : "Receive Interest" }}
+                  {{ depo.interestPayment ? "Edit" : "Receive Interest" }}
                 </button>
               </td>
               <td>
                 <Tippy
-                  @click="showArchive(deposit)"
+                  @click="showArchive(depo)"
                   tag="button"
                   class="tooltip btn btn-secondary mr-2"
                   content="Archive"
                   data-cy="btn-archive"
                   v-if="
-                    deposit.interestPaymentArchives &&
-                    deposit.interestPaymentArchives.length > 0
+                    depo.interestPaymentArchives &&
+                    depo.interestPaymentArchives.length > 0
                   "
                 >
                   <ArchiveIcon class="w-5 h-5" />
                 </Tippy>
               </td>
             </tr>
-            <template v-if="deposit.renewals && expandeds[i]">
-              <tr v-for="renewal in deposit.renewals" :key="renewal._id">
-                <td>
-                  {{ renewal.bilyetNumber }}
-                </td>
+            <template v-if="depo.renewals && expandeds[i]">
+              <tr v-for="renewal in depo.renewals" :key="renewal._id">
+                <td></td>
                 <td></td>
                 <td>{{ renewal.number }}</td>
                 <td class="whitespace-nowrap text-center">
@@ -617,11 +607,128 @@
                     class="border w-1/2 border-slate-300 py-2 px-4 text-left bg-slate-200"
                   >
                     Rp.
-                    {{ numberFormat(interest.net - interest.received) }}
+                    {{
+                      numberFormat(
+                        interest.net -
+                          interest.received -
+                          getCorrection(interest)
+                      )
+                    }}
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div
+            class="overflow-x-auto"
+            v-for="(correction, i) in interest.corrections"
+            :key="'correctoin-' + i"
+          >
+            <div class="overflow-x-auto mb-8">
+              <table class="border-collapse border border-slate-400 w-full">
+                <tbody>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
+                    >
+                      Interest Recipient Bank
+                    </td>
+                    <td class="border w-1/2 border-slate-300 p-1 text-left">
+                      <v-select
+                        :options="banks"
+                        label="name"
+                        v-model="correction.bank"
+                        @option:selected="onBankChange($event, correction)"
+                      ></v-select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-1 px-4 text-left"
+                    >
+                      Interest Recipient Account
+                    </td>
+                    <td class="border w-1/2 border-slate-300 p-1 text-left">
+                      <v-select
+                        :options="accounts"
+                        label="name"
+                        v-model="correction.account"
+                      ></v-select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Amount Received
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-2 text-left"
+                    >
+                      <cleave
+                        v-model="correction.received"
+                        :options="{
+                          numeral: true,
+                          numeralDecimalScale: 15,
+                          numeralPositiveOnly: true,
+                          noImmediatePrefix: true,
+                          rawValueTrimPrefix: true,
+                        }"
+                        @keyup="handleMaxCorrection(interest, i)"
+                        class="form-control border-0"
+                        name="amount"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-left"
+                    >
+                      Date Received
+                    </td>
+                    <td
+                      class="border w-1/2 border-slate-300 py-2 px-2 text-left"
+                    >
+                      <Litepicker
+                        v-model="correction.date"
+                        :options="{
+                          autoApply: true,
+                          showWeekNumbers: true,
+                          format: 'DD/MM/YYYY',
+                          dropdowns: {
+                            minYear: 1990,
+                            maxYear: null,
+                            months: true,
+                            years: true,
+                          },
+                        }"
+                        class="border-0 w-full text-sm"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      colspan="2"
+                      class="border w-1/2 border-slate-300 py-2 px-4 text-right"
+                    >
+                      <TrashIcon
+                        class="w-4 h-4 mr-2 cursor-pointer"
+                        @click="deleteCorrection(i, interest)"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="mt-2 mb-8">
+            <button
+              type="button"
+              class="btn btn-primary mr-1"
+              @click="addNewCorrection(interest)"
+            >
+              Add New Correction
+            </button>
           </div>
         </div>
         <div class="w-full mb-8">
@@ -834,6 +941,7 @@ import {
   DepositBankAccount,
   DepositInterestPayment,
   InterestPayment,
+  InterestPaymentCorrection,
 } from "@/types/deposit";
 import Cleave from "vue-cleave-component";
 import { useBanksStore } from "@/stores/bank";
@@ -871,6 +979,13 @@ const query = ref<QueryParams>({
   sort: {
     createdAt: "desc",
     index: "asc",
+  },
+});
+const queryBank = ref<QueryParams>({
+  page: depositStore.pagination.page,
+  pageSize: depositStore.pagination.pageSize,
+  sort: {
+    createdAt: "desc",
   },
 });
 
@@ -985,13 +1100,16 @@ const onClickDetail = (deposit: Deposit) => {
   });
 };
 
-const onBankChange = (value, payment: InterestPayment) => {
+const onBankChange = (
+  value,
+  payment: InterestPayment | InterestPaymentCorrection
+) => {
   accounts.value = value.accounts;
   payment.account = { number: 0, name: "" };
 };
 
 const getBanks = async () => {
-  await bankStore.get({ ...query.value });
+  await bankStore.get({ ...queryBank.value });
 };
 
 onMounted(async () => {
@@ -1026,6 +1144,14 @@ const getReceived = (deposit: Deposit) => {
       if (interest.received) {
         total += Number(interest.received);
       }
+
+      if (interest.corrections) {
+        for (const correction of interest.corrections) {
+          if (correction.received) {
+            total += Number(correction.received);
+          }
+        }
+      }
     }
   }
   return total;
@@ -1045,6 +1171,53 @@ const getReceivedArchive = (interestPayment: DepositInterestPayment) => {
 const handleMaxAmount = (interest: InterestPayment) => {
   if (interest.received > interest.net) {
     interest.received = interest.net;
+  }
+};
+
+const handleMaxCorrection = (interest: InterestPayment, index: number) => {
+  let received = interest.received;
+  if (interest.corrections) {
+    for (let i = 0; i < interest.corrections.length; i++) {
+      if (i != index) {
+        received = Number(received) + Number(interest.corrections[i].received);
+      }
+    }
+  }
+
+  const correction = interest.corrections[index];
+  if (correction.received > interest.net - received) {
+    correction.received = interest.net - received;
+  }
+};
+
+const getCorrection = (interest: InterestPayment) => {
+  let correction = 0;
+  if (interest.corrections) {
+    for (const cor of interest.corrections) {
+      correction += Number(cor.received);
+    }
+  }
+  return correction;
+};
+
+const addNewCorrection = (interest: InterestPayment) => {
+  if (!interest.corrections) {
+    interest.corrections = [];
+  }
+  if (deposit.value) {
+    interest.corrections.push({
+      bank: deposit.value.bank,
+      account: deposit.value.account,
+      date: format(new Date(), "dd/MM/yyyy"),
+      received: 0,
+    });
+  }
+};
+
+const deleteCorrection = (index: number, interest: InterestPayment) => {
+  if (interest.corrections) {
+    interest.corrections.splice(index, 1);
+    // calculateRemaining(index - 1, interest);
   }
 };
 

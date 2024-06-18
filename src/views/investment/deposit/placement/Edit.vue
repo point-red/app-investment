@@ -168,7 +168,7 @@
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <v-select
                           :options="accounts"
-                          label="number"
+                          label="name"
                           v-model="validate.account.$model"
                         ></v-select>
                         <template v-if="validate.account.$error">
@@ -1108,6 +1108,13 @@ const onSubmit = async () => {
 
 const calculate = () => {
   const data = deposit.value;
+  if (data.baseDate && data.baseDate < 0) {
+    data.baseDate = 0;
+  }
+
+  if (data.tenor && data.tenor < 0) {
+    data.tenor = 0;
+  }
   if (data.baseDate > 0 && data.tenor > 0) {
     data.baseInterest = Math.floor(
       (data.amount * ((data.interestRate || 0) / 100)) / data.baseDate

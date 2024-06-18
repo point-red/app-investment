@@ -99,7 +99,7 @@
                 <Litepicker
                   v-model="startDate"
                   :options="{
-                    autoApply: false,
+                    autoApply: true,
                     showWeekNumbers: true,
                     format: 'DD/MM/YYYY',
                     dropdowns: {
@@ -109,7 +109,6 @@
                       years: true,
                     },
                   }"
-                  @update:model-value="onChangeDate"
                   class="pl-10 sm:w-36 !box border-slate-200 mr-2"
                 />
               </div>
@@ -123,7 +122,7 @@
                 <Litepicker
                   v-model="endDate"
                   :options="{
-                    autoApply: false,
+                    autoApply: true,
                     showWeekNumbers: true,
                     format: 'DD/MM/YYYY',
                     dropdowns: {
@@ -133,10 +132,20 @@
                       years: true,
                     },
                   }"
-                  @update:model-value="onChangeDate"
                   class="pl-10 sm:w-36 !box border-slate-200"
                 />
               </div>
+            </div>
+            <div class="flex flex-col">
+              <Tippy
+                @click="clearPlacement()"
+                tag="button"
+                class="mt-5 tooltip btn btn-secondary ml-2"
+                content="Clear"
+                data-cy="btn-clear"
+              >
+                <XIcon class="w-5 h-5"
+              /></Tippy>
             </div>
           </div>
         </div>
@@ -151,7 +160,7 @@
                 <Litepicker
                   v-model="startDueDate"
                   :options="{
-                    autoApply: false,
+                    autoApply: true,
                     showWeekNumbers: true,
                     format: 'DD/MM/YYYY',
                     dropdowns: {
@@ -161,7 +170,6 @@
                       years: true,
                     },
                   }"
-                  @update:model-value="onChangeDate"
                   class="pl-10 sm:w-36 !box border-slate-200"
                 />
               </div>
@@ -175,7 +183,7 @@
                 <Litepicker
                   v-model="endDueDate"
                   :options="{
-                    autoApply: false,
+                    autoApply: true,
                     showWeekNumbers: true,
                     format: 'DD/MM/YYYY',
                     dropdowns: {
@@ -185,10 +193,20 @@
                       years: true,
                     },
                   }"
-                  @update:model-value="onChangeDate"
                   class="pl-10 sm:w-36 !box border-slate-200"
                 />
               </div>
+            </div>
+            <div class="flex flex-col">
+              <Tippy
+                @click="clearDueDate()"
+                tag="button"
+                class="mt-5 tooltip btn btn-secondary ml-2"
+                content="Clear"
+                data-cy="btn-clear"
+              >
+                <XIcon class="w-5 h-5"
+              /></Tippy>
             </div>
           </div>
         </div>
@@ -237,7 +255,7 @@
               <td>{{ deposit.number }}</td>
               <td>{{ format(deposit.date, "dd/MM/yyyy") }}</td>
               <td>{{ deposit.bank.name }}</td>
-              <td>{{ deposit.account.number }}</td>
+              <td>{{ deposit.account.name }}</td>
               <td>{{ deposit.owner.name }}</td>
               <td>Rp. {{ numberFormat(deposit.amount) }}</td>
               <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
@@ -262,14 +280,12 @@
             </tr>
             <template v-if="deposit.renewals && expandeds[i]">
               <tr v-for="renewal in deposit.renewals" :key="renewal._id">
-                <td>
-                  {{ renewal.bilyetNumber }}
-                </td>
+                <td></td>
                 <td></td>
                 <td>{{ renewal.number }}</td>
                 <td>{{ format(renewal.date, "dd/MM/yyyy") }}</td>
                 <td>{{ renewal.bank.name }}</td>
-                <td>{{ renewal.account.number }}</td>
+                <td>{{ renewal.account.name }}</td>
                 <td>{{ renewal.owner.name }}</td>
                 <td>Rp. {{ numberFormat(renewal.amount) }}</td>
                 <td>Rp. {{ numberFormat(renewal.remaining || 0) }}</td>
@@ -338,10 +354,10 @@ const end = currentDate;
 
 const { deposits } = storeToRefs(depositStore);
 const expandeds = ref<boolean[]>([]);
-const startDate = ref<string>(start.toDateString());
-const endDate = ref<string>(end.toDateString());
-const startDueDate = ref<string>(start.toDateString());
-const endDueDate = ref<string>(end.toDateString());
+const startDate = ref<string | null>(start.toDateString());
+const endDate = ref<string | null>(end.toDateString());
+const startDueDate = ref<string | null>(start.toDateString());
+const endDueDate = ref<string | null>(end.toDateString());
 const searchTerm = ref("");
 const formStatus = ref<string>("all");
 
@@ -367,7 +383,7 @@ watch(searchTerm, async (searchTerm) => {
       bilyetNumber: searchTerm,
       date: searchTerm,
       "bank.name": searchTerm,
-      "account.number": Number(searchTerm),
+      "account.name": Number(searchTerm),
       "owner.name": searchTerm,
       amount: searchTerm,
       remaining: searchTerm,
@@ -384,7 +400,38 @@ watch(searchTerm, async (searchTerm) => {
   await getDeposit();
 });
 
+watch(startDate, async (startDate) => {
+  if ((startDate && endDate.value) || (!startDate && !endDate.value)) {
+    await getDeposit();
+  }
+});
+
+watch(endDate, async (endDate) => {
+  if ((endDate && startDate.value) || (!endDate && !startDate.value)) {
+    await getDeposit();
+  }
+});
+
+watch(startDueDate, async (startDueDate) => {
+  if (
+    (startDueDate && endDueDate.value) ||
+    (!startDueDate && !endDueDate.value)
+  ) {
+    await getDeposit();
+  }
+});
+
+watch(endDueDate, async (endDueDate) => {
+  if (
+    (endDueDate && startDueDate.value) ||
+    (!endDueDate && !startDueDate.value)
+  ) {
+    await getDeposit();
+  }
+});
+
 const onChangeDate = async () => {
+  console.log(startDate);
   await getDeposit();
 };
 
@@ -449,6 +496,18 @@ const onClickDetail = (deposit: Deposit) => {
     name: depositNav.viewPlacement.name,
     params: { id: deposit._id },
   });
+};
+
+const clearPlacement = async () => {
+  startDate.value = null;
+  endDate.value = null;
+  // await getDeposit();
+};
+
+const clearDueDate = async () => {
+  startDueDate.value = null;
+  endDueDate.value = null;
+  // await getDeposit();
 };
 
 onMounted(async () => {
