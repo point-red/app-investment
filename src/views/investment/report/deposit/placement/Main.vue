@@ -650,10 +650,10 @@ const numberFormat = (value: number) => {
 };
 
 const onClickPrint = async () => {
-  // window.print()
+  window.print()
 
-  const { paperize } = usePaperizer("printMe");
-  paperize();
+  // const { paperize } = usePaperizer("printMe");
+  // paperize();
 };
 
 const exportData = () => {
