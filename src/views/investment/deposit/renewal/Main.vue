@@ -264,7 +264,7 @@
 
   <Modal :show="modalForm" @hidden="modalForm = false" :size="'modal-lg'">
     <ModalHeader>
-      <h2 class="font-medium text-base mr-auto">Realised Interest Form</h2>
+      <h2 class="font-medium text-base mr-auto">Renewal Form</h2>
     </ModalHeader>
     <ModalBody class="flex flex-col gap-3">
       <ul class="nav">
@@ -1403,7 +1403,7 @@ const updatePageSize = async (value: number) => {
 };
 
 const onClickReceive = (data: Deposit) => {
-  renewal.value.date = format(new Date().toISOString(), "dd/MM/yyyy");
+  renewal.value.date = format(new Date(data.dueDate).toISOString(), "dd/MM/yyyy");
   renewal.value.amount = getRenewalAmount(data);
   renewal.value.taxRate = 0;
   renewal.value.interestRate = 0;

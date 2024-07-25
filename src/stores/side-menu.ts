@@ -3,7 +3,7 @@ import { roleNav } from "../router/master/roles";
 import { bankNav } from "../router/master";
 import { useAuthStore } from "./auth";
 import { Newspaper, NfcIcon } from "lucide-vue-next";
-import { depositNav } from "@/router/investment";
+import { depositNav, reportNav } from "@/router/investment";
 
 export const useSideMenuStore = defineStore("sideMenu", {
   state: () => ({
@@ -71,6 +71,13 @@ export const useSideMenuStore = defineStore("sideMenu", {
               canView:
                 authStore.permissions.includes("deposit.view") ||
                 authStore.permissions.includes("withdrawal.view"),
+            },
+            {
+              icon: "NewspaperIcon",
+              pageName: reportNav.placementInformation.name,
+              title: "Report",
+              path: "/report",
+              canView: authStore.permissions.includes("investment-report.view"),
             },
           ],
         },

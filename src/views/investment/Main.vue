@@ -15,13 +15,27 @@
       <NewspaperIcon class="block w-12 h-12 text-primary mx-auto" />
       <div class="font-medium text-center text-base mt-3">Deposit</div>
     </router-link>
+    <router-link
+      v-if="
+        authStore.permissions.includes('deposit.view') ||
+        authStore.permissions.includes('investment-report.view')
+      "
+      :to="{ name: reportNav.home.name }"
+      class="intro-y col-span-12 md:col-span-3 lg:col-span-3 box py-10 hover:shadow-xl transition-all duration-500"
+    >
+      <NewspaperIcon class="block w-12 h-12 text-primary mx-auto" />
+      <div class="font-medium text-center text-base mt-3">Report</div>
+    </router-link>
   </div>
   <!-- END: Page Layout -->
 </template>
 
 <script setup lang="ts">
-import { depositNav } from "@/router/investment";
+import { investmentNav, reportNav, depositNav } from "@/router/investment";
 import { useAuthStore } from "@/stores/auth";
+import { useNavStore } from "@/stores/nav";
 
 const authStore = useAuthStore();
+const navStore = useNavStore();
+navStore.create([investmentNav.investment]);
 </script>

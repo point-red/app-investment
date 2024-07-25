@@ -454,7 +454,7 @@
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <cleave
-                          v-model="formData.interestRate"
+                          v-model="validate.interestRate.$model"
                           :options="{
                             numeral: true,
                             numeralDecimalScale: 15,
@@ -466,6 +466,17 @@
                           class="form-control border-0"
                           name="interest-rate"
                         />
+                        <template v-if="validate.interestRate.$error">
+                          <div
+                            v-for="(error, index) in validate.interestRate
+                              .$errors"
+                            :key="index"
+                            class="text-danger mt-2"
+                            data-cy="error-field"
+                          >
+                            {{ error.$message }}
+                          </div>
+                        </template>
                       </td>
                     </tr>
                     <tr>
@@ -498,7 +509,7 @@
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <cleave
-                          v-model="formData.taxRate"
+                          v-model="validate.taxRate.$model"
                           :options="{
                             numeral: true,
                             numeralDecimalScale: 15,
@@ -510,6 +521,16 @@
                           class="form-control border-0"
                           name="tax-rate"
                         />
+                        <template v-if="validate.taxRate.$error">
+                          <div
+                            v-for="(error, index) in validate.taxRate.$errors"
+                            :key="index"
+                            class="text-danger mt-2"
+                            data-cy="error-field"
+                          >
+                            {{ error.$message }}
+                          </div>
+                        </template>
                       </td>
                     </tr>
                     <tr>
@@ -903,6 +924,14 @@
           class="flex justify-end p-5 border-t border-slate-200/60 dark:border-darkmode-400"
         >
           <div>
+            <button
+              @click="onClickSaveAsDraft()"
+              type="button"
+              class="btn btn-primary mr-1"
+              data-cy="btn-save"
+            >
+              Save As Draft
+            </button>
             <button type="submit" class="btn btn-primary" data-cy="btn-save">
               Save
             </button>
@@ -998,6 +1027,8 @@ const formData = ref<Deposit>({
     name: "",
   },
   paymentMethod: "advance",
+  interestRate: 0,
+  taxRate: 0,
   isCashback: false,
   returns: [],
   cashbacks: [],
@@ -1053,6 +1084,12 @@ const rules = {
   recipientBankAccount: {
     required: helpers.withMessage("Please select account", accountValidate),
   },
+  interestRate: {
+    required: helpers.withMessage("Must be more than zero", moreThanZero),
+  },
+  taxRate: {
+    required: helpers.withMessage("Must be more than zero", moreThanZero),
+  },
   isCashback: {
     required,
   },
@@ -1065,6 +1102,7 @@ const onSubmit = async () => {
   if (!validate.value.$invalid) {
     formData.value.returns = returns.value;
     formData.value.cashbacks = cashbacks.value;
+    formData.value.formStatus = "complete";
 
     if (formData.value.returns && formData.value.returns.length > 0) {
       let totalReturn = 0;
@@ -1089,6 +1127,24 @@ const onSubmit = async () => {
     } else {
       toast.error(error["errors"]["message"]);
     }
+  }
+};
+
+const onClickSaveAsDraft = async () => {
+  formData.value.returns = returns.value;
+  formData.value.cashbacks = cashbacks.value;
+  formData.value.formStatus = "draft";
+
+  const { error } = await depositStore.create(formData.value);
+  if (!error) {
+    modalStore.setModalAlertSuccess(
+      true,
+      "Deposit Placement Successfully Added",
+      "You have added a new Deposit Placement."
+    );
+    await router.push({ name: depositNav.placement.name });
+  } else {
+    toast.error(error["errors"]["message"]);
   }
 };
 
