@@ -65,6 +65,7 @@ export const deposit = {
   isCashback: false,
   returns: [],
   cashbacks: [],
+  totalInterest: ""
 };
 
 export const useReportsStore = defineStore("reports", {

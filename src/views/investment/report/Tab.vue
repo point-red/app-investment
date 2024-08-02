@@ -14,7 +14,7 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/placement"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{
               'text-blue-500': isMatch('/report/deposit/placement'),
             }"

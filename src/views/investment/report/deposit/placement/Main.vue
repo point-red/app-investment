@@ -150,7 +150,11 @@
           </div>
         </div>
         <div class="flex flex-row">
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+          <div
+            class="mt-2 2xl:mt-0 sm:mr-4 flex flex-col justify-center items-start"
+            style="width: 120px"
+          >
+            <span class="font-bold ml-0 pl-0">Filter</span>
             <v-select
               class="w-full"
               :options="banks"
@@ -158,7 +162,10 @@
               @option:selected="onBankChange"
             ></v-select>
           </div>
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+          <div
+            class="my-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
+            style="width: 120px"
+          >
             <v-select
               class="w-full"
               :options="owners"
@@ -166,7 +173,10 @@
               @option:selected="onOwnerChange"
             ></v-select>
           </div>
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+          <div
+            class="mt-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
+            style="width: 180px"
+          >
             <v-select
               class="w-full"
               :options="placementTypes"
@@ -174,11 +184,14 @@
               @option:selected="onPlacementTypeChange"
             ></v-select>
           </div>
+        </div>
+        <div class="flex flex-row">
           <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
-            <button @click="onClickPrint">
+            <!-- <button onclick="window.print()"> -->
+            <button @click="generatePDF">
               <img
                 alt="Enigma Tailwind HTML Admin Template"
-                width="40"
+                style="min-width: 40px; width: 40px"
                 src="@/assets/images/logo-print.jpg"
               />
             </button>
@@ -195,6 +208,7 @@
         </div>
       </div>
     </div>
+
     <!-- sub menu -->
     <div
       class="px-5 py-5 mt-5 intro-y box d-flex flex-nowrap bg-white"
@@ -209,7 +223,7 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/placement"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{
               'text-blue-500': isMatch('/report/deposit/placement'),
             }"
@@ -225,7 +239,7 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/interest"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{ 'text-blue-500': isMatch('/report/deposit/interest') }"
           >
             <span class="py-4 cursor-pointer w-full">Realised Interest</span>
@@ -239,38 +253,22 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/value"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{ 'text-blue-500': isMatch('/report/deposit/value') }"
           >
             <span class="py-4 cursor-pointer">Value Information</span>
           </router-link>
         </li>
+        <li class="nav-item flex-1"></li>
+        <li class="nav-item flex-1"></li>
+        <li class="nav-item flex-1"></li>
       </ul>
     </div>
 
     <!-- data -->
-    <div style="display: none" id="printMe-header">
-      <h3>Export Date: {{ new Date() }}</h3>
-      <h2>Tax Report</h2>
-      <table>
-        <tbody>
-          <tr>
-            <td>Instrument</td>
-            <td>Deposit</td>
-          </tr>
-          <tr>
-            <td>Placement Date Period</td>
-            <td>{{ startDate }} - {{ endDate }}</td>
-          </tr>
-          <tr>
-            <td>Due Date Period</td>
-            <td>{{ startDueDate }} - {{ endDueDate }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+
     <div class="overflow-x-auto scrollbar-hidden">
-      <table class="table table-striped mt-4" id="printMe">
+      <table class="table table-striped mt-4">
         <thead>
           <tr>
             <th class="whitespace-nowrap">Bilyet Number</th>
@@ -290,7 +288,6 @@
             <th class="whitespace-nowrap text-center">
               Amount of Interest (net)
             </th>
-            <th class="whitespace-nowrap text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -326,48 +323,7 @@
               <td>{{ deposit.interestRate }}%</td>
               <td>{{ deposit.taxRate }}%</td>
               <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
-              <td class="flex justify-center">
-                <button
-                  class="btn btn-primary mr-2"
-                  @click="onClickDetail(deposit)"
-                >
-                  Details
-                </button>
-              </td>
             </tr>
-            <template v-if="deposit.renewals && expandeds[i]">
-              <tr v-for="renewal in deposit.renewals" :key="renewal._id">
-                <td></td>
-                <td></td>
-                <td>{{ renewal.number }}</td>
-                <td>{{ format(renewal.date, "dd/MM/yyyy") }}</td>
-                <td>{{ renewal.bank.name }}</td>
-                <td>{{ renewal.account.name }}</td>
-                <td>{{ renewal.owner.name }}</td>
-                <td>Rp. {{ numberFormat(renewal.amount) }}</td>
-                <td>Rp. {{ numberFormat(renewal.remaining || 0) }}</td>
-                <td>{{ renewal.baseDate }} days</td>
-                <td>{{ renewal.tenor }} days</td>
-                <td>
-                  {{
-                    renewal.dueDate
-                      ? format(renewal.dueDate, "dd/MM/yyyy")
-                      : "-"
-                  }}
-                </td>
-                <td>{{ renewal.interestRate }}%</td>
-                <td>{{ renewal.taxRate }}%</td>
-                <td>Rp. {{ numberFormat(renewal.netInterest || 0) }}</td>
-                <td class="flex justify-center">
-                  <button
-                    class="btn btn-primary mr-2"
-                    @click="onClickDetail(renewal)"
-                  >
-                    Details
-                  </button>
-                </td>
-              </tr>
-            </template>
           </template>
         </tbody>
       </table>
@@ -401,7 +357,6 @@ import { useRoute } from "vue-router";
 import { useBanksStore } from "@/stores/bank";
 import { useOwnersStore } from "@/stores/owner";
 import { utils, writeFile } from "xlsx";
-import { usePaperizer } from "paperizer";
 
 const route = useRoute();
 
@@ -513,34 +468,11 @@ watch(endDueDate, async (endDueDate) => {
   }
 });
 
-const onChangeDate = async () => {
-  console.log(startDate);
-  await getDeposit();
-};
-
-const onClickStatus = async (status: string) => {
-  formStatus.value = status;
-  if (status == "all") {
-    if (query.value.filter) {
-      delete query.value.filter["formStatus"];
-    }
-  } else query.value.filter = { formStatus: status };
-  await getDeposit();
-};
-
-const onClickSort = async (sort: string) => {
-  query.value.sort = { date: sort, index: "asc" };
-  await getDeposit();
-};
-
-const onClickCreate = () => {
-  router.push({ name: depositNav.createPlacement.name });
-};
 
 const onBankChange = async (data) => {
   if (data.value == "all" && query.value.filter && query.value.filter["bank"]) {
     delete query.value.filter["bank"];
-  } else query.value.filter = { bank: data.value };
+  } else query.value.filter["bank"] = data.value;
   await getDeposit();
 };
 
@@ -551,8 +483,7 @@ const onOwnerChange = async (data) => {
     query.value.filter["owner"]
   ) {
     delete query.value.filter["owner"];
-  } else query.value.filter = { owner: data.value };
-  await getDeposit();
+  } else query.value.filter["owner"] = data.value;
   await getDeposit();
 };
 
@@ -563,7 +494,7 @@ const onPlacementTypeChange = async (data) => {
     query.value.filter["placementType"]
   ) {
     delete query.value.filter["placementType"];
-  } else query.value.filter = { placementType: data.value };
+  } else query.value.filter["placementType"] = data.value;
   await getDeposit();
 };
 
@@ -649,13 +580,6 @@ const numberFormat = (value: number) => {
   return numeral(value).format("0,0.[00]");
 };
 
-const onClickPrint = async () => {
-  window.print()
-
-  // const { paperize } = usePaperizer("printMe");
-  // paperize();
-};
-
 const exportData = () => {
   const tableHeaders = [
     "Bilyet Number",
@@ -687,41 +611,20 @@ const exportData = () => {
     deposit.bank.name,
     deposit.account.name,
     deposit.owner.name,
-    deposit.amount,
+    `Rp ${deposit.amount}`,
     deposit.baseDate,
     deposit.tenor,
     format(deposit.dueDate, "dd/MM/yyyy"),
     deposit.interestRate,
-    deposit.grossInterest,
+    `Rp ${numberFormat(deposit.grossInterest || 0)}`,
     deposit.taxRate,
-    deposit.taxAmount,
-    numberFormat(deposit.netInterest || 0),
+    `Rp ${numberFormat(deposit.taxAmount || 0)}`,
+    `Rp ${numberFormat(deposit.netInterest || 0)}`,
     deposit.recipientBank.name,
     deposit.recipientBankAccount.name,
     deposit.withdrawal ? "Withdrawn" : "Active",
   ]);
-  // const tables = deposits.value.map(deposit => ({
-  //   bilyetNumber: deposit.bilyetNumber,
-  //   formNumber: deposit.number,
-  //   placementDate: format(deposit.date, "dd/MM/yyyy"),
-  //   sourceOfFund: "Bank",
-  //   bank: deposit.bank.name,
-  //   account: deposit.account.name,
-  //   owner: deposit.owner.name,
-  //   amountOfPlacement: deposit.amount,
-  //   baseDate: deposit.baseDate,
-  //   tenor: deposit.tenor,
-  //   dueDate: format(deposit.dueDate, "dd/MM/yyyy"),
-  //   interestRate: deposit.interestRate,
-  //   interestGross: deposit.grossInterest,
-  //   taxRate: deposit.taxRate,
-  //   amountOfTax: deposit.taxAmount,
-  //   netInterest: numberFormat(deposit.netInterest || 0),
-  //   bankRecipient: deposit.recipientBank.name,
-  //   recipientAccount: deposit.recipientBankAccount.name,
-  //   status: deposit.withdrawal ? "Withdrawn" : "Active",
-  // }))
-  const titles = [[`Export Date : ${new Date()}`], ["Tax Report"]];
+  
   const headers = [
     ["Instrument:", "Deposit"],
     [
@@ -751,11 +654,73 @@ const exportData = () => {
   utils.sheet_add_aoa(worksheet, [tableHeaders], { origin: "A7" });
   utils.sheet_add_aoa(worksheet, tableValues, { origin: "A8" });
   /* calculate column width */
-  // worksheet["!cols"] = [
-  //   { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 7 }, { wch: 7 }, { wch: 10 },
-  //   { wch: 10 }, { wch: 10 }, { wch: 20 }, { wch: 10 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 10 },
-  // ];
+  worksheet["!cols"] = [
+    { wch: 20 }, { wch: 16 }, { wch: 15 }, { wch: 15 }, { wch: 10 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 10 }, { wch: 7 },
+    { wch: 10 }, { wch: 13 }, { wch: 30 }, { wch: 15 }, { wch: 20 }, { wch: 22 }, { wch: 15 }, { wch: 20 }, { wch: 10 },
+  ];
 
   writeFile(workbook, "Data.xlsx", { compression: true });
 };
+
+import jsPDF from 'jspdf';
+import 'jspdf-autotable'
+
+function generatePDF() {
+  const doc = new jsPDF("l");
+
+  // Add text content
+  doc.text(`Export Date: ${new Date()}`, 50, 10)
+  doc.text("Tax Report", 130, 20)
+  doc.text("Instrument \t\t\t: Deposit", 10, 30)
+  doc.text(`Placement Date Period     : ${startDate.value} - ${endDate.value}`, 10, 40)
+  doc.text(`Due Date Period\t\t: ${startDueDate.value} - ${endDueDate.value}`, 10, 50)
+
+
+  const tableValues = deposits.value.map((deposit) => [
+    deposit.bilyetNumber,
+    deposit.number,
+    format(deposit.date, "dd/MM/yyyy"),
+    deposit.bank.name,
+    deposit.account.name,
+    deposit.owner.name,
+    `Rp. ${ numberFormat(deposit.amount) }`,
+    `Rp. ${ numberFormat(deposit.remaining || 0) }`,
+    deposit.baseDate,
+    deposit.tenor,
+    deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : "-",
+    deposit.interestRate,
+    deposit.taxRate,
+    numberFormat(deposit.netInterest || 0)
+  ]);
+
+  // Create a table
+  const tableHeaders = [
+    [
+      "Bilyet Number", "Deposit Form Number", "Placement Date", "Bank", 
+      "Account", "Owner", "Amount of Placement", "Placement Remaining", 
+      "Base Date", "Tenor", "Due Date", "Interest Rate", "Tax Rate", 
+      "Amount of Interest (net)"
+    ],
+  ];
+
+  // Calculate table dimensions
+  const tableWidth = doc.internal.pageSize.width - 20; // Adjust margin as needed
+  const columnWidths = [tableWidth / 3, tableWidth / 3, tableWidth / 3];
+
+  // Add table headers
+  doc.autoTable({
+    head: tableHeaders,
+    body: tableValues,
+    startY: 60,
+    tableWidth,
+    columnWidths,
+    headStyles : { fillColor : [200, 200, 200] },
+  });
+
+  // Save or display the PDF
+  doc.autoPrint();
+  //This is a key for printing
+  doc.output('dataurlnewwindow');
+}
+
 </script>

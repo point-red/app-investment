@@ -1310,8 +1310,8 @@ const query = ref<QueryParams>({
   page: depositStore.pagination.page,
   pageSize: depositStore.pagination.pageSize,
   filter: {
-    dateFrom: startDate.value,
-    dateTo: endDate.value,
+    dueDateFrom: startDate.value,
+    dueDateTo: endDate.value,
   },
   sort: {
     date: "desc",
@@ -1351,8 +1351,8 @@ const selectedDeposit = ref<Deposit | null>(null);
 
 const getDeposit = async () => {
   if (query.value.filter) {
-    query.value.filter["dateTo"] = endDate.value;
-    query.value.filter["dateFrom"] = startDate.value;
+    query.value.filter["dueDateTo"] = endDate.value;
+    query.value.filter["dueDateFrom"] = startDate.value;
   }
   await depositStore.get({ ...query.value });
   if (depositStore.deposits.length === 0) {

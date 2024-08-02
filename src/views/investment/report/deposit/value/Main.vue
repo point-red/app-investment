@@ -150,7 +150,11 @@
           </div>
         </div>
         <div class="flex flex-row">
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+          <div
+            class="mt-2 2xl:mt-0 sm:mr-4 flex flex-col justify-center items-start"
+            style="width: 120px"
+          >
+            <span class="font-bold ml-0 pl-0">Filter</span>
             <v-select
               class="w-full"
               :options="banks"
@@ -158,7 +162,10 @@
               @option:selected="onBankChange"
             ></v-select>
           </div>
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+          <div
+            class="my-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
+            style="width: 120px"
+          >
             <v-select
               class="w-full"
               :options="owners"
@@ -166,7 +173,10 @@
               @option:selected="onOwnerChange"
             ></v-select>
           </div>
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+          <div
+            class="mt-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
+            style="width: 180px"
+          >
             <v-select
               class="w-full"
               :options="placementTypes"
@@ -174,11 +184,13 @@
               @option:selected="onPlacementTypeChange"
             ></v-select>
           </div>
+        </div>
+        <div class="flex flex-row">
           <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
             <button @click="onClickPrint">
               <img
                 alt="Enigma Tailwind HTML Admin Template"
-                width="40"
+                style="min-width: 40px; width: 40px"
                 src="@/assets/images/logo-print.jpg"
               />
             </button>
@@ -210,7 +222,7 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/placement"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{
               'text-blue-500': isMatch('/report/deposit/placement'),
             }"
@@ -226,7 +238,7 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/interest"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{ 'text-blue-500': isMatch('/report/deposit/interest') }"
           >
             <span class="py-4 cursor-pointer w-full">Realised Interest</span>
@@ -240,41 +252,66 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/value"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{ 'text-blue-500': isMatch('/report/deposit/value') }"
           >
             <span class="py-4 cursor-pointer">Value Information</span>
           </router-link>
         </li>
+        <li class="nav-item flex-1"></li>
+        <li class="nav-item flex-1"></li>
+        <li class="nav-item flex-1"></li>
       </ul>
     </div>
 
     <!-- data -->
+    <!-- hidden header -->
+    <div class="x-auto ml-4" id="title">
+      <h3 class="text-center">Export Date: {{ new Date() }}</h3>
+      <h2 class="text-center">Tax Report</h2>
+      <table>
+        <tbody>
+          <tr>
+            <td>Instrument</td>
+            <td>Deposit</td>
+          </tr>
+          <tr>
+            <td>Placement Date Period </td>
+            <td>{{ startDate }} - {{ endDate }}</td>
+          </tr>
+          <tr>
+            <td>Due Date Period</td>
+            <td>{{ startDueDate }} - {{ endDueDate }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="overflow-x-auto mt-4 scrollbar-hidden">
       <h1 class="font-bold">Value Information</h1>
-      <table class="table table-striped my-2">
+      <table class="table table-striped my-2" id="table">
         <thead>
           <tr>
-            <th class="whitespace-nowrap text-center"></th>
-            <th class="whitespace-nowrap text-center"></th>
+            <th class="whitespace-nowrap" style="width: 200px;"></th>
+            <th class="whitespace-nowrap" style="width: 200px;"></th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td class="w-auto">Total Amount of Placement</td>
-            <td>Rp. {{ valueInformation.totalPlacement }}</td>
+            <td>Rp. {{ numberFormat(valueInformation.totalPlacement) }}</td>
           </tr>
           <tr>
             <td>Total Amount of Interest (gross)</td>
-            <td>Rp. {{ valueInformation.totalInterestGross }}</td>
+            <td>Rp. {{ numberFormat(valueInformation.totalInterestGross) }}</td>
           </tr>
           <tr>
             <td>Total Amount of Tax</td>
-            <td>Rp. {{ valueInformation.totalTax }}</td>
+            <td>Rp. {{ numberFormat(valueInformation.totalTax) }}</td>
           </tr>
           <tr>
             <td>Total Amount of Interest (net)</td>
-            <td>Rp. {{ valueInformation.totalInterestNet }}</td>
+            <td>Rp. {{ numberFormat(valueInformation.totalInterestNet) }}</td>
           </tr>
         </tbody>
       </table>
@@ -284,26 +321,26 @@
       <table class="table table-striped my-2">
         <thead>
           <tr>
-            <th class="whitespace-nowrap text-center"></th>
-            <th class="whitespace-nowrap text-center"></th>
+            <th class="whitespace-nowrap" style="width: 200px;"></th>
+            <th class="whitespace-nowrap" style="width: 200px;"></th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td class="mr-2">Total Amount of Placement Withdrawn</td>
-            <td>Rp. {{ realisedValueInformation.totalPlacementWithdrawn }}</td>
+            <td>Rp. {{ numberFormat(realisedValueInformation.totalPlacementWithdrawn) }}</td>
           </tr>
           <tr>
             <td>Total Amount of Active Placements</td>
-            <td>Rp. {{ realisedValueInformation.totalPlacementWithdrawn }}</td>
+            <td>Rp. {{ numberFormat(realisedValueInformation.totalPlacementWithdrawn) }}</td>
           </tr>
           <tr>
             <td>Total Amount of Final Income Tax (PPh) Paid</td>
-            <td>Rp. {{ realisedValueInformation.totalTaxPaid }}</td>
+            <td>Rp. {{ numberFormat(realisedValueInformation.totalTaxPaid) }}</td>
           </tr>
           <tr>
             <td>Total Amount of Interest (net) Received</td>
-            <td>Rp. {{ realisedValueInformation.totalInterestReceived }}</td>
+            <td>Rp. {{ numberFormat(realisedValueInformation.totalInterestReceived) }}</td>
           </tr>
         </tbody>
       </table>
@@ -472,7 +509,7 @@ const onChangeDate = async () => {
 const onBankChange = async (data) => {
   if (data.value == "all" && query.value.filter && query.value.filter["bank"]) {
     delete query.value.filter["bank"];
-  } else query.value.filter = { bank: data.value };
+  } else query.value.filter["bank"] = data.value;
   await getDeposit();
 };
 
@@ -483,8 +520,7 @@ const onOwnerChange = async (data) => {
     query.value.filter["owner"]
   ) {
     delete query.value.filter["owner"];
-  } else query.value.filter = { owner: data.value };
-  await getDeposit();
+  } else query.value.filter["owner"] = data.value;
   await getDeposit();
 };
 
@@ -495,7 +531,7 @@ const onPlacementTypeChange = async (data) => {
     query.value.filter["placementType"]
   ) {
     delete query.value.filter["placementType"];
-  } else query.value.filter = { placementType: data.value };
+  } else query.value.filter["placementType"] = data.value;
   await getDeposit();
 };
 
@@ -516,30 +552,9 @@ const getOwners = async () => {
 };
 
 const getDeposit = async () => {
-  if (query.value.filter) {
-    query.value.filter["dateTo"] = endDate.value;
-    query.value.filter["dateFrom"] = startDate.value;
-    query.value.filter["dueDateFrom"] = startDueDate.value;
-    query.value.filter["dueDateTo"] = endDueDate.value;
-  }
-  await reportStore.get({ ...query.value });
-  if (reportStore.deposits.length === 0) {
-    modalStore.setModalAlertNotFound(true);
-  }
+  // set all value to be zero
+  query.value.page = 1
 
-  updateValueInformation();
-
-  expandeds.value = [];
-  for (let i = 0; i < reportStore.deposits.length; i++) {
-    expandeds.value.push(true);
-  }
-
-  // update ref value
-  query.value.page = reportStore.pagination.page;
-  query.value.pageSize = reportStore.pagination.pageSize;
-};
-
-const updateValueInformation = () => {
   valueInformation.value.totalInterestGross = 0;
   valueInformation.value.totalInterestNet = 0;
   valueInformation.value.totalPlacement = 0;
@@ -549,6 +564,30 @@ const updateValueInformation = () => {
   realisedValueInformation.value.totalPlacementWithdrawn = 0;
   realisedValueInformation.value.totalTaxPaid = 0;
 
+  if (query.value.filter) {
+    query.value.filter["dateTo"] = endDate.value;
+    query.value.filter["dateFrom"] = startDate.value;
+    query.value.filter["dueDateFrom"] = startDueDate.value;
+    query.value.filter["dueDateTo"] = endDueDate.value;
+  }
+
+  await reportStore.get({ ...query.value });
+  if (reportStore.deposits.length === 0) {
+    modalStore.setModalAlertNotFound(true);
+  }
+  updateValueInformation();
+
+  for (let i=1; i<reportStore.pagination.pageCount; i++) {
+    // update pagination value
+    query.value.page = query.value.page + 1;
+    query.value.pageSize = reportStore.pagination.pageSize;
+
+    await reportStore.get({ ...query.value })
+    updateValueInformation();
+  }
+};
+
+const updateValueInformation = () => {
   for (const deposit of deposits.value) {
     valueInformation.value.totalPlacement += Number(deposit.amount);
     valueInformation.value.totalInterestNet += Number(deposit.netInterest ?? 0);
@@ -577,64 +616,7 @@ const updateValueInformation = () => {
         );
       }
     }
-    // calculateValuInformation(deposit);
-
-    // if (deposit.renewals) {
-    //   for (const renewal of deposit.renewals) {
-    //     calculateValuInformation(renewal);
-    //   }
-    // }
   }
-};
-
-const calculateValuInformation = (deposit: Deposit) => {
-  valueInformation.value.totalPlacement += Number(deposit.amount);
-  valueInformation.value.totalInterestNet += Number(deposit.netInterest ?? 0);
-  valueInformation.value.totalTax += Number(deposit.taxAmount ?? 0);
-  valueInformation.value.totalInterestGross += Number(
-    deposit.grossInterest ?? 0
-  );
-
-  const withdrawal = deposit.withdrawal;
-  if (withdrawal) {
-    for (const withdrawn of withdrawal.payments) {
-      realisedValueInformation.value.totalPlacementWithdrawn += Number(
-        withdrawn.amount
-      );
-    }
-  }
-
-  const interestPayment = deposit.interestPayment;
-  if (interestPayment) {
-    for (const interest of interestPayment.interests) {
-      realisedValueInformation.value.totalInterestReceived += Number(
-        interest.net
-      );
-      realisedValueInformation.value.totalTaxPaid += Number(interest.taxAmount);
-    }
-  }
-};
-
-const toggleExpand = (index: number) => {
-  expandeds.value[index] = !expandeds.value[index];
-};
-
-const updatePage = async (value: number) => {
-  query.value.page = value;
-  await getDeposit();
-};
-
-const updatePageSize = async (value: number) => {
-  query.value.pageSize = value;
-  await getDeposit();
-};
-
-const onClickDetail = (deposit: Deposit) => {
-  reportStore.setDeposit(deposit);
-  router.push({
-    name: depositNav.viewPlacement.name,
-    params: { id: deposit._id },
-  });
 };
 
 const clearPlacement = async () => {
@@ -666,30 +648,30 @@ const onClickPrint = () => {
 const exportData = () => {
   const tableValues = [
     ["Value Information:"],
-    ["Total Amount of Placement", valueInformation.value.totalPlacement],
+    ["Total Amount of Placement", `Rp ${valueInformation.value.totalPlacement}`],
     [
       "Total Amount of Interest (gross)",
-      valueInformation.value.totalInterestGross,
+      `Rp ${valueInformation.value.totalInterestGross}`,
     ],
-    ["Total Amount of Tax", valueInformation.value.totalTax],
-    ["Total Amount of Interest (net)", valueInformation.value.totalInterestNet],
+    ["Total Amount of Tax", `Rp ${valueInformation.value.totalTax}`],
+    ["Total Amount of Interest (net)", `Rp ${valueInformation.value.totalInterestNet}`],
     [],
     ["Realised Value Information"],
     [
       "Total Amount of Placement Withdrawn",
-      realisedValueInformation.value.totalPlacementWithdrawn,
+      `Rp ${realisedValueInformation.value.totalPlacementWithdrawn}`,
     ],
     [
       "Total Amount of Active Placement",
-      realisedValueInformation.value.totalPlacementActive,
+      `Rp ${realisedValueInformation.value.totalPlacementActive}`,
     ],
     [
       "Total Amount of Final Income Tax (PPh) Paid",
-      realisedValueInformation.value.totalTaxPaid,
+      `Rp ${realisedValueInformation.value.totalTaxPaid}`,
     ],
     [
       "Total Amount of Interest (net) Received",
-      realisedValueInformation.value.totalInterestReceived,
+      `Rp ${realisedValueInformation.value.totalInterestReceived}`,
     ],
   ];
 
@@ -719,10 +701,31 @@ const exportData = () => {
   });
   utils.sheet_add_aoa(worksheet, [["Tax Report"]], { origin: "A2" });
   utils.sheet_add_aoa(worksheet, headers, { origin: "A3" });
-  utils.sheet_add_aoa(worksheet, tableValues, { origin: "A8" });
+  utils.sheet_add_aoa(worksheet, tableValues, { origin: "A7" });
   /* calculate column width */
-  // worksheet["!cols"] = [ { wch: 20 }, { wch: 20 } ];
+  worksheet["!cols"] = [ { wch: 50 }, { wch: 20 } ];
 
   writeFile(workbook, "Data.xlsx", { compression: true });
 };
 </script>
+
+<style>
+#title * {
+  display: none;
+}
+
+@media print { 
+  body * { 
+    visibility: hidden; 
+  } 
+
+  .table *, #title * { 
+    visibility: visible; 
+    border: none; 
+  }
+
+  #title * {
+    display: block;
+  }
+} 
+</style>

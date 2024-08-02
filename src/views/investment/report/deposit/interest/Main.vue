@@ -150,7 +150,11 @@
           </div>
         </div>
         <div class="flex flex-row">
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+          <div
+            class="mt-2 2xl:mt-0 sm:mr-4 flex flex-col justify-center items-start"
+            style="width: 120px"
+          >
+            <span class="font-bold ml-0 pl-0">Filter</span>
             <v-select
               class="w-full"
               :options="banks"
@@ -158,7 +162,10 @@
               @option:selected="onBankChange"
             ></v-select>
           </div>
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+          <div
+            class="my-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
+            style="width: 120px"
+          >
             <v-select
               class="w-full"
               :options="owners"
@@ -166,7 +173,10 @@
               @option:selected="onOwnerChange"
             ></v-select>
           </div>
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
+          <div
+            class="mt-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
+            style="width: 180px"
+          >
             <v-select
               class="w-full"
               :options="placementTypes"
@@ -174,11 +184,13 @@
               @option:selected="onPlacementTypeChange"
             ></v-select>
           </div>
+        </div>
+        <div class="flex flex-row">
           <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
-            <button @click="onClickPrint">
+            <button onclick="window.print()">
               <img
                 alt="Enigma Tailwind HTML Admin Template"
-                width="40"
+                style="min-width: 40px; width: 40px"
                 src="@/assets/images/logo-print.jpg"
               />
             </button>
@@ -186,7 +198,7 @@
           <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
             <button
               class="w-full p-2"
-              style="background-color: #3B82F6; border-radius: 5px;"
+              style="background-color: #3b82f6; border-radius: 5px"
               @click="exportData"
             >
               Export
@@ -210,7 +222,7 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/placement"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{
               'text-blue-500': isMatch('/report/deposit/placement'),
             }"
@@ -226,7 +238,7 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/interest"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{ 'text-blue-500': isMatch('/report/deposit/interest') }"
           >
             <span class="py-4 cursor-pointer w-full">Realised Interest</span>
@@ -240,16 +252,40 @@
           <router-link
             v-if="authStore.permissions.includes('investment-report.view')"
             to="/report/deposit/value"
-            class="nav-link text-center"
+            class="nav-link text-left"
             :class="{ 'text-blue-500': isMatch('/report/deposit/value') }"
           >
             <span class="py-4 cursor-pointer">Value Information</span>
           </router-link>
         </li>
+        <li class="nav-item flex-1"></li>
+        <li class="nav-item flex-1"></li>
+        <li class="nav-item flex-1"></li>
       </ul>
     </div>
 
     <!-- data -->
+    <!-- hidden header -->
+    <div class="x-auto ml-4" id="title">
+      <h3 class="text-center">Export Date: {{ new Date() }}</h3>
+      <h2 class="text-center">Tax Report</h2>
+      <table>
+        <tbody>
+          <tr>
+            <td>Instrument</td>
+            <td>Deposit</td>
+          </tr>
+          <tr>
+            <td>Placement Date Period </td>
+            <td>{{ startDate }} - {{ endDate }}</td>
+          </tr>
+          <tr>
+            <td>Due Date Period</td>
+            <td>{{ startDueDate }} - {{ endDueDate }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div class="overflow-x-auto scrollbar-hidden">
       <table class="table table-striped mt-4">
         <thead>
@@ -268,25 +304,10 @@
               <td>
                 {{ deposit.bilyetNumber }}
               </td>
-              <!-- <td>
-                <button
-                  v-if="deposit.renewals && deposit.renewals.length > 0"
-                  class="btn btn-primary"
-                  @click="toggleExpand(i)"
-                >
-                  <ChevronDownIcon v-if="!expandeds[i]" class="w-4 h-4" />
-                  <ChevronUpIcon v-if="expandeds[i]" class="w-4 h-4" />
-                </button>
-              </td> -->
               <td>{{ deposit.number }}</td>
               <td>
                 Rp.
                 {{ numberFormat(getReceived(deposit)) }}
-                <!-- {{
-                  numberFormat(
-                    (deposit.netInterest || 0) - getReceived(deposit)
-                  )
-                }} -->
               </td>
               <td>{{ deposit.bank.name }}</td>
               <td>{{ deposit.account.name }}</td>
@@ -442,33 +463,11 @@ watch(endDueDate, async (endDueDate) => {
   }
 });
 
-const onChangeDate = async () => {
-  await getDeposit();
-};
-
-const onClickStatus = async (status: string) => {
-  formStatus.value = status;
-  if (status == "all") {
-    if (query.value.filter) {
-      delete query.value.filter["formStatus"];
-    }
-  } else query.value.filter = { formStatus: status };
-  await getDeposit();
-};
-
-const onClickSort = async (sort: string) => {
-  query.value.sort = { date: sort, index: "asc" };
-  await getDeposit();
-};
-
-const onClickCreate = () => {
-  router.push({ name: depositNav.createPlacement.name });
-};
 
 const onBankChange = async (data) => {
   if (data.value == "all" && query.value.filter && query.value.filter["bank"]) {
     delete query.value.filter["bank"];
-  } else query.value.filter = { bank: data.value };
+  } else query.value.filter["bank"] = data.value;
   await getDeposit();
 };
 
@@ -479,7 +478,7 @@ const onOwnerChange = async (data) => {
     query.value.filter["owner"]
   ) {
     delete query.value.filter["owner"];
-  } else query.value.filter = { owner: data.value };
+  } else query.value.filter["owner"] = data.value;
   await getDeposit();
 };
 
@@ -490,7 +489,7 @@ const onPlacementTypeChange = async (data) => {
     query.value.filter["placementType"]
   ) {
     delete query.value.filter["placementType"];
-  } else query.value.filter = { placementType: data.value };
+  } else query.value.filter["placementType"] = data.value;
   await getDeposit();
 };
 
@@ -531,6 +530,13 @@ const getReceived = (deposit: Deposit) => {
   return total;
 };
 
+const modifData = () => {
+  for (let i=0; i<deposits.value.length; i++) {
+    deposits.value[i].totalInterest = numberFormat(getReceived(deposits.value[i]))
+    deposits.value[i].dueDate = deposits.value[i].dueDate ? format(deposits.value[i].dueDate, "dd/MM/yyyy") : "-"
+  }
+}
+
 const getDeposit = async () => {
   if (query.value.filter) {
     query.value.filter["dateTo"] = endDate.value;
@@ -551,10 +557,8 @@ const getDeposit = async () => {
   // update ref value
   query.value.page = reportStore.pagination.page;
   query.value.pageSize = reportStore.pagination.pageSize;
-};
 
-const toggleExpand = (index: number) => {
-  expandeds.value[index] = !expandeds.value[index];
+  modifData()
 };
 
 const updatePage = async (value: number) => {
@@ -565,14 +569,6 @@ const updatePage = async (value: number) => {
 const updatePageSize = async (value: number) => {
   query.value.pageSize = value;
   await getDeposit();
-};
-
-const onClickDetail = (deposit: Deposit) => {
-  reportStore.setDeposit(deposit);
-  router.push({
-    name: depositNav.viewPlacement.name,
-    params: { id: deposit._id },
-  });
 };
 
 const clearPlacement = async () => {
@@ -597,10 +593,6 @@ const numberFormat = (value: number) => {
   return numeral(value).format("0,0.[00]");
 };
 
-const onClickPrint = () => {
-  window.print()
-}
-
 const exportData = () => {
   const tableHeaders = [
     "Bilyet Number",
@@ -611,38 +603,75 @@ const exportData = () => {
     "Date Received",
   ];
 
-  const tableValues = deposits.value.map(deposit => ([
+  const tableValues = deposits.value.map((deposit) => [
     deposit.bilyetNumber,
     deposit.number,
-    numberFormat(getReceived(deposit)),
+    `Rp ${deposit.totalInterest}`,
     deposit.bank.name,
     deposit.account.name,
-    deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : "-",
-  ]))
-  
-  const titles = [
-    [`Export Date : ${new Date()}`],
-    ["Tax Report"],
-  ]
+    deposit.dueDate,
+  ]);
+
+  const titles = [[`Export Date : ${new Date()}`], ["Tax Report"]];
   const headers = [
     ["Instrument:", "Deposit"],
-    ["Placement Date Period:", `${format(startDate.value, "dd/MM/yyyy")} - ${format(endDate.value, "dd/MM/yyyy")}`],
-    ["Placement Date Period:", `${format(startDueDate.value, "dd/MM/yyyy")} - ${format(endDueDate.value, "dd/MM/yyyy")}`],
-  ]
+    [
+      "Placement Date Period:",
+      `${format(startDate.value, "dd/MM/yyyy")} - ${format(
+        endDate.value,
+        "dd/MM/yyyy"
+      )}`,
+    ],
+    [
+      "Placement Date Period:",
+      `${format(startDueDate.value, "dd/MM/yyyy")} - ${format(
+        endDueDate.value,
+        "dd/MM/yyyy"
+      )}`,
+    ],
+  ];
   const worksheet = utils.json_to_sheet([]);
   const workbook = utils.book_new();
-  utils.book_append_sheet(workbook, worksheet, "Data")
+  utils.book_append_sheet(workbook, worksheet, "Data");
   // data
-  utils.sheet_add_aoa(worksheet, [[`Export Date : ${new Date()}`]], { origin: "C1" })
-  utils.sheet_add_aoa(worksheet, [["Tax Report"]], { origin: "D2" })
-  utils.sheet_add_aoa(worksheet, headers, { origin: "A3" })
-  utils.sheet_add_aoa(worksheet, [tableHeaders], { origin: "A7" })
-  utils.sheet_add_aoa(worksheet, tableValues, { origin: "A8" })
+  utils.sheet_add_aoa(worksheet, [[`Export Date : ${new Date()}`]], {
+    origin: "C1",
+  });
+  utils.sheet_add_aoa(worksheet, [["Tax Report"]], { origin: "D2" });
+  utils.sheet_add_aoa(worksheet, headers, { origin: "A3" });
+  utils.sheet_add_aoa(worksheet, [tableHeaders], { origin: "A7" });
+  utils.sheet_add_aoa(worksheet, tableValues, { origin: "A8" });
   /* calculate column width */
-  // worksheet["!cols"] = [ 
-  //   { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 10 }, { wch: 15 }, { wch: 15 },
-  // ];
+  worksheet["!cols"] = [
+    { wch: 20 },
+    { wch: 16 },
+    { wch: 30 },
+    { wch: 13 },
+    { wch: 30 },
+    { wch: 15 },
+  ];
 
-  writeFile(workbook, "Data.xlsx", { compression: true })
+  writeFile(workbook, "Data.xlsx", { compression: true });
 };
 </script>
+
+<style>
+#title * {
+  display: none;
+}
+
+@media print { 
+  body * { 
+    visibility: hidden; 
+  } 
+
+  .table *, #title * { 
+    visibility: visible; 
+    border: none; 
+  }
+
+  #title * {
+    display: block;
+  }
+} 
+</style>
