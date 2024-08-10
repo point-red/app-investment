@@ -1,32 +1,9 @@
 <template>
   <Menu />
-  <!-- <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
-    <h2 class="text-lg font-medium mr-auto" data-cy="title-page"></h2>
-    <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-      <Tippy
-        @click="router.push({ name: depositNav.placementArchive.name })"
-        tag="button"
-        class="tooltip btn btn-secondary mr-2"
-        content="Archive"
-        data-cy="btn-archive"
-      >
-        <ArchiveIcon class="w-5 h-5"
-      /></Tippy>
-      <button
-        v-if="authStore.permissions.includes('deposit.create')"
-        data-test="btn-create"
-        @click="onClickCreate"
-        class="btn btn-primary shadow-md mr-2"
-        data-cy="btn-create"
-      >
-        New Placement
-      </button>
-    </div>
-  </div> -->
   <div class="intro-y box p-5 mt-5">
     <!-- filter -->
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
-      <div id="tabulator-html-filter-form" class="2xl:flex sm:mr-auto">
+      <div id="tabulator-html-filter-form" class="sm:mr-auto">
         <div class="mt-2 2xl:mt-0 sm:mr-4">
           <div class="items-center block intro-y sm:flex">
             <div class="flex flex-col mr-2">
@@ -88,7 +65,7 @@
             </div>
           </div>
         </div>
-        <div class="mt-2 2xl:mt-0 sm:mr-4 2xl:ml-4">
+        <div class="mt-2 2xl:mt-0 sm:mr-4" id="dueDate">
           <div class="items-center block intro-y sm:flex">
             <div class="flex flex-col mr-4">
               <span class="font-bold">Start Due Date</span>
@@ -149,10 +126,10 @@
             </div>
           </div>
         </div>
-        <div class="flex flex-row">
+        <div class="items-center block intro-y md:flex" style="z-index: 999">
           <div
-            class="mt-2 2xl:mt-0 sm:mr-4 flex flex-col justify-center items-start"
-            style="width: 120px"
+            class="mt-2 2xl:mt-0 md:mr-4 flex flex-col justify-center items-start"
+            style="width: 180px"
           >
             <span class="font-bold ml-0 pl-0">Filter</span>
             <v-select
@@ -163,8 +140,8 @@
             ></v-select>
           </div>
           <div
-            class="my-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
-            style="width: 120px"
+            class="mt-2 md:mt-7 2xl:mt-5 md:mr-4 flex justify-center items-end"
+            style="width: 200px"
           >
             <v-select
               class="w-full"
@@ -174,7 +151,7 @@
             ></v-select>
           </div>
           <div
-            class="mt-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
+            class="mt-2 md:mt-7 2xl:mt-5 md:mr-4 flex justify-center items-end"
             style="width: 180px"
           >
             <v-select
@@ -184,25 +161,25 @@
               @option:selected="onPlacementTypeChange"
             ></v-select>
           </div>
-        </div>
-        <div class="flex flex-row">
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
-            <button onclick="window.print()">
-              <img
-                alt="Enigma Tailwind HTML Admin Template"
-                style="min-width: 40px; width: 40px"
-                src="@/assets/images/logo-print.jpg"
-              />
-            </button>
-          </div>
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
-            <button
-              class="w-full p-2"
-              style="background-color: #3b82f6; border-radius: 5px"
-              @click="exportData"
-            >
-              Export
-            </button>
+          <div class="mt-2 md:mt-5 items-end intro-y flex">
+            <div class="mt-2 2xl:mt-0 sm:mr-4 items-end">
+              <button @click="generatePDF">
+                <img
+                  alt="Enigma Tailwind HTML Admin Template"
+                  style="min-width: 40px; width: 40px"
+                  src="@/assets/images/logo-print.jpg"
+                />
+              </button>
+            </div>
+            <div class="mb-1 mt-2 2xl:mt-0 sm:mr-4 items-end">
+              <button
+                class="p-2"
+                style="background-color: #3b82f6; border-radius: 5px"
+                @click="exportData"
+              >
+                Export
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -265,29 +242,8 @@
     </div>
 
     <!-- data -->
-    <!-- hidden header -->
-    <div class="x-auto ml-4" id="title">
-      <h3 class="text-center">Export Date: {{ new Date() }}</h3>
-      <h2 class="text-center">Tax Report</h2>
-      <table>
-        <tbody>
-          <tr>
-            <td>Instrument</td>
-            <td>Deposit</td>
-          </tr>
-          <tr>
-            <td>Placement Date Period </td>
-            <td>{{ startDate }} - {{ endDate }}</td>
-          </tr>
-          <tr>
-            <td>Due Date Period</td>
-            <td>{{ startDueDate }} - {{ endDueDate }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
     <div class="overflow-x-auto scrollbar-hidden">
-      <table class="table table-striped mt-4">
+      <table class="table table-striped mt-4" id="table">
         <thead>
           <tr>
             <th class="whitespace-nowrap">Bilyet Number</th>
@@ -312,9 +268,7 @@
               <td>{{ deposit.bank.name }}</td>
               <td>{{ deposit.account.name }}</td>
               <td>
-                {{
-                  deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : "-"
-                }}
+                {{ deposit.interestPayment?.interests[0].date ?? "-" }}
               </td>
             </tr>
             <template v-if="deposit.renewals && expandeds[i]"> </template>
@@ -376,10 +330,10 @@ const end = currentDate;
 
 const { deposits } = storeToRefs(reportStore);
 const expandeds = ref<boolean[]>([]);
-const startDate = ref<string | null>(start.toDateString());
-const endDate = ref<string | null>(end.toDateString());
-const startDueDate = ref<string | null>(start.toDateString());
-const endDueDate = ref<string | null>(end.toDateString());
+const startDate = ref<string | null>(format(start, "dd/MM/yyyy"));
+const endDate = ref<string | null>(format(end, "dd/MM/yyyy"));
+const startDueDate = ref<string | null>(format(start, "dd/MM/yyyy"));
+const endDueDate = ref<string | null>(format(end, "dd/MM/yyyy"));
 const searchTerm = ref("");
 const formStatus = ref<string>("all");
 const banks = ref<selectOption[]>([{ label: "All", value: "all" }]);
@@ -395,8 +349,8 @@ const owner = ref<string>("Owner");
 const placementType = ref<string>("Placement Type");
 
 const query = ref<QueryParams>({
-  page: reportStore.pagination.page,
-  pageSize: reportStore.pagination.pageSize,
+  page: 1,
+  pageSize: 10,
   filter: {
     dateFrom: startDate.value,
     dateTo: endDate.value,
@@ -463,7 +417,6 @@ watch(endDueDate, async (endDueDate) => {
   }
 });
 
-
 const onBankChange = async (data) => {
   if (data.value == "all" && query.value.filter && query.value.filter["bank"]) {
     delete query.value.filter["bank"];
@@ -497,7 +450,7 @@ const getBanks = async () => {
   const { data } = await bankStore.get({});
 
   for (const bank of data.banks) {
-    banks.value.push({ label: bank.name, value: bank.name });
+    banks.value.push({ label: bank.name.substring(0, 13), value: bank.name });
   }
 };
 
@@ -505,7 +458,10 @@ const getOwners = async () => {
   const { data } = await owenerStore.get({});
 
   for (const owner of data.owners) {
-    owners.value.push({ label: owner.name, value: owner.name });
+    owners.value.push({
+      label: owner.name.substring(0, 13),
+      value: owner.name,
+    });
   }
 };
 
@@ -531,11 +487,12 @@ const getReceived = (deposit: Deposit) => {
 };
 
 const modifData = () => {
-  for (let i=0; i<deposits.value.length; i++) {
-    deposits.value[i].totalInterest = numberFormat(getReceived(deposits.value[i]))
-    deposits.value[i].dueDate = deposits.value[i].dueDate ? format(deposits.value[i].dueDate, "dd/MM/yyyy") : "-"
+  for (let i = 0; i < deposits.value.length; i++) {
+    deposits.value[i].totalInterest = numberFormat(
+      getReceived(deposits.value[i])
+    );
   }
-}
+};
 
 const getDeposit = async () => {
   if (query.value.filter) {
@@ -558,7 +515,7 @@ const getDeposit = async () => {
   query.value.page = reportStore.pagination.page;
   query.value.pageSize = reportStore.pagination.pageSize;
 
-  modifData()
+  modifData();
 };
 
 const updatePage = async (value: number) => {
@@ -593,7 +550,9 @@ const numberFormat = (value: number) => {
   return numeral(value).format("0,0.[00]");
 };
 
-const exportData = () => {
+const exportData = async () => {
+  const allDeposits = await getAllDeposits();
+
   const tableHeaders = [
     "Bilyet Number",
     "Form Number",
@@ -603,40 +562,31 @@ const exportData = () => {
     "Date Received",
   ];
 
-  const tableValues = deposits.value.map((deposit) => [
+  const tableValues = allDeposits.map((deposit) => [
     deposit.bilyetNumber,
     deposit.number,
     `Rp ${deposit.totalInterest}`,
     deposit.bank.name,
     deposit.account.name,
-    deposit.dueDate,
+    format(deposit.dueDate, "dd/MM/yyyy"),
   ]);
 
-  const titles = [[`Export Date : ${new Date()}`], ["Tax Report"]];
   const headers = [
     ["Instrument:", "Deposit"],
-    [
-      "Placement Date Period:",
-      `${format(startDate.value, "dd/MM/yyyy")} - ${format(
-        endDate.value,
-        "dd/MM/yyyy"
-      )}`,
-    ],
-    [
-      "Placement Date Period:",
-      `${format(startDueDate.value, "dd/MM/yyyy")} - ${format(
-        endDueDate.value,
-        "dd/MM/yyyy"
-      )}`,
-    ],
+    ["Placement Date Period:", `${startDate.value} - ${endDate.value}`],
+    ["Placement Date Period:", `${startDueDate.value} - ${endDueDate.value}`],
   ];
   const worksheet = utils.json_to_sheet([]);
   const workbook = utils.book_new();
   utils.book_append_sheet(workbook, worksheet, "Data");
   // data
-  utils.sheet_add_aoa(worksheet, [[`Export Date : ${new Date()}`]], {
-    origin: "C1",
-  });
+  utils.sheet_add_aoa(
+    worksheet,
+    [[`Export Date : ${format(new Date(), "dd/MM/yyyy")}`]],
+    {
+      origin: "D1",
+    }
+  );
   utils.sheet_add_aoa(worksheet, [["Tax Report"]], { origin: "D2" });
   utils.sheet_add_aoa(worksheet, headers, { origin: "A3" });
   utils.sheet_add_aoa(worksheet, [tableHeaders], { origin: "A7" });
@@ -653,25 +603,98 @@ const exportData = () => {
 
   writeFile(workbook, "Data.xlsx", { compression: true });
 };
+
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
+const getAllDeposits = async (): Promise<Deposit[] | []> => {
+  // get all deposits data
+  if (query.value.filter) {
+    query.value.filter["dateTo"] = endDate.value;
+    query.value.filter["dateFrom"] = startDate.value;
+    query.value.filter["dueDateFrom"] = startDueDate.value;
+    query.value.filter["dueDateTo"] = endDueDate.value;
+  }
+
+  const deposits = await reportStore.getAll({ ...query.value });
+
+  if (!deposits.length) {
+    return [];
+  }
+
+  for (let i = 0; i < deposits.length; i++) {
+    deposits[i].totalInterest = numberFormat(getReceived(deposits[i]));
+  }
+  return deposits;
+};
+
+const generatePDF = async () => {
+  const allDeposits = await getAllDeposits();
+  const doc = new jsPDF("l");
+
+  // Add text content
+  doc.text(`Export Date: ${format(new Date(), "dd/MM/yyyy")}`, 113, 10);
+  doc.text("Tax Report", 130, 20);
+  doc.text("Instrument \t\t\t: Deposit", 40, 30);
+  doc.text(
+    `Placement Date Period     : ${startDate.value} - ${endDate.value}`,
+    40,
+    40
+  );
+  doc.text(
+    `Due Date Period\t\t: ${startDueDate.value} - ${endDueDate.value}`,
+    40,
+    50
+  );
+
+  const tableHeaders = [
+    [
+      "Bilyet Number",
+      "Form Number",
+      "Amount of Interest (net) Received",
+      "Bank Recipient",
+      "Recipient Account",
+      "Date Received",
+    ],
+  ];
+
+  const tableValues = allDeposits.map((deposit) => [
+    deposit.bilyetNumber,
+    deposit.number,
+    `Rp ${deposit.totalInterest}`,
+    deposit.bank.name,
+    deposit.account.name,
+    format(deposit.dueDate, "dd/MM/yyyy"),
+  ]);
+
+  // Calculate table dimensions
+  const tableWidth = doc.internal.pageSize.width - 20; // Adjust margin as needed
+  const columnWidths = [tableWidth / 3, tableWidth / 3, tableWidth / 3];
+
+  doc.autoTable({
+    // html: "#table",
+    head: tableHeaders,
+    body: tableValues,
+    startY: 60,
+    tableWidth,
+    columnWidths,
+    headStyles: { fillColor: [200, 200, 200] },
+  });
+
+  // Save or display the PDF
+  doc.autoPrint();
+  //This is a key for printing
+  doc.output("dataurlnewwindow");
+};
 </script>
 
 <style>
-#title * {
-  display: none;
+@media (min-width: 1850px) {
+  #tabulator-html-filter-form {
+    display: flex;
+  }
+  #dueDate {
+    margin-left: 4px;
+  }
 }
-
-@media print { 
-  body * { 
-    visibility: hidden; 
-  } 
-
-  .table *, #title * { 
-    visibility: visible; 
-    border: none; 
-  }
-
-  #title * {
-    display: block;
-  }
-} 
 </style>

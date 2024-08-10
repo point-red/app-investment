@@ -977,8 +977,7 @@ const query = ref<QueryParams>({
     dueDateTo: endDate.value,
   },
   sort: {
-    createdAt: "desc",
-    index: "asc",
+    date: "desc",
   },
 });
 const queryBank = ref<QueryParams>({
@@ -1058,7 +1057,7 @@ const toggleExpand = (index: number) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { createdAt: sort, index: "asc" };
+  query.value.sort = { date: sort };
   await getDeposit();
 };
 

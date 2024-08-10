@@ -65,7 +65,7 @@ export const deposit = {
   isCashback: false,
   returns: [],
   cashbacks: [],
-  totalInterest: ""
+  totalInterest: "",
 };
 
 export const useReportsStore = defineStore("reports", {
@@ -95,6 +95,24 @@ export const useReportsStore = defineStore("reports", {
         this.deposits = deposit.data.deposits;
         this.pagination = deposit.data.pagination;
         return { data: deposit.data };
+      } catch (error) {
+        const err = error as AxiosError;
+        return { error: err.response?.data as ErrorResponse };
+      }
+    },
+    async getAll(params: QueryParams): Promise<Deposit[] | ApiResponse> {
+      let deposits: Deposit[] = [];
+      try {
+        for (let i = 1; i <= this.pagination.pageCount; i++) {
+          params.page = i;
+          const deposit = await api.get<RootState>(url, {
+            params: { ...params },
+          });
+
+          deposits = deposits.concat(deposit.data.deposits);
+        }
+
+        return deposits;
       } catch (error) {
         const err = error as AxiosError;
         return { error: err.response?.data as ErrorResponse };

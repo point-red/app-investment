@@ -8,7 +8,7 @@ import Value from "@/views/investment/report/deposit/value/Main.vue"
 export namespace reportNav {
   export const home: NavItem = {
     label: "Report",
-    name: "report",
+    name: "report-deposit-placement",
   };
 
   export const placementInformation: NavItem = {

@@ -646,8 +646,7 @@ const query = ref<QueryParams>({
     isCashback: true,
   },
   sort: {
-    date: "desc",
-    index: "asc",
+    date: "desc"
   },
 });
 
@@ -715,7 +714,7 @@ const toggleExpand = (index: number) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { date: sort, index: "asc" };
+  query.value.sort = { date: sort };
   await getDeposit();
 };
 

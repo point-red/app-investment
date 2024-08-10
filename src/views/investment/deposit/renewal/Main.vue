@@ -1315,7 +1315,6 @@ const query = ref<QueryParams>({
   },
   sort: {
     date: "desc",
-    index: "asc",
   },
 });
 const queryBank = ref<QueryParams>({
@@ -1388,7 +1387,7 @@ const onClickStatus = async (status: string) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { date: sort, index: "asc" };
+  query.value.sort = { date: sort };
   await getDeposit();
 };
 

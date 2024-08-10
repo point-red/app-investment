@@ -26,7 +26,7 @@
   <div class="intro-y box p-5 mt-5">
     <!-- filter -->
     <div class="flex flex-col sm:flex-row sm:items-end xl:items-start">
-      <div id="tabulator-html-filter-form" class="2xl:flex sm:mr-auto">
+      <div id="tabulator-html-filter-form" class="sm:mr-auto">
         <div class="mt-2 2xl:mt-0 sm:mr-4">
           <div class="items-center block intro-y sm:flex">
             <div class="flex flex-col mr-2">
@@ -88,7 +88,7 @@
             </div>
           </div>
         </div>
-        <div class="mt-2 2xl:mt-0 sm:mr-4 2xl:ml-4">
+        <div class="mt-2 2xl:mt-0 sm:mr-4" id="dueDate">
           <div class="items-center block intro-y sm:flex">
             <div class="flex flex-col mr-4">
               <span class="font-bold">Start Due Date</span>
@@ -149,10 +149,10 @@
             </div>
           </div>
         </div>
-        <div class="flex flex-row">
+        <div class="items-center block intro-y md:flex" style="z-index: 999">
           <div
-            class="mt-2 2xl:mt-0 sm:mr-4 flex flex-col justify-center items-start"
-            style="width: 120px"
+            class="mt-2 2xl:mt-0 md:mr-4 flex flex-col justify-center items-start"
+            style="width: 180px"
           >
             <span class="font-bold ml-0 pl-0">Filter</span>
             <v-select
@@ -163,8 +163,8 @@
             ></v-select>
           </div>
           <div
-            class="my-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
-            style="width: 120px"
+            class="mt-2 md:mt-7 2xl:mt-5 md:mr-4 flex justify-center items-end"
+            style="width: 200px"
           >
             <v-select
               class="w-full"
@@ -174,7 +174,7 @@
             ></v-select>
           </div>
           <div
-            class="mt-1 2xl:mt-0 sm:mr-4 flex justify-center items-end"
+            class="mt-2 md:mt-7 2xl:mt-5 md:mr-4 flex justify-center items-end"
             style="width: 180px"
           >
             <v-select
@@ -184,26 +184,25 @@
               @option:selected="onPlacementTypeChange"
             ></v-select>
           </div>
-        </div>
-        <div class="flex flex-row">
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
-            <!-- <button onclick="window.print()"> -->
-            <button @click="generatePDF">
-              <img
-                alt="Enigma Tailwind HTML Admin Template"
-                style="min-width: 40px; width: 40px"
-                src="@/assets/images/logo-print.jpg"
-              />
-            </button>
-          </div>
-          <div class="mt-2 2xl:mt-0 sm:mr-4 flex justify-center items-end">
-            <button
-              class="w-full p-2"
-              style="background-color: #3B82F6; border-radius: 5px;"
-              @click="exportData"
-            >
-              Export
-            </button>
+          <div class="mt-2 md:mt-5 items-end intro-y flex">
+            <div class="mt-2 2xl:mt-0 sm:mr-4 items-end">
+              <button @click="generatePDF">
+                <img
+                  alt="Enigma Tailwind HTML Admin Template"
+                  style="min-width: 40px; width: 40px"
+                  src="@/assets/images/logo-print.jpg"
+                />
+              </button>
+            </div>
+            <div class="mb-1 mt-2 2xl:mt-0 sm:mr-4 items-end">
+              <button
+                class="p-2"
+                style="background-color: #3b82f6; border-radius: 5px"
+                @click="exportData"
+              >
+                Export
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -315,11 +314,7 @@
               <td>Rp. {{ numberFormat(deposit.remaining || 0) }}</td>
               <td>{{ deposit.baseDate }} days</td>
               <td>{{ deposit.tenor }} days</td>
-              <td>
-                {{
-                  deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : "-"
-                }}
-              </td>
+              <td>{{ format(deposit.dueDate, "dd/MM/yyyy") ?? "-" }}</td>
               <td>{{ deposit.interestRate }}%</td>
               <td>{{ deposit.taxRate }}%</td>
               <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
@@ -381,12 +376,11 @@ const end = currentDate;
 
 const { deposits } = storeToRefs(reportStore);
 const expandeds = ref<boolean[]>([]);
-const startDate = ref<string | null>(start.toDateString());
-const endDate = ref<string | null>(end.toDateString());
-const startDueDate = ref<string | null>(start.toDateString());
-const endDueDate = ref<string | null>(end.toDateString());
+const startDate = ref<string | null>(format(start, "dd/MM/yyyy"));
+const endDate = ref<string | null>(format(end, "dd/MM/yyyy"));
+const startDueDate = ref<string | null>(format(start, "dd/MM/yyyy"));
+const endDueDate = ref<string | null>(format(end, "dd/MM/yyyy"));
 const searchTerm = ref("");
-const formStatus = ref<string>("all");
 const banks = ref<selectOption[]>([{ label: "All", value: "all" }]);
 const owners = ref<selectOption[]>([{ label: "All", value: "all" }]);
 const placementTypes = ref<selectOption[]>([
@@ -400,8 +394,8 @@ const owner = ref<string>("Owner");
 const placementType = ref<string>("Placement Type");
 
 const query = ref<QueryParams>({
-  page: reportStore.pagination.page,
-  pageSize: reportStore.pagination.pageSize,
+  page: 1,
+  pageSize: 10,
   filter: {
     dateFrom: startDate.value,
     dateTo: endDate.value,
@@ -468,7 +462,6 @@ watch(endDueDate, async (endDueDate) => {
   }
 });
 
-
 const onBankChange = async (data) => {
   if (data.value == "all" && query.value.filter && query.value.filter["bank"]) {
     delete query.value.filter["bank"];
@@ -502,7 +495,7 @@ const getBanks = async () => {
   const { data } = await bankStore.get({});
 
   for (const bank of data.banks) {
-    banks.value.push({ label: bank.name, value: bank.name });
+    banks.value.push({ label: bank.name.substring(0, 13), value: bank.name });
   }
 };
 
@@ -510,7 +503,7 @@ const getOwners = async () => {
   const { data } = await owenerStore.get({});
 
   for (const owner of data.owners) {
-    owners.value.push({ label: owner.name, value: owner.name });
+    owners.value.push({ label: owner.name.substring(0, 13), value: owner.name });
   }
 };
 
@@ -580,7 +573,9 @@ const numberFormat = (value: number) => {
   return numeral(value).format("0,0.[00]");
 };
 
-const exportData = () => {
+const exportData = async () => {
+  const allDeposits = await getAllDeposits();
+
   const tableHeaders = [
     "Bilyet Number",
     "Form Number",
@@ -603,7 +598,7 @@ const exportData = () => {
     "Status",
   ];
 
-  const tableValues = deposits.value.map((deposit) => [
+  const tableValues = allDeposits.map((deposit) => [
     deposit.bilyetNumber,
     deposit.number,
     format(deposit.date, "dd/MM/yyyy"),
@@ -624,82 +619,127 @@ const exportData = () => {
     deposit.recipientBankAccount.name,
     deposit.withdrawal ? "Withdrawn" : "Active",
   ]);
-  
+
   const headers = [
     ["Instrument:", "Deposit"],
     [
       "Placement Date Period:",
-      `${format(startDate.value, "dd/MM/yyyy")} - ${format(
-        endDate.value,
-        "dd/MM/yyyy"
-      )}`,
+      `${startDate.value} - ${endDate.value}`,
     ],
     [
       "Placement Date Period:",
-      `${format(startDueDate.value, "dd/MM/yyyy")} - ${format(
-        endDueDate.value,
-        "dd/MM/yyyy"
-      )}`,
+      `${startDueDate.value} - ${endDueDate.value}`,
     ],
   ];
   const worksheet = utils.json_to_sheet([]);
   const workbook = utils.book_new();
   utils.book_append_sheet(workbook, worksheet, "Data");
   // data
-  utils.sheet_add_aoa(worksheet, [[`Export Date : ${new Date()}`]], {
-    origin: "H1",
-  });
+  utils.sheet_add_aoa(
+    worksheet,
+    [[`Export Date : ${format(new Date(), "dd/MM/yyyy")}`]],
+    {
+      origin: "I1",
+    }
+  );
   utils.sheet_add_aoa(worksheet, [["Tax Report"]], { origin: "I2" });
   utils.sheet_add_aoa(worksheet, headers, { origin: "A3" });
   utils.sheet_add_aoa(worksheet, [tableHeaders], { origin: "A7" });
   utils.sheet_add_aoa(worksheet, tableValues, { origin: "A8" });
   /* calculate column width */
   worksheet["!cols"] = [
-    { wch: 20 }, { wch: 16 }, { wch: 15 }, { wch: 15 }, { wch: 10 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 10 }, { wch: 7 },
-    { wch: 10 }, { wch: 13 }, { wch: 30 }, { wch: 15 }, { wch: 20 }, { wch: 22 }, { wch: 15 }, { wch: 20 }, { wch: 10 },
+    { wch: 20 },
+    { wch: 16 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 10 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 20 },
+    { wch: 10 },
+    { wch: 7 },
+    { wch: 10 },
+    { wch: 13 },
+    { wch: 30 },
+    { wch: 15 },
+    { wch: 20 },
+    { wch: 22 },
+    { wch: 15 },
+    { wch: 20 },
+    { wch: 10 },
   ];
 
   writeFile(workbook, "Data.xlsx", { compression: true });
 };
 
-import jsPDF from 'jspdf';
-import 'jspdf-autotable'
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
-function generatePDF() {
+const getAllDeposits = async (): Promise<Deposit[] | []> => {
+  // get all deposits data
+  if (query.value.filter) {
+    query.value.filter["dateTo"] = endDate.value;
+    query.value.filter["dateFrom"] = startDate.value;
+    query.value.filter["dueDateFrom"] = startDueDate.value;
+    query.value.filter["dueDateTo"] = endDueDate.value;
+  }
+
+  const deposits = await reportStore.getAll({ ...query.value })
+  return deposits.length ? deposits : []
+}
+
+const generatePDF = async () => {
+  const allDeposits = await getAllDeposits();
+
   const doc = new jsPDF("l");
 
   // Add text content
-  doc.text(`Export Date: ${new Date()}`, 50, 10)
-  doc.text("Tax Report", 130, 20)
-  doc.text("Instrument \t\t\t: Deposit", 10, 30)
-  doc.text(`Placement Date Period     : ${startDate.value} - ${endDate.value}`, 10, 40)
-  doc.text(`Due Date Period\t\t: ${startDueDate.value} - ${endDueDate.value}`, 10, 50)
+  doc.text(`Export Date: ${format(new Date(), "dd/MM/yyyy")}`, 113, 10);
+  doc.text("Tax Report", 130, 20);
+  doc.text("Instrument \t\t\t: Deposit", 40, 30);
+  doc.text(
+    `Placement Date Period     : ${startDate.value} - ${endDate.value}`,
+    40, 40
+  );
+  doc.text(
+    `Due Date Period\t\t: ${startDueDate.value} - ${endDueDate.value}`,
+    40, 50
+  );
 
-
-  const tableValues = deposits.value.map((deposit) => [
+  const tableValues = allDeposits.map((deposit) => [
     deposit.bilyetNumber,
     deposit.number,
     format(deposit.date, "dd/MM/yyyy"),
     deposit.bank.name,
     deposit.account.name,
     deposit.owner.name,
-    `Rp. ${ numberFormat(deposit.amount) }`,
-    `Rp. ${ numberFormat(deposit.remaining || 0) }`,
+    `Rp. ${numberFormat(deposit.amount)}`,
+    `Rp. ${numberFormat(deposit.remaining || 0)}`,
     deposit.baseDate,
     deposit.tenor,
     deposit.dueDate ? format(deposit.dueDate, "dd/MM/yyyy") : "-",
     deposit.interestRate,
     deposit.taxRate,
-    numberFormat(deposit.netInterest || 0)
+    numberFormat(deposit.netInterest || 0),
   ]);
 
   // Create a table
   const tableHeaders = [
     [
-      "Bilyet Number", "Deposit Form Number", "Placement Date", "Bank", 
-      "Account", "Owner", "Amount of Placement", "Placement Remaining", 
-      "Base Date", "Tenor", "Due Date", "Interest Rate", "Tax Rate", 
-      "Amount of Interest (net)"
+      "Bilyet Number",
+      "Deposit Form Number",
+      "Placement Date",
+      "Bank",
+      "Account",
+      "Owner",
+      "Amount of Placement",
+      "Placement Remaining",
+      "Base Date",
+      "Tenor",
+      "Due Date",
+      "Interest Rate",
+      "Tax Rate",
+      "Amount of Interest (net)",
     ],
   ];
 
@@ -714,13 +754,22 @@ function generatePDF() {
     startY: 60,
     tableWidth,
     columnWidths,
-    headStyles : { fillColor : [200, 200, 200] },
+    headStyles: { fillColor: [200, 200, 200] },
   });
 
   // Save or display the PDF
   doc.autoPrint();
   //This is a key for printing
-  doc.output('dataurlnewwindow');
-}
-
+  doc.output("dataurlnewwindow");
+};
 </script>
+<style>
+@media (min-width: 1850px) {
+  #tabulator-html-filter-form {
+    display: flex;
+  }
+  #dueDate {
+    margin-left: 4px;
+  }
+}
+</style>
