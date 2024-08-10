@@ -295,9 +295,7 @@
             <td>Total Amount of Active Placements</td>
             <td>
               Rp.
-              {{
-                numberFormat(realisedValueInformation.totalPlacementWithdrawn)
-              }}
+              {{ numberFormat(realisedValueInformation.totalPlacementActive) }}
             </td>
           </tr>
           <tr>
@@ -515,7 +513,10 @@ const getOwners = async () => {
   const { data } = await owenerStore.get({});
 
   for (const owner of data.owners) {
-    owners.value.push({ label: owner.name.substring(0, 13), value: owner.name });
+    owners.value.push({
+      label: owner.name.substring(0, 13),
+      value: owner.name,
+    });
   }
 };
 
@@ -569,6 +570,9 @@ const updateValueInformation = () => {
       for (const withdrawn of withdrawal.payments) {
         realisedValueInformation.value.totalPlacementWithdrawn += Number(
           withdrawn.amount
+        );
+        realisedValueInformation.value.totalPlacementActive += Number(
+          withdrawn.remaining
         );
       }
     }
@@ -651,14 +655,8 @@ const exportData = () => {
 
   const headers = [
     ["Instrument:", "Deposit"],
-    [
-      "Placement Date Period:",
-      `${startDate.value} - ${endDate.value}`,
-    ],
-    [
-      "Placement Date Period:",
-      `${startDueDate.value} - ${endDueDate.value}`,
-    ],
+    ["Placement Date Period:", `${startDate.value} - ${endDate.value}`],
+    ["Placement Date Period:", `${startDueDate.value} - ${endDueDate.value}`],
   ];
   const worksheet = utils.json_to_sheet([]);
   const workbook = utils.book_new();
@@ -692,11 +690,13 @@ function generatePDF() {
   doc.text("Instrument \t\t\t: Deposit", 40, 70);
   doc.text(
     `Placement Date Period     : ${startDate.value} - ${endDate.value}`,
-    40, 90
+    40,
+    90
   );
   doc.text(
     `Due Date Period\t\t: ${startDueDate.value} - ${endDueDate.value}`,
-    40, 110
+    40,
+    110
   );
 
   doc.text(`Value Information`, 40, 130);
@@ -705,13 +705,13 @@ function generatePDF() {
     startY: 150,
     headStyles: { fillColor: [200, 200, 200] },
   });
-  
+
   // Calculate the starting y-position for the second table
   const y = doc.lastAutoTable.finalY + 20;
   doc.text(`Realised Value Information`, 40, y);
   doc.autoTable({
     html: "#table2",
-    startY: y+20,
+    startY: y + 20,
     headStyles: { fillColor: [200, 200, 200] },
   });
 
