@@ -385,7 +385,7 @@ const banks = ref<selectOption[]>([{ label: "All", value: "all" }]);
 const owners = ref<selectOption[]>([{ label: "All", value: "all" }]);
 const placementTypes = ref<selectOption[]>([
   { label: "All", value: "all" },
-  { label: "Renewal", value: "renewal" },
+  { label: "Active", value: "active" },
   { label: "Placement", value: "placement" },
   { label: "Withdrawn", value: "withdrawn" },
 ]);

@@ -329,11 +329,7 @@ import { useReportsStore } from "@/stores/report";
 import { useNavStore } from "@/stores/nav";
 import { QueryParams } from "@/types/api/QueryParams";
 import { useModalStore } from "@/stores/modal";
-import {
-  Deposit,
-  ValueInformation,
-  RealisedValueInformation,
-} from "@/types/deposit";
+import { ValueInformation, RealisedValueInformation } from "@/types/deposit";
 import { selectOption } from "@/types/common";
 import { useBanksStore } from "@/stores/bank";
 import { useOwnersStore } from "@/stores/owner";
@@ -348,7 +344,6 @@ const isMatch = (value: string) => {
 };
 
 const authStore = useAuthStore();
-const router = useRouter();
 const reportStore = useReportsStore();
 const modalStore = useModalStore();
 const navStore = useNavStore();
@@ -371,7 +366,7 @@ const banks = ref<selectOption[]>([{ label: "Bank", value: "Bank" }]);
 const owners = ref<selectOption[]>([{ label: "Owner", value: "Owner" }]);
 const placementTypes = ref<selectOption[]>([
   { label: "All", value: "all" },
-  { label: "Renewal", value: "renewal" },
+  { label: "Active", value: "active" },
   { label: "Placement", value: "placement" },
   { label: "Withdrawn", value: "withdrawn" },
 ]);
@@ -565,14 +560,18 @@ const updateValueInformation = () => {
       deposit.grossInterest ?? 0
     );
 
+    realisedValueInformation.value.totalPlacementActive += Number(
+      deposit.remaining
+    );
+    realisedValueInformation.value.totalTaxPaid += Number(
+      deposit.taxAmount
+    );
+
     const withdrawal = deposit.withdrawal;
     if (withdrawal) {
       for (const withdrawn of withdrawal.payments) {
         realisedValueInformation.value.totalPlacementWithdrawn += Number(
           withdrawn.amount
-        );
-        realisedValueInformation.value.totalPlacementActive += Number(
-          withdrawn.remaining
         );
       }
     }
@@ -581,10 +580,7 @@ const updateValueInformation = () => {
     if (interestPayment) {
       for (const interest of interestPayment.interests) {
         realisedValueInformation.value.totalInterestReceived += Number(
-          interest.net
-        );
-        realisedValueInformation.value.totalTaxPaid += Number(
-          interest.taxAmount
+          interest.received
         );
       }
     }

@@ -315,7 +315,6 @@ const isMatch = (value: string) => {
 };
 
 const authStore = useAuthStore();
-const router = useRouter();
 const reportStore = useReportsStore();
 const modalStore = useModalStore();
 const navStore = useNavStore();
@@ -335,12 +334,11 @@ const endDate = ref<string | null>(format(end, "dd/MM/yyyy"));
 const startDueDate = ref<string | null>(format(start, "dd/MM/yyyy"));
 const endDueDate = ref<string | null>(format(end, "dd/MM/yyyy"));
 const searchTerm = ref("");
-const formStatus = ref<string>("all");
 const banks = ref<selectOption[]>([{ label: "All", value: "all" }]);
 const owners = ref<selectOption[]>([{ label: "All", value: "all" }]);
 const placementTypes = ref<selectOption[]>([
   { label: "All", value: "all" },
-  { label: "Renewal", value: "renewal" },
+  { label: "Active", value: "active" },
   { label: "Placement", value: "placement" },
   { label: "Withdrawn", value: "withdrawn" },
 ]);
