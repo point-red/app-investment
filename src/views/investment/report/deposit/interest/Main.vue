@@ -603,7 +603,7 @@ const exportData = async () => {
 };
 
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 const getAllDeposits = async (): Promise<Deposit[] | []> => {
   // get all deposits data
@@ -669,7 +669,7 @@ const generatePDF = async () => {
   const tableWidth = doc.internal.pageSize.width - 20; // Adjust margin as needed
   const columnWidths = [tableWidth / 3, tableWidth / 3, tableWidth / 3];
 
-  doc.autoTable({
+  autoTable(doc, {
     // html: "#table",
     head: tableHeaders,
     body: tableValues,

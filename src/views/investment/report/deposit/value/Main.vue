@@ -298,12 +298,12 @@
               {{ numberFormat(realisedValueInformation.totalPlacementActive) }}
             </td>
           </tr>
-          <tr>
+          <!-- <tr>
             <td>Total Amount of Final Income Tax (PPh) Paid</td>
             <td>
               Rp. {{ numberFormat(realisedValueInformation.totalTaxPaid) }}
             </td>
-          </tr>
+          </tr> -->
           <tr>
             <td>Total Amount of Interest (net) Received</td>
             <td>
@@ -321,7 +321,6 @@
 import { ref, onMounted, watch } from "vue";
 import Menu from "../../Tab.vue";
 import { useAuthStore } from "@/stores/auth";
-import { useRouter } from "vue-router";
 import { depositNav, investmentNav } from "@/router/investment";
 import numeral from "numeral";
 import { storeToRefs } from "pinia";
@@ -639,10 +638,10 @@ const exportData = () => {
       "Total Amount of Active Placement",
       `Rp ${realisedValueInformation.value.totalPlacementActive}`,
     ],
-    [
-      "Total Amount of Final Income Tax (PPh) Paid",
-      `Rp ${realisedValueInformation.value.totalTaxPaid}`,
-    ],
+    // [
+    //   "Total Amount of Final Income Tax (PPh) Paid",
+    //   `Rp ${realisedValueInformation.value.totalTaxPaid}`,
+    // ],
     [
       "Total Amount of Interest (net) Received",
       `Rp ${realisedValueInformation.value.totalInterestReceived}`,
@@ -675,7 +674,7 @@ const exportData = () => {
 };
 
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 function generatePDF() {
   const doc = new jsPDF("p", "pt");
@@ -696,7 +695,7 @@ function generatePDF() {
   );
 
   doc.text(`Value Information`, 40, 130);
-  doc.autoTable({
+  autoTable(doc, {
     html: "#table",
     startY: 150,
     headStyles: { fillColor: [200, 200, 200] },
@@ -705,7 +704,7 @@ function generatePDF() {
   // Calculate the starting y-position for the second table
   const y = doc.lastAutoTable.finalY + 20;
   doc.text(`Realised Value Information`, 40, y);
-  doc.autoTable({
+  autoTable(doc, {
     html: "#table2",
     startY: y + 20,
     headStyles: { fillColor: [200, 200, 200] },
