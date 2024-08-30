@@ -17,7 +17,7 @@ import Renewal from "@/views/investment/deposit/renewal/Main.vue";
 export namespace depositNav {
   export const home: NavItem = {
     label: "Deposit",
-    name: "deposit",
+    name: "deposit-placement",
   };
 
   export const placement: NavItem = {

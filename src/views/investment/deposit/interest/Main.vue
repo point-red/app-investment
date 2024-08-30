@@ -973,12 +973,11 @@ const query = ref<QueryParams>({
   pageSize: depositStore.pagination.pageSize,
   filter: {
     isRollOver: false,
-    dateFrom: startDate.value,
-    dateTo: endDate.value,
+    dueDateFrom: startDate.value,
+    dueDateTo: endDate.value,
   },
   sort: {
-    createdAt: "desc",
-    index: "asc",
+    date: "desc",
   },
 });
 const queryBank = ref<QueryParams>({
@@ -1035,8 +1034,8 @@ const deposit = ref<Deposit | null>(null);
 
 const getDeposit = async () => {
   if (query.value.filter) {
-    query.value.filter["dateTo"] = endDate.value;
-    query.value.filter["dateFrom"] = startDate.value;
+    query.value.filter["dueDateTo"] = endDate.value;
+    query.value.filter["dueDateFrom"] = startDate.value;
   }
   await depositStore.get({ ...query.value });
   if (depositStore.deposits.length === 0) {
@@ -1058,7 +1057,7 @@ const toggleExpand = (index: number) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { createdAt: sort, index: "asc" };
+  query.value.sort = { date: sort };
   await getDeposit();
 };
 

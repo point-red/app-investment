@@ -264,7 +264,7 @@
 
   <Modal :show="modalForm" @hidden="modalForm = false" :size="'modal-lg'">
     <ModalHeader>
-      <h2 class="font-medium text-base mr-auto">Realised Interest Form</h2>
+      <h2 class="font-medium text-base mr-auto">Renewal Form</h2>
     </ModalHeader>
     <ModalBody class="flex flex-col gap-3">
       <ul class="nav">
@@ -1310,12 +1310,11 @@ const query = ref<QueryParams>({
   page: depositStore.pagination.page,
   pageSize: depositStore.pagination.pageSize,
   filter: {
-    dateFrom: startDate.value,
-    dateTo: endDate.value,
+    dueDateFrom: startDate.value,
+    dueDateTo: endDate.value,
   },
   sort: {
     date: "desc",
-    index: "asc",
   },
 });
 const queryBank = ref<QueryParams>({
@@ -1351,8 +1350,8 @@ const selectedDeposit = ref<Deposit | null>(null);
 
 const getDeposit = async () => {
   if (query.value.filter) {
-    query.value.filter["dateTo"] = endDate.value;
-    query.value.filter["dateFrom"] = startDate.value;
+    query.value.filter["dueDateTo"] = endDate.value;
+    query.value.filter["dueDateFrom"] = startDate.value;
   }
   await depositStore.get({ ...query.value });
   if (depositStore.deposits.length === 0) {
@@ -1388,7 +1387,7 @@ const onClickStatus = async (status: string) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { date: sort, index: "asc" };
+  query.value.sort = { date: sort };
   await getDeposit();
 };
 
@@ -1403,7 +1402,7 @@ const updatePageSize = async (value: number) => {
 };
 
 const onClickReceive = (data: Deposit) => {
-  renewal.value.date = format(new Date().toISOString(), "dd/MM/yyyy");
+  renewal.value.date = format(new Date(data.dueDate).toISOString(), "dd/MM/yyyy");
   renewal.value.amount = getRenewalAmount(data);
   renewal.value.taxRate = 0;
   renewal.value.interestRate = 0;

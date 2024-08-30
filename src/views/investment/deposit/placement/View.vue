@@ -517,7 +517,7 @@
 
         <div
           class="w-full mb-8"
-          v-if="deposit.cashbacks && deposit.cashbacks.length > 0"
+          v-if="deposit.isCashback && deposit.isCashback === true"
         >
           <h2
             class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"

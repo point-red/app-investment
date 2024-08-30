@@ -201,3 +201,17 @@ export interface DepositWithdrawalPayment {
   deletedAt?: string;
   deleteReason?: string;
 }
+
+export interface ValueInformation {
+  totalPlacement: number;
+  totalInterestGross: number;
+  totalTax: number;
+  totalInterestNet: number;
+}
+
+export interface RealisedValueInformation {
+  totalPlacementWithdrawn: number;
+  totalPlacementActive: number;
+  totalTaxPaid: number;
+  totalInterestReceived: number;
+}

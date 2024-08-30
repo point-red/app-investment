@@ -22,7 +22,8 @@ export const investmentRoute = [
       const authStore = useAuthStore();
       if (
         authStore.permissions.includes("deposit.view") ||
-        authStore.permissions.includes("withdrawal.view")
+        authStore.permissions.includes("withdrawal.view") ||
+        authStore.permissions.includes("investment-report.view")
       ) {
         next();
       } else {

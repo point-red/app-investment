@@ -504,7 +504,7 @@
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <cleave
-                          v-model="deposit.interestRate"
+                          v-model="validate.interestRate.$model"
                           :options="{
                             numeral: true,
                             numeralDecimalScale: 15,
@@ -516,6 +516,16 @@
                           class="form-control border-0"
                           name="interest-rate"
                         />
+                        <template v-if="validate.interestRate.$error">
+                          <div
+                            v-for="(error, index) in validate.interestRate.$errors"
+                            :key="index"
+                            class="text-danger mt-2"
+                            data-cy="error-field"
+                          >
+                            {{ error.$message }}
+                          </div>
+                        </template>
                       </td>
                     </tr>
                     <tr>
@@ -548,7 +558,7 @@
                       </td>
                       <td class="border w-1/2 border-slate-300 p-1 text-left">
                         <cleave
-                          v-model="deposit.taxRate"
+                          v-model="validate.taxRate.$model"
                           :options="{
                             numeral: true,
                             numeralDecimalScale: 15,
@@ -560,6 +570,16 @@
                           class="form-control border-0"
                           name="tax-rate"
                         />
+                        <template v-if="validate.taxRate.$error">
+                          <div
+                            v-for="(error, index) in validate.taxRate.$errors"
+                            :key="index"
+                            class="text-danger mt-2"
+                            data-cy="error-field"
+                          >
+                            {{ error.$message }}
+                          </div>
+                        </template>
                       </td>
                     </tr>
                     <tr>
@@ -837,7 +857,7 @@
 
           <div
             class="w-full mb-8"
-            v-if="deposit.isCashback && deposit.isCashback === 'true'"
+            v-if="deposit.isCashback && deposit.isCashback === true"
           >
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
@@ -956,9 +976,12 @@
             <button
               @click="router.push({ name: depositNav.placement.name })"
               type="button"
-              class="btn btn-outline-secondary mr-1"
+              class="btn btn-outline-secondary"
             >
               Cancel
+            </button>
+            <button @click="onClickSaveAsDraft()" type="button" class="btn btn-primary mx-1" data-cy="btn-save">
+              Save as Draft
             </button>
             <button type="submit" class="btn btn-primary" data-cy="btn-save">
               Save
@@ -991,6 +1014,7 @@ import { useOwnersStore } from "@/stores/owner";
 import { format } from "date-fns";
 import Cleave from "vue-cleave-component";
 import { useModalStore } from "@/stores/modal";
+import { toast } from "vue3-toastify";
 
 const route = useRoute();
 const router = useRouter();
@@ -1074,6 +1098,12 @@ const rules = {
   recipientBankAccount: {
     required: helpers.withMessage("Please select account", accountValidate),
   },
+  interestRate: {
+    required: helpers.withMessage("Must be more than zero", moreThanZero),
+  },
+  taxRate: {
+    required: helpers.withMessage("Must be more than zero", moreThanZero),
+  },
   isCashback: {
     required,
   },
@@ -1086,10 +1116,25 @@ const onSubmit = async () => {
   if (!validate.value.$invalid) {
     deposit.value.returns = returns.value;
     deposit.value.cashbacks = cashbacks.value;
+    deposit.value.formStatus = "complete"
+
+    if (deposit.value.returns && deposit.value.returns.length > 0) {
+      let totalReturn = 0;
+      for (const ret of deposit.value.returns) {
+        totalReturn += Number(ret.net || 0);
+      }
+
+      if (totalReturn < Number(deposit.value.netInterest || 0)) {
+        toast.error("total returns value must same with net interest");
+        return;
+      }
+    }
+
     const { error } = await depositStore.update(
       deposit.value._id as string,
       deposit.value
     );
+
     if (!error) {
       modalStore.setModalAlertSuccess(
         true,
@@ -1105,6 +1150,31 @@ const onSubmit = async () => {
     }
   }
 };
+
+const onClickSaveAsDraft = async () => {
+  deposit.value.returns = returns.value;
+  deposit.value.cashbacks = cashbacks.value;
+  deposit.value.formStatus = "draft"
+
+  const { error } = await depositStore.update(
+    deposit.value._id as string,
+    deposit.value
+  );
+
+  if (!error) {
+    modalStore.setModalAlertSuccess(
+      true,
+      "Deposit Placement Successfully Updated",
+      "You have updated Deposit Placement."
+    );
+    const id = deposit.value._id;
+    depositStore.resetDeposit();
+    await router.push({
+      name: depositNav.viewPlacement.name,
+      params: { id },
+    });
+  }
+}
 
 const calculate = () => {
   const data = deposit.value;
