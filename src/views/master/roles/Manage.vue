@@ -200,6 +200,7 @@ const dataFeature = ref([
   "Bank",
   "Deposit",
   "Withdrawal",
+  "Investment-Report",
 ]);
 const dataCrud = ref(["Create", "View", "Update", "Delete"]);
 </script>
