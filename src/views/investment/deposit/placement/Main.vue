@@ -269,7 +269,7 @@
               <td>{{ deposit.interestRate }}%</td>
               <td>{{ deposit.taxRate }}%</td>
               <td>Rp. {{ numberFormat(deposit.netInterest || 0) }}</td>
-              <td class="flex justify-center">
+              <td class="whitespace-nowrap text-center">
                 <button
                   class="btn btn-primary mr-2"
                   @click="onClickDetail(deposit)"
@@ -301,7 +301,7 @@
                 <td>{{ renewal.interestRate }}%</td>
                 <td>{{ renewal.taxRate }}%</td>
                 <td>Rp. {{ numberFormat(renewal.netInterest || 0) }}</td>
-                <td class="flex justify-center">
+                <td class="whitespace-nowrap text-center">
                   <button
                     class="btn btn-primary mr-2"
                     @click="onClickDetail(renewal)"

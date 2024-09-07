@@ -165,7 +165,7 @@
               <td class="capitalize">
                 {{ depo.interestPayment?.status || "incomplete" }}
               </td>
-              <td class="flex justify-center">
+              <td class="whitespace-nowrap text-center">
                 <button
                   v-if="depo.interestPayment"
                   class="btn btn-primary mr-2"
@@ -233,7 +233,7 @@
                 <td class="capitalize">
                   {{ renewal.interestPayment?.status || "incomplete" }}
                 </td>
-                <td class="flex justify-center">
+                <td class="whitespace-nowrap text-center">
                   <button
                     v-if="renewal.interestPayment"
                     class="btn btn-primary mr-2"
