@@ -172,7 +172,7 @@
               <td class="capitalize">
                 {{ depo.renewal_id ? "Complete" : "Incomplete" }}
               </td>
-              <td class="flex justify-center">
+              <td class="whitespace-nowrap text-center">
                 <button
                   v-if="depo.renewal_id"
                   class="btn btn-primary mr-2"
@@ -228,7 +228,7 @@
                 <td class="capitalize">
                   {{ renewalData.renewal_id ? "Complete" : "Incomplete" }}
                 </td>
-                <td class="flex justify-center">
+                <td class="whitespace-nowrap text-center">
                   <button
                     v-if="renewalData.renewal_id"
                     class="btn btn-primary mr-2"

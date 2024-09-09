@@ -335,6 +335,8 @@ import { useOwnersStore } from "@/stores/owner";
 import { writeFile, utils } from "xlsx";
 import { format } from "date-fns";
 import { useRoute } from "vue-router";
+import { debounce } from "lodash";
+
 const route = useRoute();
 
 const path = route.path;
@@ -432,31 +434,25 @@ watch(searchTerm, async (searchTerm) => {
 });
 
 watch(startDate, async (startDate) => {
-  if ((startDate && endDate.value) || (!startDate && !endDate.value)) {
+  if (startDate && endDate.value) {
     await getDeposit();
   }
 });
 
 watch(endDate, async (endDate) => {
-  if ((endDate && startDate.value) || (!endDate && !startDate.value)) {
+  if (endDate && startDate.value) {
     await getDeposit();
   }
 });
 
 watch(startDueDate, async (startDueDate) => {
-  if (
-    (startDueDate && endDueDate.value) ||
-    (!startDueDate && !endDueDate.value)
-  ) {
+  if (startDueDate && endDueDate.value) {
     await getDeposit();
   }
 });
 
 watch(endDueDate, async (endDueDate) => {
-  if (
-    (endDueDate && startDueDate.value) ||
-    (!endDueDate && !startDueDate.value)
-  ) {
+  if (endDueDate && startDueDate.value) {
     await getDeposit();
   }
 });
@@ -514,7 +510,7 @@ const getOwners = async () => {
   }
 };
 
-const getDeposit = async () => {
+const getDeposit = debounce(async () => {
   // set all value to be zero
   query.value.page = 1;
 
@@ -548,7 +544,7 @@ const getDeposit = async () => {
     await reportStore.get({ ...query.value });
     updateValueInformation();
   }
-};
+}, 500);
 
 const updateValueInformation = () => {
   for (const deposit of deposits.value) {
@@ -587,15 +583,19 @@ const updateValueInformation = () => {
 };
 
 const clearPlacement = async () => {
-  startDate.value = null;
-  endDate.value = null;
-  // await getDeposit();
+  if (startDate.value && endDate.value) {
+    startDate.value = null;
+    endDate.value = null;
+    await getDeposit();
+  }
 };
 
 const clearDueDate = async () => {
-  startDueDate.value = null;
-  endDueDate.value = null;
-  // await getDeposit();
+  if (startDueDate.value && endDueDate.value) {
+    startDueDate.value = null;
+    endDueDate.value = null;
+    await getDeposit();
+  }
 };
 
 onMounted(async () => {

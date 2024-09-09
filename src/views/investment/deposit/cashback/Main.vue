@@ -153,7 +153,7 @@
               <td class="capitalize">
                 {{ depo.cashbackPayment?.status || "incomplete" }}
               </td>
-              <td class="flex justify-center">
+              <td class="whitespace-nowrap text-center">
                 <button
                   v-if="depo.cashbackPayment"
                   class="btn btn-primary mr-2"
@@ -204,7 +204,7 @@
                 <td class="capitalize">
                   {{ renewal.cashbackPayment?.status || "incomplete" }}
                 </td>
-                <td class="flex justify-center">
+                <td class="whitespace-nowrap text-center">
                   <button
                     v-if="renewal.cashbackPayment"
                     class="btn btn-primary mr-2"

@@ -173,27 +173,25 @@
               <td class="whitespace-nowrap text-center">
                 {{ numberFormat(depo.remaining || 0) }}
               </td>
-              <td>
-                <div class="flex justify-center">
-                  <button
-                    v-if="depo.withdrawal"
-                    class="btn btn-primary mr-2"
-                    @click="onClickDetail(depo)"
-                  >
-                    Details
-                  </button>
-                  <button
-                    v-if="
-                      ((!depo.withdrawal && (depo.remaining || 0) > 0) ||
-                        depo.withdrawal) &&
-                      authStore.permissions.includes('withdrawal.create')
-                    "
-                    class="btn btn-primary mr-2"
-                    @click="onClickReceive(depo)"
-                  >
-                    {{ depo.withdrawal ? "Edit" : "Receive Withdrawal" }}
-                  </button>
-                </div>
+              <td class="whitespace-nowrap text-center">
+                <button
+                  v-if="depo.withdrawal"
+                  class="btn btn-primary mr-2"
+                  @click="onClickDetail(depo)"
+                >
+                  Details
+                </button>
+                <button
+                  v-if="
+                    ((!depo.withdrawal && (depo.remaining || 0) > 0) ||
+                      depo.withdrawal) &&
+                    authStore.permissions.includes('withdrawal.create')
+                  "
+                  class="btn btn-primary mr-2"
+                  @click="onClickReceive(depo)"
+                >
+                  {{ depo.withdrawal ? "Edit" : "Receive Withdrawal" }}
+                </button>
               </td>
               <td>
                 <span>&nbsp;</span>
@@ -249,26 +247,24 @@
                 <td class="whitespace-nowrap text-center">
                   {{ numberFormat(renewal.remaining || 0) }}
                 </td>
-                <td>
-                  <div class="flex justify-center">
-                    <button
-                      v-if="renewal.withdrawal"
-                      class="btn btn-primary mr-2"
-                      @click="onClickDetail(renewal)"
-                    >
-                      Details
-                    </button>
-                    <button
-                      v-if="
-                        (!renewal.withdrawal && (renewal.remaining || 0) > 0) ||
-                        renewal.withdrawal
-                      "
-                      class="btn btn-primary mr-2"
-                      @click="onClickReceive(renewal)"
-                    >
-                      {{ renewal.withdrawal ? "Edit" : "Receive Withdrawal" }}
-                    </button>
-                  </div>
+                <td class="whitespace-nowrap text-center">
+                  <button
+                    v-if="renewal.withdrawal"
+                    class="btn btn-primary mr-2"
+                    @click="onClickDetail(renewal)"
+                  >
+                    Details
+                  </button>
+                  <button
+                    v-if="
+                      (!renewal.withdrawal && (renewal.remaining || 0) > 0) ||
+                      renewal.withdrawal
+                    "
+                    class="btn btn-primary mr-2"
+                    @click="onClickReceive(renewal)"
+                  >
+                    {{ renewal.withdrawal ? "Edit" : "Receive Withdrawal" }}
+                  </button>
                 </td>
                 <td>
                   <span>&nbsp;</span>
