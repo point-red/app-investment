@@ -855,10 +855,9 @@
               </button>
             </div>
           </div>
-
           <div
             class="w-full mb-8"
-            v-if="deposit.isCashback && deposit.isCashback === true"
+            v-if="deposit.isCashback || deposit.isCashback === 'true'"
           >
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
@@ -1194,7 +1193,7 @@ const calculate = () => {
       (data.amount * ((data.interestRate || 0) / 100)) / data.baseDate
     );
     data.dueDate = addDay(data.date, data.tenor);
-    data.grossInterest = data.baseInterest * data.tenor;
+    data.grossInterest = Number((data.baseInterest * data.tenor).toFixed(2));
     data.taxAmount = Math.floor(
       data.grossInterest * ((data.taxRate || 0) / 100)
     );
@@ -1230,7 +1229,12 @@ const calculateCashback = (index: number) => {
     if (cb.rate > 100) {
       cb.rate = 100;
     }
-    cb.amount = Math.floor((data.amount || 0) * (cb.rate / 100));
+    cb.amount = Number(
+      (
+        ((data.amount * ((cb.rate || 0) / 100)) / data.baseDate) *
+        data.tenor
+      ).toFixed(2)
+    );
   }
 };
 
