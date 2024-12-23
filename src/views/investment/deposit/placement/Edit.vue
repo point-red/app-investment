@@ -727,7 +727,7 @@
                           class="form-control border-0"
                           placeholder="Due Date"
                           disabled
-                          :value="addDay(deposit.date, item.baseDays)"
+                          :value="addReturnDay(index)"
                         />
                       </td>
                     </tr>
@@ -1258,6 +1258,21 @@ const getFilledBaseDay = () => {
 const addDay = (date: Date | string, days: number) => {
   const result = new Date(date);
   result.setDate(result.getDate() + days);
+  return format(result, "dd/MM/yyyy");
+};
+
+const addReturnDay = (index: number) => {
+  let add = 0;
+  for (let i = 0; i <= index; i++) {
+    const ret = returns.value[i];
+    if (ret) {
+      add += ret.baseDays;
+    }
+  }
+  const result = new Date(
+    deposit.value.date.replace(/(\d+[/])(\d+[/])/, "$2$1")
+  );
+  result.setDate(result.getDate() + add);
   return format(result, "dd/MM/yyyy");
 };
 

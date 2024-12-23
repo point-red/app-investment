@@ -1212,7 +1212,7 @@ const calculateReturn = (index: number) => {
     if (curBaseDays >= data.tenor) {
       ret.baseDays = data.tenor - (curBaseDays - ret.baseDays);
     }
-    ret.gross = (data.baseInterest || 0) * ret.baseDays;
+    ret.gross = Number(((data.baseInterest || 0) * ret.baseDays).toFixed(2));
     ret.taxAmount = Math.floor(ret.gross * ((data.taxRate || 0) / 100));
     ret.net = ret.gross - ret.taxAmount;
   }
