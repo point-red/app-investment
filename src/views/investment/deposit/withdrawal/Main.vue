@@ -932,7 +932,7 @@ const onClickStatus = async (status: string) => {
 };
 
 const onClickSort = async (sort: string) => {
-  query.value.sort = { date: sort };
+  query.value.sort = { dueDate: sort };
   await getDeposit();
 };
 
