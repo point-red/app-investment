@@ -1188,12 +1188,6 @@ const calculate = () => {
   if (data.baseDate > 0 && data.tenor > 0) {
     data.baseInterest =
       (data.amount * ((data.interestRate || 0) / 100)) / data.baseDate;
-    console.log(
-      data.amount,
-      data.interestRate,
-      data.baseDate,
-      data.baseInterest
-    );
     data.dueDate = addDay(data.date, data.tenor);
     data.grossInterest = Number((data.baseInterest * data.tenor).toFixed(2));
     data.taxAmount = Math.floor(
@@ -1231,7 +1225,12 @@ const calculateCashback = (index: number) => {
     if (cb.rate > 100) {
       cb.rate = 100;
     }
-    cb.amount = Math.floor((data.amount || 0) * (cb.rate / 100));
+    cb.amount = Number(
+      (
+        ((data.amount * ((cb.rate || 0) / 100)) / data.baseDate) *
+        data.tenor
+      ).toFixed(2)
+    );
   }
 };
 
