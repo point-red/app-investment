@@ -67,6 +67,7 @@
             >
               Placement Information
             </h2>
+
             <div class="overflow-x-auto">
               <div class="pt-4 grid grid-cols-1 md:grid-cols-2 gap-5">
                 <table class="border-collapse border border-slate-400 w-full">
@@ -1295,12 +1296,14 @@ const onRecipientBankChange = (value) => {
   deposit.value.recipientBankAccount = { number: 0, name: "" };
 };
 
+const rolloverData = ref();
 const findDeposit = async () => {
   if (id) {
     await depositStore.find(id as string);
     const data = deposit.value;
     if (data.returns) {
       returns.value = data.returns;
+      rolloverData.value = data.returns;
     }
     if (data.cashbacks) {
       cashbacks.value = data.cashbacks;
@@ -1329,8 +1332,8 @@ const handleRollOverChange = (value: boolean | string) => {
     returns.value = [{ baseDays: 0 }];
     deposit.value.returns = returns.value;
   } else {
-    returns.value = [];
-    deposit.value.returns = [];
+    returns.value = rolloverData.value;
+    deposit.value.returns = rolloverData.value;
   }
 };
 
