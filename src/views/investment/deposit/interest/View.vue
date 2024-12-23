@@ -1177,10 +1177,7 @@ watch(
     confirmDeleteState,
     confirmReqDeleteState,
   ],
-  async (
-    [modalSuccess, modalPassword, confirmDelete, confirmReqDelete],
-    [oldModalSuccess]
-  ) => {
+  async ([modalSuccess, modalPassword, confirmDelete], [oldModalSuccess]) => {
     if (!modalSuccess && modalSuccess !== oldModalSuccess) {
       router.push({ name: depositNav.interest.name });
     }

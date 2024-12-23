@@ -518,7 +518,8 @@
                         />
                         <template v-if="validate.interestRate.$error">
                           <div
-                            v-for="(error, index) in validate.interestRate.$errors"
+                            v-for="(error, index) in validate.interestRate
+                              .$errors"
                             :key="index"
                             class="text-danger mt-2"
                             data-cy="error-field"
@@ -980,7 +981,12 @@
             >
               Cancel
             </button>
-            <button @click="onClickSaveAsDraft()" type="button" class="btn btn-primary mx-1" data-cy="btn-save">
+            <button
+              @click="onClickSaveAsDraft()"
+              type="button"
+              class="btn btn-primary mx-1"
+              data-cy="btn-save"
+            >
               Save as Draft
             </button>
             <button type="submit" class="btn btn-primary" data-cy="btn-save">
@@ -994,12 +1000,10 @@
 </template>
 
 <script setup lang="ts">
-import { depositForm, useDepositsStore } from "@/stores/deposit";
+import { useDepositsStore } from "@/stores/deposit";
 import {
-  Deposit,
   DepositBankAccount,
   DepositCashback,
-  DepositForm,
   DepositReturn,
 } from "@/types/deposit";
 import { ref, onMounted, watch } from "vue";
@@ -1116,7 +1120,7 @@ const onSubmit = async () => {
   if (!validate.value.$invalid) {
     deposit.value.returns = returns.value;
     deposit.value.cashbacks = cashbacks.value;
-    deposit.value.formStatus = "complete"
+    deposit.value.formStatus = "complete";
 
     if (deposit.value.returns && deposit.value.returns.length > 0) {
       let totalReturn = 0;
@@ -1154,7 +1158,7 @@ const onSubmit = async () => {
 const onClickSaveAsDraft = async () => {
   deposit.value.returns = returns.value;
   deposit.value.cashbacks = cashbacks.value;
-  deposit.value.formStatus = "draft"
+  deposit.value.formStatus = "draft";
 
   const { error } = await depositStore.update(
     deposit.value._id as string,
@@ -1174,7 +1178,7 @@ const onClickSaveAsDraft = async () => {
       params: { id },
     });
   }
-}
+};
 
 const calculate = () => {
   const data = deposit.value;

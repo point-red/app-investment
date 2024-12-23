@@ -503,7 +503,10 @@ const getOwners = async () => {
   const { data } = await owenerStore.get({});
 
   for (const owner of data.owners) {
-    owners.value.push({ label: owner.name.substring(0, 13), value: owner.name });
+    owners.value.push({
+      label: owner.name.substring(0, 13),
+      value: owner.name,
+    });
   }
 };
 
@@ -541,14 +544,6 @@ const updatePage = async (value: number) => {
 const updatePageSize = async (value: number) => {
   query.value.pageSize = value;
   await getDeposit();
-};
-
-const onClickDetail = (deposit: Deposit) => {
-  reportStore.setDeposit(deposit);
-  router.push({
-    name: depositNav.viewPlacement.name,
-    params: { id: deposit._id },
-  });
 };
 
 const clearPlacement = async () => {
@@ -622,14 +617,8 @@ const exportData = async () => {
 
   const headers = [
     ["Instrument:", "Deposit"],
-    [
-      "Placement Date Period:",
-      `${startDate.value} - ${endDate.value}`,
-    ],
-    [
-      "Placement Date Period:",
-      `${startDueDate.value} - ${endDueDate.value}`,
-    ],
+    ["Placement Date Period:", `${startDate.value} - ${endDate.value}`],
+    ["Placement Date Period:", `${startDueDate.value} - ${endDueDate.value}`],
   ];
   const worksheet = utils.json_to_sheet([]);
   const workbook = utils.book_new();
@@ -684,9 +673,9 @@ const getAllDeposits = async (): Promise<Deposit[] | []> => {
     query.value.filter["dueDateTo"] = endDueDate.value;
   }
 
-  const deposits = await reportStore.getAll({ ...query.value })
-  return deposits.length ? deposits : []
-}
+  const deposits = await reportStore.getAll({ ...query.value });
+  return deposits.length ? deposits : [];
+};
 
 const generatePDF = async () => {
   const allDeposits = await getAllDeposits();
@@ -699,11 +688,13 @@ const generatePDF = async () => {
   doc.text("Instrument \t\t\t: Deposit", 40, 30);
   doc.text(
     `Placement Date Period     : ${startDate.value} - ${endDate.value}`,
-    40, 40
+    40,
+    40
   );
   doc.text(
     `Due Date Period\t\t: ${startDueDate.value} - ${endDueDate.value}`,
-    40, 50
+    40,
+    50
   );
 
   const tableValues = allDeposits.map((deposit) => [

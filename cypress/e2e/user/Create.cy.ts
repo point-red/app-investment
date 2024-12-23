@@ -119,8 +119,7 @@ describe("Create", () => {
           role: "1",
         };
 
-        const { username, firstName, lastName, email, mobilePhone, role } =
-          userDummy;
+        const { username, firstName, lastName } = userDummy;
 
         cy.get('input[name="username"]').clear().type(username);
         cy.get('input[name="firstName"]').clear().type(firstName);

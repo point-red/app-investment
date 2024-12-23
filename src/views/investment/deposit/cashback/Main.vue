@@ -615,7 +615,6 @@ import {
 } from "@/types/deposit";
 import Cleave from "vue-cleave-component";
 
-const authStore = useAuthStore();
 const router = useRouter();
 const depositStore = useDepositsStore();
 const modalStore = useModalStore();
@@ -646,7 +645,7 @@ const query = ref<QueryParams>({
     isCashback: true,
   },
   sort: {
-    date: "desc"
+    date: "desc",
   },
 });
 

@@ -151,7 +151,6 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "@/stores/auth";
 import { useBanksStore } from "@/stores/bank";
 import { useModalStore } from "@/stores/modal";
 import { Bank } from "@/types/Bank";
@@ -164,7 +163,6 @@ import { useNavStore } from "@/stores/nav";
 import { bankNav, masterNav } from "@/router/master";
 
 const router = useRouter();
-const authStore = useAuthStore();
 const modalStore = useModalStore();
 const bankStore = useBanksStore();
 const navStore = useNavStore();

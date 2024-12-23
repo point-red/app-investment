@@ -327,6 +327,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from "vue";
+import { watchDebounced } from "@vueuse/core";
 import Menu from "../Tab.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
@@ -375,29 +376,35 @@ const query = ref<QueryParams>({
   },
 });
 
-watch(searchTerm, async (searchTerm) => {
-  if (searchTerm.length) {
-    query.value.search = {
-      number: searchTerm,
-      bilyetNumber: searchTerm,
-      date: searchTerm,
-      "bank.name": searchTerm,
-      "account.name": Number(searchTerm),
-      "owner.name": searchTerm,
-      amount: searchTerm,
-      remaining: searchTerm,
-      baseDays: searchTerm,
-      tenor: searchTerm,
-      dueDate: searchTerm,
-      interestRate: searchTerm,
-      taxRate: searchTerm,
-    };
-  } else {
-    delete query.value.search;
-  }
-
-  await getDeposit();
-});
+watchDebounced(
+  () => searchTerm.value,
+  async () => {
+    if (searchTerm.value.length) {
+      query.value.search = {
+        number: searchTerm.value,
+        bilyetNumber: searchTerm.value,
+        baseDate: searchTerm.value,
+        netInterest: Number(searchTerm.value),
+        date: searchTerm.value,
+        "bank.name": searchTerm.value,
+        "account.number": Number(searchTerm.value),
+        "account.name": searchTerm.value,
+        "owner.name": searchTerm.value,
+        amount: searchTerm.value,
+        remaining: searchTerm.value,
+        baseDays: searchTerm.value,
+        tenor: searchTerm.value,
+        dueDate: searchTerm.value,
+        interestRate: searchTerm.value,
+        taxRate: searchTerm.value,
+      };
+    } else {
+      delete query.value.search;
+    }
+    await getDeposit();
+  },
+  { debounce: 800 }
+);
 
 watch(startDate, async (startDate) => {
   if ((startDate && endDate.value) || (!startDate && !endDate.value)) {
@@ -428,11 +435,6 @@ watch(endDueDate, async (endDueDate) => {
     await getDeposit();
   }
 });
-
-const onChangeDate = async () => {
-  console.log(startDate);
-  await getDeposit();
-};
 
 const onClickStatus = async (status: string) => {
   formStatus.value = status;

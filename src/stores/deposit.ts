@@ -131,9 +131,11 @@ export const useDepositsStore = defineStore("deposits", {
   actions: {
     async get(params: QueryParams): Promise<ApiResponse> {
       try {
+        console.log("123");
         const deposit = await api.get<RootState>(url, {
           params: { ...params },
         });
+        console.log(deposit);
         this.deposits = deposit.data.deposits;
         this.pagination = deposit.data.pagination;
         return { data: deposit.data };

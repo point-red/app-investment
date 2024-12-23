@@ -989,7 +989,6 @@ const modalDelete = ref(false);
 
 const { deposit } = storeToRefs(depositStore);
 const accounts = ref<DepositBankAccount[]>([]);
-const date = ref("placement date");
 const modalForm = ref(false);
 const activeTab = ref("info");
 
@@ -1074,17 +1073,6 @@ const getTotalCashback = (cashbacks: DepositCashback[]) => {
   let total = 0;
   for (const cashback of cashbacks) {
     total += cashback.amount || 0;
-  }
-  return total;
-};
-
-const getReceived = (deposit: Deposit) => {
-  let total = 0;
-  if (deposit.withdrawal) {
-    for (const payment of deposit.withdrawal.payments)
-      if (payment) {
-        total += Number(payment.amount);
-      }
   }
   return total;
 };

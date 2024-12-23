@@ -17,5 +17,5 @@ utils(app);
 app.use(Vue3Toastify, {
   autoClose: 3000,
 } as ToastContainerOptions);
-app.component("v-select", vSelect);
+app.component("VSelect", vSelect);
 app.mount("#app");

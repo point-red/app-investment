@@ -173,7 +173,11 @@
                     Created At
                   </td>
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                    {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '-' }}
+                    {{
+                      deposit.createdAt
+                        ? format(deposit.createdAt, "yyyy/MM/dd")
+                        : "-"
+                    }}
                   </td>
                 </tr>
                 <tr>
@@ -183,7 +187,7 @@
                   <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
                     {{ deposit.createdBy?.name || "-" }}
                   </td>
-                </tr>                
+                </tr>
               </tbody>
             </table>
           </div>
@@ -380,7 +384,11 @@
                   Created At
                 </td>
                 <td class="border w-1/2 border-slate-300 py-2 px-4 text-left">
-                  {{ deposit.createdAt ? format(deposit.createdAt, "yyyy/MM/dd") : '' }}
+                  {{
+                    deposit.createdAt
+                      ? format(deposit.createdAt, "yyyy/MM/dd")
+                      : ""
+                  }}
                 </td>
               </tr>
               <tr>
@@ -532,10 +540,7 @@ import { storeToRefs } from "pinia";
 import { format } from "date-fns";
 import { useModalStore } from "@/stores/modal";
 import numeral from "numeral";
-import {
-  CashbacksPayment,
-  DepositCashbackPayment,
-} from "@/types/deposit";
+import { CashbacksPayment, DepositCashbackPayment } from "@/types/deposit";
 import Cleave from "vue-cleave-component";
 import { toast } from "vue3-toastify";
 
@@ -646,7 +651,7 @@ watch(
     confirmReqDeleteState,
   ],
   async (
-    [modalSuccess, modalPasswordValue, confirmDelete, confirmReqDelete],
+    [modalSuccess, modalPasswordValue, confirmDelete],
     [oldModalSuccess]
   ) => {
     if (!modalSuccess && modalSuccess !== oldModalSuccess) {

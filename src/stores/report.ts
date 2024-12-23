@@ -4,13 +4,7 @@ import { IPagination } from "@/types/api/Pagination";
 import { QueryParams } from "@/types/api/QueryParams";
 import { AxiosError } from "axios";
 import { defineStore } from "pinia";
-import {
-  Deposit,
-  DepositCashback,
-  DepositCashbackPayment,
-  DepositInterestPayment,
-  DepositWithdrawalPayment,
-} from "@/types/deposit";
+import { Deposit } from "@/types/deposit";
 
 const url = "/deposits/report";
 

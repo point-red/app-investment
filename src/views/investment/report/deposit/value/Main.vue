@@ -409,29 +409,32 @@ const realisedValueInformation = ref<RealisedValueInformation>(
   defaultRealisedValueInformation
 );
 
-watch(searchTerm, async (searchTerm) => {
-  if (searchTerm.length) {
-    query.value.search = {
-      number: searchTerm,
-      bilyetNumber: searchTerm,
-      date: searchTerm,
-      "bank.name": searchTerm,
-      "account.name": Number(searchTerm),
-      "owner.name": searchTerm,
-      amount: searchTerm,
-      remaining: searchTerm,
-      baseDays: searchTerm,
-      tenor: searchTerm,
-      dueDate: searchTerm,
-      interestRate: searchTerm,
-      taxRate: searchTerm,
-    };
-  } else {
-    delete query.value.search;
-  }
+watch(
+  () => searchTerm.value,
+  async () => {
+    if (searchTerm.value.length) {
+      query.value.search = {
+        number: searchTerm.value,
+        bilyetNumber: searchTerm.value,
+        date: searchTerm.value,
+        "bank.name": searchTerm.value,
+        "account.name": Number(searchTerm.value),
+        "owner.name": searchTerm.value,
+        amount: searchTerm.value,
+        remaining: searchTerm.value,
+        baseDays: searchTerm.value,
+        tenor: searchTerm.value,
+        dueDate: searchTerm.value,
+        interestRate: searchTerm.value,
+        taxRate: searchTerm.value,
+      };
+    } else {
+      delete query.value.search;
+    }
 
-  await getDeposit();
-});
+    await getDeposit();
+  }
+);
 
 watch(startDate, async (startDate) => {
   if (startDate && endDate.value) {
@@ -456,11 +459,6 @@ watch(endDueDate, async (endDueDate) => {
     await getDeposit();
   }
 });
-
-const onChangeDate = async () => {
-  console.log(startDate);
-  await getDeposit();
-};
 
 const onBankChange = async (data) => {
   if (data.value == "all" && query.value.filter && query.value.filter["bank"]) {
@@ -558,9 +556,7 @@ const updateValueInformation = () => {
     realisedValueInformation.value.totalPlacementActive += Number(
       deposit.remaining
     );
-    realisedValueInformation.value.totalTaxPaid += Number(
-      deposit.taxAmount
-    );
+    realisedValueInformation.value.totalTaxPaid += Number(deposit.taxAmount);
 
     const withdrawal = deposit.withdrawal;
     if (withdrawal) {

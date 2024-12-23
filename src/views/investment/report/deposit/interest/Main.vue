@@ -291,7 +291,6 @@
 import { ref, onMounted, watch } from "vue";
 import Menu from "../../Tab.vue";
 import { useAuthStore } from "@/stores/auth";
-import { useRouter } from "vue-router";
 import { depositNav, investmentNav } from "@/router/investment";
 import numeral from "numeral";
 import { storeToRefs } from "pinia";

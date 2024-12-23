@@ -100,11 +100,6 @@ import TopBar from "@/components/top-bar/Main.vue";
 import MobileMenu from "@/components/mobile-menu/Main.vue";
 import DarkModeSwitcher from "@/components/dark-mode-switcher/Main.vue";
 import MainColorSwitcher from "@/components/main-color-switcher/Main.vue";
-import {
-  searchDropdown,
-  showSearchDropdown,
-  hideSearchDropdown,
-} from "./index";
 import { nestedMenu, linkTo } from "@/layouts/side-menu";
 import dom from "@left4code/tw-starter/dist/js/dom";
 

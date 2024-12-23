@@ -1,9 +1,9 @@
 import { NavItem } from "@/stores/nav";
 import { useAuthStore } from "@/stores/auth";
 import Report from "@/views/investment/report/Main.vue";
-import Placement from "@/views/investment/report/deposit/placement/Main.vue"
-import Interest from "@/views/investment/report/deposit/interest/Main.vue"
-import Value from "@/views/investment/report/deposit/value/Main.vue"
+import Placement from "@/views/investment/report/deposit/placement/Main.vue";
+import Interest from "@/views/investment/report/deposit/interest/Main.vue";
+import Value from "@/views/investment/report/deposit/value/Main.vue";
 
 export namespace reportNav {
   export const home: NavItem = {

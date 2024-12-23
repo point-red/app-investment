@@ -247,7 +247,6 @@ import { useModalStore } from "@/stores/modal";
 import { format } from "date-fns";
 import { Deposit } from "@/types/deposit";
 
-const authStore = useAuthStore();
 const router = useRouter();
 const depositStore = useDepositsStore();
 const modalStore = useModalStore();

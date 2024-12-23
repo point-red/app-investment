@@ -304,14 +304,7 @@ const onClickDelete = (id: string) => {
 };
 
 const onClickConfirmDelete = () => {
-  // modalConfirmPassword.value = true;
   modalStore.setModalPassword(true);
-};
-
-const onSubmitRequestDelete = () => {
-  modalFormRequestDelete.value = false;
-  modalDelete.value = false;
-  modalStore.setModalAlertSuccess(true);
 };
 
 const onConfirmPassword = async (password: string) => {

@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import { roleNav } from "../router/master/roles";
 import { bankNav } from "../router/master";
 import { useAuthStore } from "./auth";
-import { Newspaper, NfcIcon } from "lucide-vue-next";
 import { depositNav, reportNav } from "@/router/investment";
 
 export const useSideMenuStore = defineStore("sideMenu", {

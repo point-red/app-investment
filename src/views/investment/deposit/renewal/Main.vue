@@ -1402,7 +1402,10 @@ const updatePageSize = async (value: number) => {
 };
 
 const onClickReceive = (data: Deposit) => {
-  renewal.value.date = format(new Date(data.dueDate).toISOString(), "dd/MM/yyyy");
+  renewal.value.date = format(
+    new Date(data.dueDate).toISOString(),
+    "dd/MM/yyyy"
+  );
   renewal.value.amount = getRenewalAmount(data);
   renewal.value.taxRate = 0;
   renewal.value.interestRate = 0;

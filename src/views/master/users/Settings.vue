@@ -140,7 +140,6 @@ const dialogDelete = ref(false);
 const modalDelete = ref(false);
 // const modalConfirmPassword = ref(false);
 const modalFormRequestDelete = ref(false);
-const modalConfirmArchive = ref(false);
 
 const searchTerm = ref("");
 const { data } = storeToRefs(userStore);
@@ -209,22 +208,6 @@ const onClickConfirmDelete = () => {
   // modalConfirmPassword.value = true;
   modalStore.setModalPassword(true);
 };
-
-const onClickSendToArchive = () => {
-  modalConfirmArchive.value = false;
-};
-
-const onSubmitRequestDelete = () => {
-  modalFormRequestDelete.value = false;
-  modalDelete.value = false;
-  modalStore.setModalAlertSuccess(true);
-};
-
-function resetForm() {
-  form.value._id = "";
-  form.value.note_request = "";
-  modalStore.setModalAlertSuccess(false);
-}
 
 const onClickSort = async (sort: string) => {
   query.value.sort = { createdAt: sort };
