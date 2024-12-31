@@ -627,11 +627,7 @@
               </div>
             </div>
           </div>
-
-          <div
-            class="w-full mb-8"
-            v-if="!formData.isRollOver || formData.isRollOver === 'false'"
-          >
+          <div class="w-full mb-8">
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -1149,13 +1145,14 @@ const onClickSaveAsDraft = async () => {
 };
 
 const handleRollOverChange = (value: boolean | string) => {
-  if (!value || value === "false") {
-    returns.value = [{ baseDays: 0 }];
-    formData.value.returns = returns.value;
-  } else {
-    returns.value = [];
-    formData.value.returns = [];
-  }
+  // if (!value || value === "false") {
+  // console.log(value);
+  // returns.value = [{ baseDays: 0 }];
+  // formData.value.returns = returns.value;
+  // } else {
+  // returns.value = [];
+  // formData.value.returns = [];
+  // }
 };
 
 const handleCashbackChange = (value: boolean | string) => {

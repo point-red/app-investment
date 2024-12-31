@@ -882,7 +882,7 @@ const query = ref<QueryParams>({
     dueDateTo: endDate.value,
   },
   sort: {
-    date: "desc",
+    date: "asc",
   },
 });
 

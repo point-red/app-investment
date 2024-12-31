@@ -6,12 +6,10 @@ import { AxiosError } from "axios";
 import { defineStore } from "pinia";
 import {
   Deposit,
-  DepositCashback,
   DepositCashbackPayment,
   DepositInterestPayment,
   DepositWithdrawalPayment,
 } from "@/types/deposit";
-import { depositNav } from "@/router/investment";
 
 const url = "/deposits";
 
