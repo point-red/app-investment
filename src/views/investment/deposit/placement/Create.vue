@@ -247,7 +247,7 @@
                               name="rollover"
                               v-model="formData.isRollOver"
                               class="form-check-input border mr-2"
-                              @change="handleRollOverChange(deposit.isRollOver)"
+                              @change="handleRollOverChange(true)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -263,7 +263,7 @@
                               name="rollover"
                               v-model="formData.isRollOver"
                               class="form-check-input border mr-2"
-                              @change="handleRollOverChange(deposit.isRollOver)"
+                              @change="handleRollOverChange(false)"
                             />
                             <label
                               class="cursor-pointer select-none"
@@ -627,7 +627,7 @@
               </div>
             </div>
           </div>
-          <div class="w-full mb-8">
+          <div class="w-full mb-8" v-if="returns.length > 0">
             <h2
               class="font-medium text-lg pb-2 border-b border-slate-200/60 dark:border-darkmode-400"
             >
@@ -793,6 +793,7 @@
             </div>
             <div class="mt-2">
               <button
+                v-if="returns.length > 0"
                 type="button"
                 class="btn btn-primary mr-1"
                 @click="addNewInterest"
@@ -1145,14 +1146,17 @@ const onClickSaveAsDraft = async () => {
 };
 
 const handleRollOverChange = (value: boolean | string) => {
-  // if (!value || value === "false") {
-  // console.log(value);
-  // returns.value = [{ baseDays: 0 }];
-  // formData.value.returns = returns.value;
-  // } else {
-  // returns.value = [];
-  // formData.value.returns = [];
-  // }
+  console.log("rol", value);
+  if (!value || value === "false") {
+    console.log("if");
+    returns.value = [{ baseDays: 0 }];
+    formData.value.returns = returns.value;
+  } else {
+    console.log("else");
+    returns.value = [];
+    formData.value.returns = [];
+  }
+  console.log(returns.value);
 };
 
 const handleCashbackChange = (value: boolean | string) => {
